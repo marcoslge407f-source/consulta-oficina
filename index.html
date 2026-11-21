@@ -782,17 +782,17 @@ const LEITORES = {
   },
   async frotas(x) {
     let L = null, cab = null;
-    for (const nome of x.abas) { const t = await x.aba(nome, 40); const c = t && (achaCabecalho(t, ['FROTA']) || achaCabecalho(t, ['EQP', 'MODELO'])); if (c) { L = t; cab = c; break; } }
+    for (const nome of x.abas) { const t = await x.aba(nome, 40); const c = t && (achaCabecalho(t, ['FROTA']) || achaCabecalho(t, ['EQUIPAMENTO']) || achaCabecalho(t, ['EQP', 'MODELO'])); if (c) { L = t; cab = c; break; } }
     if (!L) throw new Error('NENHUMA ABA COM A COLUNA "FROTA" FOI ENCONTRADA');
     const c = mapear(cab.h, { FROTA: ['FROTA', 'EQP', 'EQUIPAMENTO'], CLASSE: ['CLASSE'], SUBCLASSE: ['SUBCLASSE'], FABRICANTE: ['FABRICANTE', 'MARCA'], MODELO: ['MODELO'], PLACA: ['PLACA'],
-      OPERACAO: ['OPERACAO'], SUBOPERACAO: ['SUBOPERACAO'], PROPRIETARIO: ['PROPRIETARIO'], SITUACAO: ['SITUACAO', 'STATUS'], AGRUPAMENTO: ['AGRUPAMENTO'], CHASSI: ['CHASSI'],
-      FABRICACAO: ['FABRICACAO', 'ANOFABRICACAO', 'ANODEFABRICACAO', 'ANO'], TANQUE: ['TANQUE', 'CAPACIDADEDOTANQUE', 'TANQUEL'], PROJETO: ['PROJETO'] });
+      OPERACAO: ['OPERACAO', 'OPERACAOMARCOS'], SUBOPERACAO: ['SUBOPERACAO', 'SUBOPERACAOMARCOS'], PROPRIETARIO: ['PROPRIETARIO', 'PROPRIETARIOTIPO'], SITUACAO: ['SITUACAO', 'STATUS'], AGRUPAMENTO: ['AGRUPAMENTO'], CHASSI: ['CHASSI'],
+      FABRICACAO: ['FABRICACAO', 'ANOFABRICACAO', 'ANODEFABRICACAO', 'ANO'], TANQUE: ['TANQUE', 'CAPACIDADEDOTANQUE', 'TANQUEL'], PROJETO: ['PROJETO', 'PROJETORYAN'] });
     const cols = ['FROTA','CLASSE','SUBCLASSE','FABRICANTE','MODELO','PLACA','OPERACAO','SUBOPERACAO','PROPRIETARIO','SITUACAO','AGRUPAMENTO','CHASSI','FABRICACAO','TANQUE','PROJETO'];
     const rows = [], vistos = new Set();
     for (const l of L.slice(cab.i + 1)) {
       const f = g(l, c.FROTA); if (f == null || f === '') continue;
       const fr = txt(typeof f === 'number' ? Math.round(f) : f); if (vistos.has(fr)) continue; vistos.add(fr);
-      rows.push(cols.map(k => k === 'FROTA' ? fr : (v => typeof v === 'number' && k !== 'FABRICACAO' && k !== 'TANQUE' ? txt(v) : txt(v))(g(l, c[k]))));
+      rows.push(cols.map(k => k === 'FROTA' ? fr : (v => /^SEM ?INFORMA/.test(v) ? '' : v)(txt(g(l, c[k])))));
     }
     return { cols, rows, resumo: rows.length + ' FROTAS LIDAS' };
   }
