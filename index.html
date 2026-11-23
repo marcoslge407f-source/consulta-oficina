@@ -91,6 +91,12 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .tag.ruim{background:#FDE7E7;color:var(--vermelho)} .tag.bom{background:#FFF3CD;color:#8A6100} .tag.otimo{background:#E3F4E8;color:var(--verde-esc)}
 .vazio{text-align:center;color:var(--cinza);font-weight:700;font-size:12px;padding:30px 10px}
 .mais{margin-top:4px}
+.per{display:flex;flex-direction:column;gap:3px}
+.per span{font-size:10px;font-weight:800;color:var(--cinza);padding-left:4px}
+.per .busca{padding:10px 8px;font-size:13px;font-weight:800}
+.diatx{flex:1;text-align:center;font-weight:900;font-size:15px;padding:8px 10px}
+.diatx small{display:block;font-size:10px;color:var(--cinza);font-weight:800;margin-top:1px}
+.lk{color:var(--azul);text-decoration:underline;cursor:pointer}
 
 /* apontamentos */
 .dia{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -232,9 +238,13 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
       </div>
       <div class="lin">
         <select class="busca" id="os-per" onchange="renderOS(true)">
-          <option value="">SAFRA TODA</option><option value="HOJE">HOJE</option><option value="7">ÚLTIMOS 7 DIAS</option><option value="30">ÚLTIMOS 30 DIAS</option>
+          <option value="">SAFRA TODA</option><option value="HOJE">HOJE</option><option value="7">ÚLTIMOS 7 DIAS</option><option value="30">ÚLTIMOS 30 DIAS</option><option value="ESC">ESCOLHER PERÍODO…</option>
         </select>
         <select class="busca" id="os-sec" onchange="renderOS(true)"></select>
+      </div>
+      <div class="lin oculto" id="os-esc">
+        <label class="per"><span>DE (ABERTURA)</span><input type="date" class="busca" id="os-de" onchange="renderOS(true)"></label>
+        <label class="per"><span>ATÉ (ABERTURA)</span><input type="date" class="busca" id="os-ate" onchange="renderOS(true)"></label>
       </div>
     </div>
     <div class="cont" id="os-cont"></div>
@@ -510,11 +520,16 @@ function duracaoOS(o) {
 function renderOS(reset) {
   if (reset) osLim = POR_PAGINA;
   const q = norm($('#os-busca').value), sit = ($('#os-sit .chip.ativo')||{}).dataset?.v || '', per = $('#os-per').value, sec = $('#os-sec').value;
-  let desde = '';
+  let desde = '', ate = '';
+  $('#os-esc').classList.toggle('oculto', per !== 'ESC');
   if (per === 'HOJE') desde = hojeISO();
+  else if (per === 'ESC') {
+    if (!$('#os-de').value && !$('#os-ate').value) { const d = new Date(); d.setDate(d.getDate() - 7); $('#os-de').value = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); $('#os-ate').value = hojeISO(); }
+    desde = $('#os-de').value; ate = $('#os-ate').value;
+  }
   else if (per) { const d = new Date(); d.setDate(d.getDate() - Number(per)); desde = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   osFiltradas = D.os.filter(o =>
-    (!sit || o.SITUACAO === sit) && (!sec || o.SECAO === sec) && (!desde || (o.ENTRADA||'') >= desde) &&
+    (!sit || o.SITUACAO === sit) && (!sec || o.SECAO === sec) && (!desde || (o.ENTRADA||'') >= desde) && (!ate || (o.ENTRADA||'').slice(0,10) <= ate) &&
     (!q || norm(o.NUM).includes(q) || norm(o.EQP).includes(q) || norm(o.MODELO).includes(q) || norm(o.MANUT).includes(q) || norm(o.CLASSE).includes(q)));
   $('#os-cont').textContent = osFiltradas.length + (osFiltradas.length === 1 ? ' ORDEM DE SERVIÇO' : ' ORDENS DE SERVIÇO');
   const vis = osFiltradas.slice(0, osLim);
@@ -536,17 +551,17 @@ function campo(r, x, full) { return '<div class="campo' + (full ? ' full' : '') 
 function detOS(num) {
   const o = D.os.find(x => String(x.NUM) === String(num)); if (!o) return;
   const aps = (apPorOS.get(String(num)) || []).slice().sort((a, b) => (a.INICIO||'').localeCompare(b.INICIO||''));
-  const tot = aps.reduce((s, a) => s + (a.MIN||0), 0);
+  const tot = aps.reduce((s, a) => s + (a.MIN||0), 0), nMec = new Set(aps.map(a => a.ABREV)).size;
   const ab = o.SITUACAO === 'ABERTA';
   abrirDet('O.S. ' + num,
     '<div class="bloco"><div class="c1" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span class="tag ' + (ab ? 'aberta' : 'enc') + '" style="font-size:12px">' + esc(o.SITUACAO) + '</span><span class="tag azul" style="font-size:12px">CRITICIDADE ' + esc(o.CRIT || '–') + '</span></div>' +
     '<div class="campos">' + campo('FROTA', o.EQP) + campo('MODELO', o.MODELO) + campo('CLASSE', o.CLASSE) + campo('SUBCLASSE', o.SUBCLASSE) +
     campo('OPERAÇÃO', o.OPERACAO) + campo('SEÇÃO', o.SECAO) + campo('OFICINA', o.OFICINA) + campo('MÊS', o.MES) +
     campo('MOTIVO', o.MOTIVO) + campo('AGENTE', o.AGENTE) + campo('ENTRADA', dataHoraBR(o.ENTRADA)) + campo('SAÍDA', ab ? 'EM ABERTO' : dataHoraBR(o.SAIDA)) +
-    campo(ab ? 'ABERTA HÁ' : 'DURAÇÃO', duracaoOS(o), true) + '</div></div>' +
+    campo(ab ? 'ABERTA HÁ' : 'DURAÇÃO', duracaoOS(o)) + campo('TEMPO DE MECÂNICOS', hhmm(tot) + ' H' + (nMec ? ' · ' + nMec + (nMec === 1 ? ' MECÂNICO' : ' MECÂNICOS') : '')) + '</div></div>' +
     '<div class="bloco"><h3>SERVIÇO / MANUTENÇÃO</h3><div class="texto">' + esc(o.MANUT) + '</div>' + (o.OBS ? '<h3 style="margin-top:12px">OBSERVAÇÃO</h3><div class="texto">' + esc(o.OBS) + '</div>' : '') + '</div>' +
     '<div class="bloco"><h3>APONTAMENTOS NESTA O.S. · ' + hhmm(tot) + ' H</h3>' +
-    (aps.length ? aps.map(a => '<div class="ap"><span class="hr">' + dataBR(a.DATA).slice(0,5) + '</span><span class="mt">' + esc(a.ABREV) + '</span><span class="tp prod">' + hhmm(a.MIN) + '</span>' +
+    (aps.length ? aps.map(a => '<div class="ap" style="cursor:pointer" onclick="detMec(\'' + esc(a.ABREV) + '\',\'' + a.DATA + '\')"><span class="hr">' + dataBR(a.DATA).slice(0,5) + '</span><span class="mt lk">' + esc(a.ABREV) + '</span><span class="tp prod">' + hhmm(a.MIN) + '</span>' +
       '<span class="dt">' + hora(a.INICIO) + ' ÀS ' + hora(a.FIM) + ' · ' + esc(a.MOTIVO) + '</span>' + (a.OBS ? '<span class="obs">' + esc(a.OBS) + '</span>' : '') + '</div>').join('')
       : '<div class="vazio" style="padding:12px">SEM APONTAMENTOS PARA ESTA O.S.</div>') + '</div>');
 }
@@ -616,26 +631,48 @@ function renderApont() {
     const aberto = abrirTodos || abertos.has(nome);
     return '<div class="mec"><button class="cab" onclick="togMec(\'' + esc(nome) + '\')"><div><div class="nm">' + esc(nome) + '</div><div class="st">' + esc(aps[0].SETOR) + ' · ' + esc(turnos) + ' · ' + aps.length + ' APONT.</div></div>' +
       '<div class="dir"><div class="hh">' + hhmm(t) + ' H</div><span class="tag ' + cls + '">' + pc + '% PRODUTIVO · ' + fx + '</span></div></button>' +
-      (aberto ? '<div class="lista">' + aps.map(a => {
-        const pr = a.STATUS === 'PRODUTIVO';
-        const alvo = a.OS ? 'O.S. ' + esc(a.OS) + ' · FROTA ' + esc(a.EQP) : (a.EQP ? 'FROTA ' + esc(a.EQP) : 'SEM FROTA');
-        return '<div class="ap"' + (a.OS && D.os.some(o => String(o.NUM) === String(a.OS)) ? ' onclick="detOS(\'' + esc(a.OS) + '\')" style="cursor:pointer"' : '') + '>' +
-          '<span class="hr">' + hora(a.INICIO) + '–' + hora(a.FIM) + '</span><span class="mt">' + esc(a.MOTIVO) + '</span><span class="tp ' + (pr ? 'prod' : 'imp') + '">' + hhmm(a.MIN) + '</span>' +
-          '<span class="dt">' + alvo + ' · ' + esc(a.TIPO) + ' · <span style="color:' + (pr ? 'var(--verde)' : 'var(--vermelho)') + '">' + esc(a.STATUS) + '</span></span>' +
-          (a.OBS && a.OBS !== 'SEM OBSERVAÇÕES' ? '<span class="obs">' + esc(a.OBS) + '</span>' : '') + '</div>';
-      }).join('') + '</div>' : '') + '</div>';
+      (aberto ? '<div class="lista">' + aps.map(linhaAp).join('') + '</div>' : '') + '</div>';
   }).join('');
 }
 function togMec(n) { abertos.has(n) ? abertos.delete(n) : abertos.add(n); renderApont(); }
+function linhaAp(a) {
+  const pr = a.STATUS === 'PRODUTIVO';
+  const alvo = a.OS ? 'O.S. ' + esc(a.OS) + ' · FROTA ' + esc(a.EQP) : (a.EQP ? 'FROTA ' + esc(a.EQP) : 'SEM FROTA');
+  return '<div class="ap"' + (a.OS && D.os.some(o => String(o.NUM) === String(a.OS)) ? ' onclick="detOS(\'' + esc(a.OS) + '\')" style="cursor:pointer"' : '') + '>' +
+    '<span class="hr">' + hora(a.INICIO) + '–' + hora(a.FIM) + '</span><span class="mt">' + esc(a.MOTIVO) + '</span><span class="tp ' + (pr ? 'prod' : 'imp') + '">' + hhmm(a.MIN) + '</span>' +
+    '<span class="dt">' + alvo + ' · ' + esc(a.TIPO) + ' · <span style="color:' + (pr ? 'var(--verde)' : 'var(--vermelho)') + '">' + esc(a.STATUS) + '</span></span>' +
+    (a.OBS && a.OBS !== 'SEM OBSERVAÇÕES' ? '<span class="obs">' + esc(a.OBS) + '</span>' : '') + '</div>';
+}
+const SEMANA = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
+function somaDia(dia, n) { const x = new Date(dia + 'T12:00:00'); x.setDate(x.getDate() + n); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()); }
+function detMec(nome, dia, trocar) {
+  const aps = D.apontamentos.filter(a => a.ABREV === nome && a.DATA === dia).sort((a, b) => (a.INICIO||'').localeCompare(b.INICIO||''));
+  const t = aps.reduce((s, a) => s + (a.MIN||0), 0), p = aps.filter(a => a.STATUS === 'PRODUTIVO').reduce((s, a) => s + (a.MIN||0), 0);
+  const pc = t ? Math.round(p / t * 100) : 0, [fx, cls] = faixa(pc);
+  const ir = n => 'detMec(\'' + esc(nome) + '\',\'' + somaDia(dia, n) + '\',1)';
+  const turnos = [...new Set(aps.map(a => a.PERIODO))].join(' / ');
+  abrirDet('JORNADA · ' + nome,
+    '<div class="dia"><button onclick="' + ir(-1) + '">‹</button><div class="busca diatx">' + dataBR(dia) + '<small>' + SEMANA[new Date(dia + 'T12:00:00').getDay()] + '</small></div><button onclick="' + ir(1) + '">›</button></div>' +
+    '<div class="resumo"><div class="kpi"><div class="v">' + hhmm(t) + '</div><div class="t">HORAS APONTADAS</div></div><div class="kpi"><div class="v verde">' + (t ? pc + '%' : '–') + '</div><div class="t">PRODUTIVO</div></div><div class="kpi"><div class="v verm">' + (t ? (100 - pc) + '%' : '–') + '</div><div class="t">IMPRODUTIVO</div></div></div>' +
+    (aps.length ? '<div class="mec"><div class="cab"><div><div class="nm">' + esc(aps[0].NOME || nome) + '</div><div class="st">' + esc(aps[0].SETOR) + ' · ' + esc(turnos) + ' · ' + aps.length + ' APONT.</div></div>' +
+      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>'
+      : '<div class="vazio">SEM APONTAMENTOS NESTE DIA (FOLGA)</div>'), trocar);
+}
 
 /* ================= DETALHE (tela cheia) ================= */
-function abrirDet(titulo, html) {
-  const d = $('#det');
-  d.innerHTML = '<header class="topo"><button class="voltar" onclick="history.back()">‹</button><h1>' + esc(titulo) + '</h1></header><div class="pag">' + html + '</div>';
-  if (d.classList.contains('oculto')) history.pushState({ det: 1 }, '');
+const pilha = [];
+function mostrarDet() {
+  const d = $('#det'), t = pilha[pilha.length - 1];
+  if (!t) { d.classList.add('oculto'); return; }
+  d.innerHTML = '<header class="topo"><button class="voltar" onclick="history.back()">‹</button><h1>' + esc(t.titulo) + '</h1></header><div class="pag">' + t.html + '</div>';
   d.classList.remove('oculto'); d.scrollTop = 0;
 }
-window.addEventListener('popstate', () => { $('#det').classList.add('oculto'); });
+function abrirDet(titulo, html, trocar) {
+  if (trocar && pilha.length) pilha[pilha.length - 1] = { titulo, html };
+  else { pilha.push({ titulo, html }); history.pushState({ det: pilha.length }, ''); }
+  mostrarDet();
+}
+window.addEventListener('popstate', () => { pilha.pop(); mostrarDet(); });
 
 /* ================= INSTALAR ================= */
 let promptInst = null;
