@@ -274,9 +274,13 @@ async function sincronizar(puxar=true){
     if(pe.length){const env=pe.map(({pendente,...r})=>r);await rpc('sincronizar',{p_token:U.token,p_itens:env});const ids=new Set(env.map(i=>i.id));ITENS.forEach(i=>{if(ids.has(i.id))delete i.pendente});ITENS=ITENS.filter(i=>!(i.excluido&&!i.pendente));salvarI()}
     const cq=LS.get(kC(),[]);
     if(cq.length&&!ITENS.some(i=>i.pendente)){ULT_COP=ULT_COP||[];
-      for(const c of cq){const r=await rpc('copiar_jornada',{p_token:U.token,p_data:c.data,p_destinos:c.destinos.map(d=>d.re)})||[];
-        r.forEach(x=>{const d=c.destinos.find(y=>y.re===x.re)||{nome:x.re};ULT_COP.push({nome:d.nome,ok:x.ok,erro:x.erro})})}
-      LS.set(kC(),[])}
+      const resta=[];let falhaRede=null;
+      for(const c of cq){if(falhaRede){resta.push(c);continue}
+        try{const r=await rpc('copiar_jornada',{p_token:U.token,p_data:c.data,p_destinos:c.destinos.map(d=>d.re)})||[];
+          r.forEach(x=>{const d=c.destinos.find(y=>y.re===x.re)||{nome:x.re};ULT_COP.push({nome:d.nome,ok:x.ok,erro:x.erro})})}
+        catch(e){if(e instanceof ErroRede||(e.message||'').includes('SESSAO_INVALIDA')){falhaRede=e;resta.push(c)}
+          else c.destinos.forEach(d=>ULT_COP.push({nome:d.nome,ok:false,erro:traduz(e)}))}}
+      LS.set(kC(),resta);if(falhaRede)throw falhaRede}
     if(puxar){
       const sj=await rpc('listar_jornadas',{p_token:U.token,p_de:addDias(hoje(),-30),p_ate:addDias(hoje(),1),p_mecanico:null})||[];
       const minhas=sj.filter(j=>j.mecanico_id===U.id),pendJ=JORN.filter(j=>j.pendente);
@@ -370,7 +374,7 @@ function encerrarTurno(){
   <div class="alerta vm">CONFIRMA O ENCERRAMENTO? DEPOIS DE ENCERRAR, OS APONTAMENTOS DESTA JORNADA NÃO PODEM MAIS SER ALTERADOS NEM EXCLUÍDOS.</div>
   <div class="lin" style="margin-top:12px"><button class="btn verm" id="eSim">CONFIRMAR</button><button class="btn cinza" onclick="fechar()">VOLTAR</button></div></div></div>`;
   $('#eSim').onclick=()=>{if(run){const f=agoraHM();gravar({...run,fim:f,minutos:dur(run.inicio,f)})}
-    Object.assign(J,{status:'ENCERRADA',encerrada_em:new Date().toISOString(),pendente:true});salvarJ();sincronizar(false);perguntarCopia(J.data)};
+    Object.assign(J,{status:'ENCERRADA',encerrada_em:new Date().toISOString(),pendente:true});salvarJ();sincronizar(false);if(diaItens(J.data).length)perguntarCopia(J.data);else finalizar(J.data,[])};
 }
 function perguntarCopia(data){
   const lista=(LS.get('mc_nomes',[])||[]).filter(x=>x.perfil!=='ADMIN'&&x.matricula!==U.matricula);
