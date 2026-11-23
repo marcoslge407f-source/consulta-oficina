@@ -242,11 +242,15 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .bd-ck{font-size:12px;font-weight:800;border-radius:10px;padding:9px 12px}
 .bd-ck.ok{background:#E7F5EA;color:#1B5E20} .bd-ck.av{background:#FFF6DC;color:#7A5600}
 .bd-t td small{display:block;font-size:9.5px;color:var(--cinza)}
+.bd-h{display:flex;justify-content:space-between;align-items:center;gap:10px}.bd-h .btn{width:auto;padding:9px 14px;font-size:11.5px}
+.bd-grid.g2b{grid-template-columns:1fr 1fr}
+.bd-pin{font-size:14px;font-weight:900;letter-spacing:2px;color:var(--cinza)} .bd-pin.vis{color:var(--azul);letter-spacing:3px}
+.bd-z{width:auto!important;padding:6px 8px!important;font-size:10px!important;border-width:1.5px!important;white-space:nowrap}
 .bd-t td{overflow-wrap:normal;word-break:normal}
 @media (max-width:900px){.bd-t tr{padding:8px 0}.bd-t td:last-child{position:static;padding:2px 4px}}
 .bd-tag{display:inline-block;white-space:nowrap;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:900;color:#fff}
 .bd-tag.vd{background:var(--verde)} .bd-tag.am{background:var(--amarelo);color:#3B2C00} .bd-tag.cz{background:#90A4AE}
-@media (max-width:900px){.bd-grid,.bd-grid.g2{grid-template-columns:1fr}.bd-ks.k4{grid-template-columns:1fr 1fr}.bd-ks.k3{grid-template-columns:1fr}}
+@media (max-width:900px){.bd-grid,.bd-grid.g2,.bd-grid.g2b{grid-template-columns:1fr}.bd-h{flex-direction:column;align-items:stretch}.bd-ks.k4{grid-template-columns:1fr 1fr}.bd-ks.k3{grid-template-columns:1fr}}
 .btn.exj{background:#fff;color:var(--vermelho);border:2px solid var(--vermelho);margin-left:auto}
 .btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
 .ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
@@ -1143,7 +1147,7 @@ const ehRef = i => /REFEI/.test(i.atividade || '');
 const corCatA = c => c === 'IMPRODUTIVO' ? 'var(--vermelho)' : 'var(--verde)';
 const ST_AP = { AG: ['AGUARDANDO APROVAÇÃO', 'ag'], RE: ['RECUSADA', 're'], AN: ['EM ANDAMENTO', 'an'], AP: ['APROVADA', 'ap'] };
 const MSG_AN = { SENHA_INVALIDA: 'SENHA INCORRETA', SO_ENCERRADA: 'SÓ É POSSÍVEL APROVAR OU RECUSAR UMA JORNADA ENCERRADA PELO MECÂNICO', SO_APROVADA: 'ESTA JORNADA NÃO ESTÁ APROVADA',
-  MOTIVO_OBRIGATORIO: 'ESCREVA O MOTIVO DA RECUSA', JORNADA_APROVADA: 'JORNADA JÁ APROVADA — DESFAÇA A APROVAÇÃO PARA ALTERAR', APONTAMENTO_NAO_ENCONTRADO: 'APONTAMENTO NÃO ENCONTRADO (ATUALIZE A TELA)', JORNADA_NAO_ENCONTRADA: 'JORNADA NÃO ENCONTRADA (ATUALIZE A TELA)' };
+  MOTIVO_OBRIGATORIO: 'ESCREVA O MOTIVO DA RECUSA', JORNADA_APROVADA: 'JORNADA JÁ APROVADA — DESFAÇA A APROVAÇÃO PARA ALTERAR', APONTAMENTO_NAO_ENCONTRADO: 'APONTAMENTO NÃO ENCONTRADO (ATUALIZE A TELA)', JORNADA_NAO_ENCONTRADA: 'JORNADA NÃO ENCONTRADA (ATUALIZE A TELA)', MECANICO_NAO_ENCONTRADO: 'MECÂNICO NÃO ENCONTRADO' };
 const traduzAn = e => { const m = up(e && e.message); const k = Object.keys(MSG_AN).find(k => m.includes(k)); return k ? MSG_AN[k] : (/FETCH|NETWORK|FAILED/.test(m) ? 'SEM CONEXÃO COM A INTERNET' : m || 'ERRO'); };
 
 function anAba(a) {
@@ -1460,6 +1464,20 @@ async function carregarBd() {
     $('#bd-lista').innerHTML = `<div class="bd-card"><div class="bd-st vm">✕ SEM RESPOSTA DO BANCO</div><div class="txt">${esc(traduzAn(e))}. SE PERSISTIR, O PROJETO PODE ESTAR PAUSADO — ABRA O PAINEL DO SUPABASE E CLIQUE EM "RESTORE".</div></div>`;
   }
 }
+let BD_USU = [], SENHAS = null, SENHAS_VIS = false;
+async function verSenhas() {
+  const b = $('#bd-ver');
+  if (SENHAS_VIS) { SENHAS_VIS = false; document.querySelectorAll('.bd-pin').forEach(e => { e.textContent = '••••'; e.classList.remove('vis'); }); b.textContent = '👁 MOSTRAR SENHAS'; return; }
+  try { b.disabled = true; if (!SENHAS) SENHAS = await rpc('an_senhas', { p_senha: senhaAn }); } catch (e) { b.textContent = 'ERRO: ' + traduzAn(e); b.disabled = false; return; }
+  b.disabled = false; SENHAS_VIS = true; b.textContent = '🙈 ESCONDER SENHAS';
+  document.querySelectorAll('.bd-pin').forEach(e => { e.textContent = SENHAS[e.dataset.re] || '—'; e.classList.add('vis'); });
+}
+function zerarSenha(i) {
+  const u = BD_USU[i]; if (!u) return;
+  modalAn(`<h3>ZERAR SENHA</h3><div class="txt">ZERAR A SENHA DE <b>${esc(u.nome)}</b> (RE ${esc(u.re)}) PARA <b>0000</b>?</div>
+    <div class="jo-al am" style="margin:0">ELE SERÁ DESCONECTADO DO APP. NO PRÓXIMO ACESSO ENTRA COM 0000 E É OBRIGADO A CRIAR UMA SENHA NOVA DE 4 NÚMEROS.</div>
+    <div class="msg"></div><button class="btn" onclick="acaoAn(this,()=>rpc('an_resetar_senha',{p_senha:senhaAn,p_matricula:'${esc(u.re)}'}),()=>{SENHAS=null;SENHAS_VIS=false;return carregarBd()})">CONFIRMAR — ZERAR PARA 0000</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
+}
 function renderBd(d, ms) {
   const c = d.conta || {}, LIM_DB = 500 * 1048576, LIM_ST = 1073741824;
   const pDb = d.db_bytes / LIM_DB * 100, pSt = (d.storage.bytes || 0) / LIM_ST * 100, pCx = d.conexoes / d.max_conexoes * 100;
@@ -1502,16 +1520,17 @@ function renderBd(d, ms) {
       <div class="bd-nota">NO PLANO GRATUITO O PROJETO É PAUSADO SE FICAR 7 DIAS SEM USO. COM OS MECÂNICOS USANDO TODO DIA, ISSO NÃO ACONTECE.</div></div>
   </div>
   ${cardTf}
-  <div class="bd-grid g2" style="margin-top:14px">
-    <div class="bd-card"><h3>LOGINS E ACESSOS</h3>
+  <div class="bd-card" style="margin-top:14px"><div class="bd-h"><h3>LOGINS, ACESSOS E SENHAS</h3><button class="btn sec" id="bd-ver" onclick="verSenhas()">👁 MOSTRAR SENHAS</button></div>
       <div class="bd-ks k4">${kpi('ACESSOS HOJE', nBR(d.acessos_hoje))}${kpi('PESSOAS HOJE', nBR(d.usuarios_hoje))}${kpi('ACESSOS EM 7 DIAS', nBR(d.acessos_7d))}${kpi('SESSÕES ATIVAS', nBR(d.sessoes_ativas))}</div>
-      <table class="dg-t bd-t"><colgroup><col><col style="width:11%"><col style="width:13%"><col style="width:20%"><col style="width:18%"><col style="width:16%"></colgroup>
-      <thead><tr><th>NOME</th><th>RE</th><th>PERFIL</th><th>ÚLTIMO LOGIN</th><th>ÚLTIMO ENVIO</th><th>SITUAÇÃO</th></tr></thead>
-      <tbody>${(d.usuarios || []).map(u => `<tr><td data-l="NOME">${esc(u.nome)}</td><td data-l="RE">${esc(u.re)}</td><td data-l="PERFIL">${u.perfil === 'ADMIN' ? 'ANALISTA' : 'MECÂNICO'}</td>
+      <table class="dg-t bd-t"><colgroup><col><col style="width:8%"><col style="width:10%"><col style="width:15%"><col style="width:14%"><col style="width:9%"><col style="width:12%"><col style="width:13%"></colgroup>
+      <thead><tr><th>NOME</th><th>RE</th><th>PERFIL</th><th>ÚLTIMO LOGIN</th><th>ÚLTIMO ENVIO</th><th>SENHA</th><th>SITUAÇÃO</th><th></th></tr></thead>
+      <tbody>${(BD_USU = d.usuarios || []).map((u, i) => `<tr><td data-l="NOME">${esc(u.nome)}</td><td data-l="RE">${esc(u.re)}</td><td data-l="PERFIL">${u.perfil === 'ADMIN' ? 'ANALISTA' : 'MECÂNICO'}</td>
         <td data-l="ÚLTIMO LOGIN">${u.acesso ? quando(u.acesso) + '<small>' + haQuanto(u.acesso) + '</small>' : '—'}</td><td data-l="ÚLTIMO ENVIO">${u.envio ? quando(u.envio) : '—'}</td>
-        <td data-l="SITUAÇÃO"><span class="bd-tag ${!u.ativo ? 'cz' : u.provisoria ? 'am' : 'vd'}">${!u.ativo ? 'INATIVO' : u.provisoria ? 'SENHA 0000' : 'ATIVO'}</span></td></tr>`).join('')}</tbody></table>
-      <div class="bd-nota">"SENHA 0000" = AINDA NÃO ENTROU NO APP PELA PRIMEIRA VEZ (OU A SENHA FOI ZERADA). O HISTÓRICO DE LOGIN GUARDA SÓ AS SESSÕES DOS ÚLTIMOS DIAS.</div></div>
-    <div>
+        <td data-l="SENHA"><span class="bd-pin" data-re="${esc(u.re)}">••••</span></td>
+        <td data-l="SITUAÇÃO"><span class="bd-tag ${!u.ativo ? 'cz' : u.provisoria ? 'am' : 'vd'}">${!u.ativo ? 'INATIVO' : u.provisoria ? 'SENHA 0000' : 'ATIVO'}</span></td>
+        <td>${u.provisoria ? '' : `<button class="btn sec bd-z" onclick="zerarSenha(${i})">ZERAR P/ 0000</button>`}</td></tr>`).join('')}</tbody></table>
+      <div class="bd-nota">"SENHA 0000" = AINDA NÃO ENTROU NO APP PELA PRIMEIRA VEZ (OU A SENHA FOI ZERADA). O HISTÓRICO DE LOGIN GUARDA SÓ AS SESSÕES DOS ÚLTIMOS DIAS. "ZERAR P/ 0000" DESCONECTA O MECÂNICO; NO PRÓXIMO ACESSO ELE ENTRA COM 0000 E É OBRIGADO A CRIAR UMA SENHA NOVA.</div></div>
+  <div class="bd-grid g2b" style="margin-top:14px">
       <div class="bd-card"><h3>VERIFICAÇÕES</h3>
         ${ok(!d.abertas_antigas, 'NENHUMA JORNADA ESQUECIDA ABERTA', d.abertas_antigas + ' JORNADA(S) ABERTA(S) HÁ MAIS DE 1 DIA')}
         ${ok(!d.aguardando_antigas, 'NENHUMA APROVAÇÃO ATRASADA', d.aguardando_antigas + ' JORNADA(S) AGUARDANDO APROVAÇÃO HÁ MAIS DE 3 DIAS')}
@@ -1525,7 +1544,6 @@ function renderBd(d, ms) {
         ${lin('ATIVIDADES CADASTRADAS', nBR(d.atividades))}${lin('FROTAS NO APP', nBR(d.frotas))}${lin('APONTAMENTOS', nBR(d.apontamentos))}
         ${lin('JORNADAS', nBR(d.jornadas) + ' · ' + d.j_abertas + ' EM ANDAMENTO · ' + d.j_encerradas + ' AGUARDANDO · ' + d.j_recusadas + ' RECUSADA(S) · ' + d.j_aprovadas + ' APROVADA(S)')}
         ${lin('PERÍODO APONTADO', d.primeira_data ? dataBR(d.primeira_data) + ' A ' + dataBR(d.ultima_data) : '—')}</div>
-    </div>
   </div>
   <div class="bd-card"><h3>TABELAS DO BANCO</h3>
     <table class="dg-t bd-t"><colgroup><col><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
