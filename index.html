@@ -46,7 +46,7 @@ button{cursor:pointer}
 .pag{padding:14px}
 .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--linha);display:flex;justify-content:center;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
 .nav .in{display:flex;max-width:560px;width:100%}
-.nav button{flex:1;border:0;background:none;padding:9px 2px 10px;font-size:10.5px;font-weight:700;color:var(--cinza);display:flex;flex-direction:column;align-items:center;gap:3px}
+.nav button{flex:1;border:0;background:none;padding:9px 1px 10px;font-size:9.5px;font-weight:700;color:var(--cinza);display:flex;flex-direction:column;align-items:center;gap:3px}
 .nav button svg{width:24px;height:24px}
 .nav button.ativo{color:var(--azul)}
 .nav button.ativo svg{stroke:var(--azul)}
@@ -313,11 +313,14 @@ html.escuro .ap .obs{background:#0F1720}
     <div id="ap-lista"></div>
   </section>
 
+  <section class="oculto" id="p-mec"><iframe id="fmec" title="APONTAR JORNADA" style="border:0;position:fixed;left:0;right:0;margin:0 auto;max-width:560px;width:100%;display:block;z-index:4"></iframe></section>
+
   <nav class="nav"><div class="in">
     <button data-p="inicio" class="ativo" onclick="ir('inicio')"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7785" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>INÍCIO</button>
     <button data-p="os" onclick="ir('os')"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7785" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>O.S.</button>
     <button data-p="frotas" onclick="ir('frotas')"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7785" stroke-width="2"><path d="M2 16V8h11v8M13 11h4l4 4v1h-8"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>FROTAS</button>
     <button data-p="apont" onclick="ir('apont')"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7785" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>APONTAMENTOS</button>
+    <button data-p="mec" onclick="ir('mec')"><svg viewBox="0 0 24 24" fill="none" stroke="#6B7785" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>MECÂNICO</button>
   </div></nav>
 </div>
 
@@ -495,10 +498,20 @@ async function sincronizar(manual) {
 let pagAtual = 'inicio';
 function ir(p) {
   pagAtual = p;
-  ['inicio','os','frotas','apont'].forEach(x => $('#p-' + x).classList.toggle('oculto', x !== p));
+  ['inicio','os','frotas','apont','mec'].forEach(x => $('#p-' + x).classList.toggle('oculto', x !== p));
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('ativo', b.dataset.p === p));
-  $('#titulo').textContent = { inicio: 'CONSULTA OFICINA', os: 'ORDENS DE SERVIÇO', frotas: 'FROTAS', apont: 'APONTAMENTOS' }[p];
+  $('#titulo').textContent = { inicio: 'CONSULTA OFICINA', os: 'ORDENS DE SERVIÇO', frotas: 'FROTAS', apont: 'APONTAMENTOS', mec: 'APONTAR JORNADA' }[p];
   window.scrollTo(0, 0);
+  if (p === 'mec') ajustaMec();
+}
+function ajustaMec() {
+  const f = $('#fmec');
+  if (!f.src) f.src = 'mecanico.html';
+  f.style.top = $('.topo').offsetHeight + 'px';
+  f.style.height = Math.max(300, innerHeight - $('.topo').offsetHeight - $('.nav').offsetHeight) + 'px';
+}
+window.addEventListener('resize', () => { if (pagAtual === 'mec') ajustaMec(); });
+function semUso() {
 }
 function irOS(f) {
   if (f === 'ABERTA') { setChip('ABERTA'); $('#os-per').value = ''; }
@@ -959,6 +972,7 @@ function aplicarTema(t) {
   document.documentElement.classList.toggle('escuro', t === 'escuro');
   $('#tema').innerHTML = t === 'escuro' ? SOL : LUA;
   document.querySelector('meta[name=theme-color]').content = t === 'escuro' ? '#0D3B7A' : '#1565C0';
+  const fm = document.getElementById('fmec'); if (fm && fm.contentWindow) fm.contentWindow.postMessage('tema', '*');
 }
 function alternarTema() {
   const t = document.documentElement.classList.contains('escuro') ? 'claro' : 'escuro';
