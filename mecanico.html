@@ -48,7 +48,7 @@ html.escuro .calSel{background:#12351F;color:#6FD68F}
 .calGrade{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
 .calSem{font-size:10px;font-weight:800;color:var(--cinza);padding:4px 0}
 .calD{position:relative;aspect-ratio:1;border:0;border-radius:50%;background:var(--fundo);font-size:14.5px;font-weight:800;display:flex;align-items:center;justify-content:center;width:100%;max-width:50px;margin:0 auto}
-.calD.hoje{box-shadow:inset 0 0 0 2px var(--azul);color:var(--azul)}
+.calD.hoje{color:var(--azul);font-weight:900;text-decoration:underline;text-underline-offset:3px}
 .calD.sel{background:linear-gradient(135deg,#1477B8,#2E9D4A);color:#fff}
 .calD.off{background:transparent;color:var(--linha)}
 .calD.usada{color:#90A4AE} .calD.aberta{color:var(--verde);box-shadow:inset 0 0 0 2px var(--verde)}
@@ -108,13 +108,18 @@ html.escuro .alerta.am{background:#3D3000;color:#FFD54F} html.escuro .alerta.vm{
 .lpIt .m{font-size:12px;font-weight:800;margin-top:2px}
 .lpIt .d{font-size:10px;font-weight:700;color:var(--cinza);margin-top:3px;line-height:1.35}
 .hora{font-size:20px!important;font-weight:900;text-align:center;letter-spacing:2px}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1C2733;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;font-size:11.5px;z-index:50;max-width:90%;pointer-events:none}
+.cops{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.cop{display:flex!important;align-items:center;gap:10px;background:var(--fundo);border:1.5px solid var(--linha);border-radius:12px;padding:12px;font-size:13px!important;font-weight:900;margin:0!important;color:var(--texto)!important}
+.cop input{width:22px;height:22px;accent-color:#2E9D4A;flex:none}
+.fim{font-size:46px;font-weight:900;width:84px;height:84px;border-radius:50%;margin:4px auto 10px;display:flex;align-items:center;justify-content:center}
+.fim.ok{background:#E3F4E8;color:#2E9D4A}.fim.esp{background:#FFF3CD;color:#8A6100}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1C2733;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;font-size:11.5px;z-index:15;max-width:90%;pointer-events:none}
 </style>
 </head>
 <body>
 <div id="barra"></div>
 <div class="pag" id="tela"></div>
-<button class="btn fab oculto" id="btnNova" onclick="abrirForm()">+ NOVA ATIVIDADE</button>
+<button class="btn verm fab oculto" id="btnNova" onclick="encerrarTurno()">ENCERRAMENTO DE TURNO</button>
 <div id="modal"></div>
 <div id="toast" class="toast oculto"></div>
 <script>
@@ -252,7 +257,9 @@ function sair(){
 /* ---------- app ---------- */
 function abrir(){ITENS=LS.get(kI(),[]);JORN=LS.get(kJ(),[]);JSEL=null;barra();render();sincronizar()}
 function barra(){$('#barra').innerHTML=`<div class="topo"><div class="nm">${esc(U.nome_abreviado||U.nome)}<small>${esc(U.setor||'MECÂNICO')}</small></div><span class="pill" id="sync">—</span><button class="mini" onclick="trocaSenha(U,false)">SENHA</button><button class="mini" onclick="sair()">SAIR</button></div>`;pill()}
-let sinc=false,stSync='';
+let sinc=false,stSync='',ULT_COP=null;
+const kC=()=>'mc_cop_'+U.id;
+async function sincAgora(){for(let i=0;i<30&&sinc;i++)await new Promise(r=>setTimeout(r,300));await sincronizar(false)}
 function pill(){const p=$('#sync');if(!p)return;const n=ITENS.filter(i=>i.pendente).length+JORN.filter(j=>j.pendente).length;p.className='pill';
   if(stSync==='erro'){p.classList.add('erro');p.textContent='ERRO · '+n+' PEND.';return}
   if(!navigator.onLine||stSync==='off'){p.classList.add('off');p.textContent='OFFLINE · '+n+' PEND.';return}
@@ -265,6 +272,11 @@ async function sincronizar(puxar=true){
     if(pj.length){await rpc('sincronizar_jornadas',{p_token:U.token,p_itens:pj.map(({pendente,...r})=>r)});pj.forEach(j=>delete j.pendente);JORN=JORN.filter(j=>!(j.status==='CANCELADA'&&!j.pendente));salvarJ()}
     const pe=ITENS.filter(i=>i.pendente);
     if(pe.length){const env=pe.map(({pendente,...r})=>r);await rpc('sincronizar',{p_token:U.token,p_itens:env});const ids=new Set(env.map(i=>i.id));ITENS.forEach(i=>{if(ids.has(i.id))delete i.pendente});ITENS=ITENS.filter(i=>!(i.excluido&&!i.pendente));salvarI()}
+    const cq=LS.get(kC(),[]);
+    if(cq.length&&!ITENS.some(i=>i.pendente)){ULT_COP=ULT_COP||[];
+      for(const c of cq){const r=await rpc('copiar_jornada',{p_token:U.token,p_data:c.data,p_destinos:c.destinos.map(d=>d.re)})||[];
+        r.forEach(x=>{const d=c.destinos.find(y=>y.re===x.re)||{nome:x.re};ULT_COP.push({nome:d.nome,ok:x.ok,erro:x.erro})})}
+      LS.set(kC(),[])}
     if(puxar){
       const sj=await rpc('listar_jornadas',{p_token:U.token,p_de:addDias(hoje(),-30),p_ate:addDias(hoje(),1),p_mecanico:null})||[];
       const minhas=sj.filter(j=>j.mecanico_id===U.id),pendJ=JORN.filter(j=>j.pendente);
@@ -308,7 +320,7 @@ function telaCal(){
     <div class="calSel">${sel?`<div class="calSelD">${pad(sel.getDate())}</div><div><b>${SEMANA[sel.getDay()]}</b><br>${MESES[sel.getMonth()]} DE ${sel.getFullYear()}${CAL.sel===hoje()?' · HOJE':''}</div>`:'TOQUE EM UM DIA'}</div>
     <div class="calMes"><button class="calNav" ${podeV?'':'disabled'} onclick="CAL.mes--;if(CAL.mes<0){CAL.mes=11;CAL.ano--}telaCal()">‹</button><b>${MESES[CAL.mes]} ${CAL.ano}</b><button class="calNav" ${podeI?'':'disabled'} onclick="CAL.mes++;if(CAL.mes>11){CAL.mes=0;CAL.ano++}telaCal()">›</button></div>
     <div class="calGrade">${['D','S','T','Q','Q','S','S'].map(x=>`<span class="calSem">${x}</span>`).join('')}${cel}</div>
-    <div class="calLeg"><span>◯ HOJE</span><span style="color:var(--verde)">● ABERTA</span><span>● ENCERRADA</span></div>
+    <div class="calLeg"><span style="color:var(--azul)"><u>DIA</u> = HOJE</span><span style="color:var(--verde)">● ABERTA</span><span>● ENCERRADA</span></div>
     ${abertas.length?`<div class="alerta vd" style="text-align:center">JORNADA(S) ABERTA(S): ${abertas.map(j=>dataBR(j.data)).join(', ')}</div>`:''}
   </div>
   <button class="btn ${st&&st!=='ABERTA'?'cinza':''}" ${CAL.sel?'':'disabled'} onclick="iniciarJornada()">${!CAL.sel?'ESCOLHA UMA DATA':st==='ABERTA'?'CONTINUAR JORNADA DE '+dataBR(CAL.sel):st?'VER JORNADA DE '+dataBR(CAL.sel):'INICIAR JORNADA DE '+dataBR(CAL.sel)}</button>`;
@@ -344,7 +356,7 @@ function telaJornada(J){
     <div class="a"><b>${esc(i.atividade)}</b>${i.frota||i.observacao||i.pendente?`<span>${i.frota?'FROTA '+esc(i.frota):''}${i.frota&&i.observacao?' · ':''}${esc(i.observacao||'')}${i.pendente?' <em class="pend">NÃO ENVIADO</em>':''}</span>`:''}</div>
     ${ed?`<button class="ic" onclick="abrirForm('${i.id}')">✎</button><button class="ic verm" onclick="excluirItem('${i.id}')">✕</button>`:''}</div>`).join(''):'<div class="vazio">NENHUM APONTAMENTO AINDA.<br>TOQUE EM + NOVA ATIVIDADE.</div>'}
   ${ed&&run?`<button class="btn sec" style="margin-top:10px" onclick="encerrarAtiv()">⏹ ENCERRAR "${esc(run.atividade.replace(/^\d+ - /,''))}" AGORA</button>`:''}
-  ${ed?'<button class="btn verm" style="margin-top:10px" onclick="encerrarTurno()">ENCERRAMENTO DE TURNO</button>':''}</div>`;
+  ${ed?'<button class="btn" style="margin-top:10px" onclick="abrirForm()">+ NOVA ATIVIDADE</button>':''}</div>`;
   pill();
 }
 function gravar(it){it.pendente=true;const k=ITENS.findIndex(i=>i.id===it.id);if(k>=0)ITENS[k]=it;else ITENS.push(it);salvarI()}
@@ -355,10 +367,39 @@ function encerrarTurno(){
   $('#modal').innerHTML=`<div class="fundo"><div class="modal"><h2>ENCERRAMENTO DE TURNO — ${dataBR(J.data)}</h2><div class="tiles">${tiles(t)}</div>
   ${alertas(dia).map(([c,x])=>`<div class="alerta ${c}">${x}</div>`).join('')}
   ${run?`<div class="alerta am">"${esc(run.atividade)}" SERÁ ENCERRADA AGORA (${agoraHM()}).</div>`:''}
-  <div class="alerta vm">DEPOIS DE ENCERRAR, OS APONTAMENTOS DESTA JORNADA NÃO PODEM MAIS SER ALTERADOS NEM EXCLUÍDOS.</div>
-  <div class="lin" style="margin-top:12px"><button class="btn verm" id="eSim">ENCERRAR TURNO</button><button class="btn cinza" onclick="fechar()">VOLTAR</button></div></div></div>`;
-  $('#eSim').onclick=()=>{fechar();if(run){const f=agoraHM();gravar({...run,fim:f,minutos:dur(run.inicio,f)})}
-    Object.assign(J,{status:'ENCERRADA',encerrada_em:new Date().toISOString(),pendente:true});salvarJ();sincronizar(false);toast('TURNO ENCERRADO E REGISTRADO');voltarCal()};
+  <div class="alerta vm">CONFIRMA O ENCERRAMENTO? DEPOIS DE ENCERRAR, OS APONTAMENTOS DESTA JORNADA NÃO PODEM MAIS SER ALTERADOS NEM EXCLUÍDOS.</div>
+  <div class="lin" style="margin-top:12px"><button class="btn verm" id="eSim">CONFIRMAR</button><button class="btn cinza" onclick="fechar()">VOLTAR</button></div></div></div>`;
+  $('#eSim').onclick=()=>{if(run){const f=agoraHM();gravar({...run,fim:f,minutos:dur(run.inicio,f)})}
+    Object.assign(J,{status:'ENCERRADA',encerrada_em:new Date().toISOString(),pendente:true});salvarJ();sincronizar(false);perguntarCopia(J.data)};
+}
+function perguntarCopia(data){
+  const lista=(LS.get('mc_nomes',[])||[]).filter(x=>x.perfil!=='ADMIN'&&x.matricula!==U.matricula);
+  $('#modal').innerHTML=`<div class="fundo"><div class="modal"><h2>TURNO ENCERRADO ✓</h2>
+  <div class="alerta az" style="margin:0">DESEJA COPIAR TODA A SUA JORNADA DE ${dataBR(data)} PARA OUTROS MECÂNICOS QUE TRABALHARAM COM VOCÊ? PODE ESCOLHER MAIS DE UM.</div>
+  <div class="cops">${lista.map(x=>`<label class="cop"><input type="checkbox" value="${esc(x.matricula)}" data-n="${esc(x.nome)}"><span>${esc(x.nome)}</span></label>`).join('')||'<div class="vazio">SEM OUTROS MECÂNICOS NA LISTA</div>'}</div>
+  <div class="msg erro" id="cpMsg"></div>
+  <button class="btn" style="margin-top:6px" id="cpSim">COPIAR PARA OS SELECIONADOS</button>
+  <button class="btn cinza" style="margin-top:8px" id="cpNao">NÃO COPIAR</button></div></div>`;
+  $('#cpNao').onclick=()=>finalizar(data,[]);
+  $('#cpSim').onclick=()=>{const sel=[...document.querySelectorAll('.cop input:checked')].map(i=>({re:i.value,nome:i.dataset.n}));
+    if(!sel.length)return $('#cpMsg').textContent='MARQUE PELO MENOS UM MECÂNICO OU TOQUE EM NÃO COPIAR';
+    $('#modal').innerHTML=`<div class="fundo"><div class="modal"><h2>CONFIRMAR CÓPIA</h2>
+    <div class="alerta am" style="margin:0">OS ${diaItens(data).length} APONTAMENTOS DA SUA JORNADA DE ${dataBR(data)} SERÃO COPIADOS PARA: ${sel.map(x=>esc(x.nome)).join(', ')}.</div>
+    <div class="lin" style="margin-top:12px"><button class="btn" id="ccSim">CONFIRMAR</button><button class="btn cinza" id="ccNao">VOLTAR</button></div></div></div>`;
+    $('#ccNao').onclick=()=>perguntarCopia(data);
+    $('#ccSim').onclick=()=>{const q=LS.get(kC(),[]);q.push({data,destinos:sel});LS.set(kC(),q);finalizar(data,sel)}};
+}
+async function finalizar(data,sel){
+  ULT_COP=null;
+  $('#modal').innerHTML=`<div class="fundo"><div class="modal" style="text-align:center"><div class="fim esp">⏳</div><h2>ENVIANDO…</h2></div></div>`;
+  await sincAgora();
+  const pend=ITENS.filter(i=>i.pendente).length+JORN.filter(j=>j.pendente).length+LS.get(kC(),[]).length,ok=!pend&&stSync==='ok';
+  $('#modal').innerHTML=`<div class="fundo"><div class="modal" style="text-align:center"><div class="fim ${ok?'ok':'esp'}">${ok?'✓':'⏳'}</div>
+  <h2>${ok?'JORNADA FINALIZADA E ENVIADA!':'JORNADA FINALIZADA — AGUARDANDO INTERNET'}</h2>
+  <div class="alerta ${ok?'vd':'am'}" style="text-align:left">${ok?'SUA JORNADA DE '+dataBR(data)+' FOI ENCERRADA E ENVIADA.':'SUA JORNADA DE '+dataBR(data)+' FOI ENCERRADA E ESTÁ GUARDADA NO CELULAR. SERÁ ENVIADA SOZINHA QUANDO A INTERNET VOLTAR.'}</div>
+  ${(ULT_COP||[]).map(r=>`<div class="alerta ${r.ok?'vd':'vm'}" style="text-align:left">${r.ok?'✓ COPIADA PARA '+esc(r.nome):'✕ NÃO COPIADA PARA '+esc(r.nome)+': '+esc(r.erro)}</div>`).join('')}
+  ${!ok&&sel.length?'<div class="alerta am" style="text-align:left">A CÓPIA PARA OS OUTROS MECÂNICOS SERÁ FEITA QUANDO A INTERNET VOLTAR.</div>':''}
+  <button class="btn" style="margin-top:12px" onclick="fechar();ULT_COP=null;voltarCal()">OK</button></div></div>`;
 }
 
 /* ---------- formulário ---------- */
