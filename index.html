@@ -208,7 +208,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
     </div>
     <div class="kpis">
       <button class="kpi" onclick="irOS('ABERTA')"><div class="v verm" id="k-abertas">–</div><div class="t">O.S. ABERTAS</div></button>
-      <button class="kpi" onclick="irOS('HOJE')"><div class="v" id="k-hoje">–</div><div class="t">O.S. ABERTAS HOJE</div></button>
+      <button class="kpi" onclick="irOS('ONTEM')"><div class="v" id="k-hoje">–</div><div class="t" id="k-hoje-t">O.S. ABERTAS ONTEM</div></button>
       <button class="kpi" onclick="ir('frotas')"><div class="v verde" id="k-frotas">–</div><div class="t">FROTAS CADASTRADAS</div></button>
       <button class="kpi" onclick="ir('apont')"><div class="v" id="k-ult" style="font-size:20px">–</div><div class="t">ÚLTIMO DIA APONTADO</div></button>
     </div>
@@ -466,7 +466,7 @@ function ir(p) {
 }
 function irOS(f) {
   if (f === 'ABERTA') { setChip('ABERTA'); $('#os-per').value = ''; }
-  if (f === 'HOJE') { setChip(''); $('#os-per').value = 'HOJE'; }
+  if (f === 'ONTEM') { setChip(''); $('#os-per').value = 'ESC'; $('#os-de').value = $('#os-ate').value = somaDia(hojeISO(), -1); }
   $('#os-busca').value = '';
   renderOS(true); ir('os');
 }
@@ -491,9 +491,10 @@ function ultimoDia() { let m = ''; for (const a of D.apontamentos) if (a.DATA > 
 
 /* ================= INÍCIO ================= */
 function renderInicio() {
-  const hoje = hojeISO();
+  const ontem = somaDia(hojeISO(), -1);
   $('#k-abertas').textContent = D.os.filter(o => o.SITUACAO === 'ABERTA').length;
-  $('#k-hoje').textContent = D.os.filter(o => (o.ENTRADA||'').slice(0,10) === hoje).length;
+  $('#k-hoje').textContent = D.os.filter(o => (o.ENTRADA||'').slice(0,10) === ontem).length;
+  $('#k-hoje-t').textContent = 'O.S. ABERTAS ONTEM (' + dataBR(ontem).slice(0,5) + ')';
   $('#k-frotas').textContent = D.frotas.length;
   const u = ultimoDia(); $('#k-ult').textContent = u ? dataBR(u).slice(0,5) : '–';
   const linha = (t, n) => { const m = D.meta[t]; return '<div class="campo"><div class="r">' + n + '</div><div class="x">' + (m ? dataHoraBR(isoLocal(m.atualizado_em)) : 'SEM DADOS') + '</div></div>'; };
