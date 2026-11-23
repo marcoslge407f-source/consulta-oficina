@@ -270,9 +270,6 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
     </div>
     <div class="lin" style="margin-bottom:12px">
       <select class="busca" id="ap-mec" onchange="renderApont()"></select>
-      <select class="busca" id="ap-per" onchange="renderApont()">
-        <option value="">TURNOS</option><option value="DIURNO">DIURNO (A)</option><option value="NOTURNO">NOTURNO (B)</option>
-      </select>
     </div>
     <div class="resumo">
       <div class="kpi"><div class="v" id="ap-tot">–</div><div class="t">HORAS APONTADAS</div></div>
@@ -488,7 +485,7 @@ function unicos(lista, campo) { return [...new Set(lista.map(x => x[campo]).filt
 function preencherFiltros() {
   opcoes($('#os-sec'), unicos(D.os, 'SECAO'), 'TODAS AS SEÇÕES');
   opcoes($('#fr-classe'), unicos(D.frotas, 'CLASSE'), 'TODAS AS CLASSES');
-  opcoes($('#ap-mec'), unicos(D.apontamentos, 'ABREV'), 'MECÂNICOS');
+  opcoes($('#ap-mec'), unicos(D.apontamentos, 'ABREV'), 'TODOS OS MECÂNICOS');
   const dia = $('#ap-dia');
   if (!dia.value && D.apontamentos.length) dia.value = ultimoDia();
 }
@@ -609,7 +606,7 @@ function mudaDia(n) {
   i.value = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); renderApont();
 }
 function renderApont() {
-  const dia = $('#ap-dia').value, mec = $('#ap-mec').value, per = $('#ap-per').value;
+  const dia = $('#ap-dia').value, mec = $('#ap-mec').value, per = '';
   const lista = D.apontamentos.filter(a => a.DATA === dia && (!mec || a.ABREV === mec) && (!per || a.PERIODO === per));
   let tot = 0, prod = 0;
   const g = new Map();
