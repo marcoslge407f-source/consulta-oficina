@@ -155,7 +155,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .inst .tx{font-size:11px;font-weight:700;color:var(--cinza);line-height:1.35}
 
 /* ======= ÁREA DO ANALISTA (COMPUTADOR) ======= */
-#analista{min-height:100%;background:#fff;position:relative;overflow:hidden}
+#analista{min-height:100%;background:#fff;position:relative;overflow:hidden;overflow:clip}
 .capa-faixa{position:fixed;left:0;top:0;bottom:0;width:26px;background:linear-gradient(180deg,#1565C0,#2E9D4A)}
 .capa-agua{position:fixed;right:-60px;top:40px;width:520px;height:520px;opacity:.09;pointer-events:none}
 .an-in{max-width:1180px;margin:0 auto;padding:34px 48px 90px 70px;position:relative}
@@ -218,39 +218,70 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .dg-t tr.pri td{border-top:2px solid #C9D6E3}
 .dg-t tbody tr:nth-child(even) td{background:#F8FAFC}
 .dg-t .ic-b{width:28px;height:28px;font-size:13px}
-@media (max-width:900px){.an-abas{gap:0}.an-aba{padding:10px 9px;font-size:11.5px}
+@media (max-width:900px){.an-abas{gap:0;flex-wrap:wrap}.an-aba{padding:10px 9px;font-size:11.5px}
  .dg-t,.dg-t tbody,.dg-t tr,.dg-t td{display:block}.dg-t colgroup,.dg-t thead{display:none}
  .dg-t tr{position:relative;padding:8px 40px 8px 0;border-bottom:1px solid var(--linha)}.dg-t tr.pri{border-top:2px solid #C9D6E3}.dg-t td{border:0!important;padding:2px 4px;background:none!important}
  .dg-t td[data-l]::before{content:attr(data-l) ': ';color:var(--cinza);font-size:9.5px;font-weight:900}.dg-t td:empty{display:none}.dg-t td:last-child{position:absolute;right:4px;top:8px;padding:0}}
-.bd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
-.bd-grid.g2{grid-template-columns:1.6fr 1fr}
-.bd-grid.g2>div{display:flex;flex-direction:column;gap:14px}
-.bd-card{border:1.5px solid var(--linha);border-radius:18px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04);padding:16px 18px;display:flex;flex-direction:column;gap:8px;margin-bottom:0}
-#bd-lista>.bd-card{margin-bottom:14px}
-.bd-card h3{font-size:14px;font-weight:900;color:var(--azul);letter-spacing:.5px}
+/* ---- banco de dados (analista) ---- */
+.bd-card{border:1.5px solid var(--linha);border-radius:18px;background:#fff;box-shadow:0 2px 12px rgba(16,42,67,.05);padding:18px 20px;display:flex;flex-direction:column;gap:10px}
 .bd-card .txt{font-size:12px;font-weight:700;color:var(--cinza)}
-.bd-st{border-radius:12px;padding:12px;font-size:15px;font-weight:900;text-align:center}
-.bd-st.vd{background:#E7F5EA;color:#1B5E20} .bd-st.am{background:#FFF6DC;color:#7A5600} .bd-st.vm{background:#FDECEA;color:#B71C1C}
-.bd-l{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;font-weight:800;color:var(--cinza);border-bottom:1px dashed var(--linha);padding:5px 0}
-.bd-l b{color:var(--texto);text-align:right}
-.bd-ks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bd-ks.k4{grid-template-columns:repeat(4,1fr)}.bd-ks.k3{grid-template-columns:repeat(3,1fr)}
-.bd-k{background:var(--fundo);border-radius:12px;padding:12px}
-.bd-k .r{font-size:10px;font-weight:900;color:var(--cinza)} .bd-k .v{font-size:22px;font-weight:900;margin-top:2px;color:var(--azul)} .bd-k .s{font-size:10.5px;font-weight:800;color:var(--cinza);margin-top:2px}
-.bd-sub{font-size:10.5px;font-weight:900;color:var(--azul);margin-top:6px}
-.bd-nota{font-size:10.5px;font-weight:700;color:var(--cinza);line-height:1.45;background:var(--fundo);border-radius:10px;padding:8px 10px;margin-top:4px}
-.bd-a{text-align:center;text-decoration:none;display:block;margin-top:6px}
-.bd-ck{font-size:12px;font-weight:800;border-radius:10px;padding:9px 12px}
-.bd-ck.ok{background:#E7F5EA;color:#1B5E20} .bd-ck.av{background:#FFF6DC;color:#7A5600}
+.bd-ch{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.bd-ch h3{font-size:13.5px;font-weight:900;color:var(--texto);letter-spacing:.6px;flex:1}
+.bd-ch .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 34px}
+.bd-ch .ic svg{width:18px;height:18px}
+.ic.az{background:#E3EEFB;color:#1565C0}.ic.vd{background:#E7F5EA;color:#2E9D4A}.ic.am{background:#FFF6DC;color:#B07A00}.ic.vm{background:#FDECEA;color:#D32F2F}.ic.rx{background:#EEE8FA;color:#6A1B9A}
+.bd-ch .btn{width:auto;padding:8px 14px;font-size:11px}
+.bd-hero{position:relative;overflow:hidden;border-radius:20px;background:#fff;border:1.5px solid var(--linha);box-shadow:0 4px 18px rgba(16,42,67,.06);padding:20px 22px 20px 30px;display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.bd-hero::before{content:'';position:absolute;left:0;top:0;bottom:0;width:8px;background:linear-gradient(180deg,#1565C0,#2E9D4A)}
+.bd-hero .sel{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;flex:0 0 58px;box-shadow:0 0 0 6px rgba(46,157,74,.15)}
+.bd-hero .sel.vd{background:var(--verde)}.bd-hero .sel.am{background:var(--amarelo);box-shadow:0 0 0 6px rgba(242,169,0,.18)}
+.bd-hero .tt{flex:1;min-width:0}
+.bd-hero .tt small{display:block;font-size:10.5px;font-weight:900;color:var(--azul);letter-spacing:1.5px}
+.bd-hero .tt b{display:block;font-size:22px;font-weight:900;color:var(--texto);margin:2px 0}
+.bd-hero .tt span{font-size:11px;font-weight:800;color:var(--cinza)}
+.bd-hero .btn{width:auto;padding:11px 18px;font-size:12px}
+.bd-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.bd-kp{background:#fff;border:1.5px solid var(--linha);border-top:4px solid var(--azul);border-radius:14px;padding:12px 14px}
+.bd-kp .r{font-size:9.5px;font-weight:900;color:var(--cinza);letter-spacing:.5px}
+.bd-kp .v{font-size:24px;font-weight:900;color:var(--texto);margin-top:4px;line-height:1.1}
+.bd-kp .s{font-size:10px;font-weight:800;color:var(--cinza);margin-top:4px}
+.bd-seg{display:inline-flex;background:var(--fundo);border:1.5px solid var(--linha);border-radius:14px;padding:4px;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.bd-seg button{border:0;background:none;border-radius:10px;padding:9px 16px;font-size:11.5px;font-weight:900;color:var(--cinza);letter-spacing:.4px;cursor:pointer}
+.bd-seg button.ativo{background:#fff;color:var(--azul);box-shadow:0 1px 6px rgba(16,42,67,.12)}
+.bd-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.bd-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.bd-st{border-radius:12px;padding:12px;font-size:14px;font-weight:900;text-align:center}
+.bd-st.vd{background:#E7F5EA;color:#1B5E20}.bd-st.am{background:#FFF6DC;color:#7A5600}.bd-st.vm{background:#FDECEA;color:#B71C1C}
+.bd-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:11.5px;font-weight:800;color:var(--cinza);border-bottom:1px solid var(--linha);padding:8px 0}
+.bd-l:last-child{border-bottom:0}
+.bd-l b{color:var(--texto);text-align:right;font-weight:900}
+.bd-ck{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:800;color:var(--texto);padding:8px 0;border-bottom:1px solid var(--linha)}
+.bd-ck:last-child{border-bottom:0}
+.bd-ck i{font-style:normal;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex:0 0 24px}
+.bd-ck.ok i{background:#E7F5EA;color:#2E9D4A}.bd-ck.av i{background:#FFF6DC;color:#B07A00}
+.bd-ck.av{color:#7A5600}
+.bd-tag{display:inline-block;white-space:nowrap;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:900;color:#fff}
+.bd-tag.vd{background:var(--verde)}.bd-tag.am{background:var(--amarelo);color:#3B2C00}.bd-tag.cz{background:#90A4AE}.bd-tag.az{background:var(--azul)}
+.bd-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bd-mn{background:var(--fundo);border-radius:12px;padding:10px 12px}
+.bd-mn .r{font-size:9.5px;font-weight:900;color:var(--cinza)} .bd-mn .v{font-size:19px;font-weight:900;color:var(--texto);margin-top:2px}
+.bd-rings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.bd-ring svg{width:132px;height:132px;display:block;margin:0 auto}
+.bd-ring b{display:block;font-size:12px;font-weight:900;color:var(--texto);margin-top:6px}
+.bd-ring span{display:block;font-size:10.5px;font-weight:800;color:var(--cinza);margin-top:2px}
+.bd-nota{font-size:10.5px;font-weight:700;color:var(--cinza);line-height:1.5;background:var(--fundo);border-radius:10px;padding:9px 12px}
+.bd-a{text-align:center;text-decoration:none;display:block;margin-top:4px}
 .bd-t td small{display:block;font-size:9.5px;color:var(--cinza)}
-.bd-h{display:flex;justify-content:space-between;align-items:center;gap:10px}.bd-h .btn{width:auto;padding:9px 14px;font-size:11.5px}
-.bd-grid.g2b{grid-template-columns:1fr 1fr}
-.bd-pin{font-size:14px;font-weight:900;letter-spacing:2px;color:var(--cinza)} .bd-pin.vis{color:var(--azul);letter-spacing:3px}
-.bd-z{width:auto!important;padding:6px 8px!important;font-size:10px!important;border-width:1.5px!important;white-space:nowrap}
 .bd-t td{overflow-wrap:normal;word-break:normal}
-@media (max-width:900px){.bd-t tr{padding:8px 0}.bd-t td:last-child{position:static;padding:2px 4px}}
-.bd-tag{display:inline-block;white-space:nowrap;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:900;color:#fff}
-.bd-tag.vd{background:var(--verde)} .bd-tag.am{background:var(--amarelo);color:#3B2C00} .bd-tag.cz{background:#90A4AE}
-@media (max-width:900px){.bd-grid,.bd-grid.g2,.bd-grid.g2b{grid-template-columns:1fr}.bd-h{flex-direction:column;align-items:stretch}.bd-ks.k4{grid-template-columns:1fr 1fr}.bd-ks.k3{grid-template-columns:1fr}}
+.bd-pin{font-size:14px;font-weight:900;letter-spacing:2px;color:var(--cinza)} .bd-pin.vis{color:var(--azul);letter-spacing:3px}
+.bd-z{width:auto!important;padding:6px 9px!important;font-size:10px!important;border-width:1.5px!important;white-space:nowrap}
+.bd-busca{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bd-busca .busca{flex:1;min-width:200px;padding:10px 12px;font-size:13px;font-weight:700}
+.bd-busca .chip{cursor:pointer}.bd-busca .chip.ativo{background:var(--azul);border-color:var(--azul);color:#fff}
+@media (max-width:1000px){.bd-kpis{grid-template-columns:repeat(2,1fr)}.bd-g2,.bd-g3{grid-template-columns:1fr}}
+@media (max-width:900px){.bd-hero{flex-wrap:wrap;padding:16px 16px 16px 24px}.bd-hero .tt b{font-size:18px}.bd-hero .btn{width:100%}
+ .bd-seg{display:grid;grid-template-columns:1fr 1fr;width:100%}.bd-mini{grid-template-columns:1fr 1fr}.bd-rings{grid-template-columns:1fr}
+ .bd-t tr{padding:8px 0}.bd-t td:last-child{position:static;padding:2px 4px}}
 .btn.exj{background:#fff;color:var(--vermelho);border:2px solid var(--vermelho);margin-left:auto}
 .btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
 .ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
@@ -506,8 +537,6 @@ html.escuro .ap .obs{background:#0F1720}
         <div id="dg-lista"></div>
       </div>
       <div id="an-banco" class="oculto">
-        <div class="ap-fil" style="justify-content:space-between;align-items:center"><div class="an-aviso" style="margin:0;flex:1">SITUAÇÃO DO BANCO DE DADOS (SUPABASE) QUE GUARDA TUDO DO APLICATIVO: SAÚDE, ESPAÇO USADO, CONTA E QUEM ENTROU NO APP.</div>
-          <button class="btn sec" onclick="carregarBd()">ATUALIZAR</button></div>
         <div id="bd-lista"></div>
       </div>
 
@@ -1478,77 +1507,126 @@ function zerarSenha(i) {
     <div class="jo-al am" style="margin:0">ELE SERÁ DESCONECTADO DO APP. NO PRÓXIMO ACESSO ENTRA COM 0000 E É OBRIGADO A CRIAR UMA SENHA NOVA DE 4 NÚMEROS.</div>
     <div class="msg"></div><button class="btn" onclick="acaoAn(this,()=>rpc('an_resetar_senha',{p_senha:senhaAn,p_matricula:'${esc(u.re)}'}),()=>{SENHAS=null;SENHAS_VIS=false;return carregarBd()})">CONFIRMAR — ZERAR PARA 0000</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
 }
+let BD_LAST = null, BD_SEC = 'geral', BD_FIL = { q: '', f: 'TD' };
+const ICO = {
+  pulso: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>',
+  escudo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+  banco: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8v-13M4.5 12c0 1.6 3.4 2.8 7.5 2.8s7.5-1.2 7.5-2.8"/></svg>',
+  conta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19.5 10 4 4 0 0 1 18 18z"/></svg>',
+  pessoas: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.4 1.9 5 4.9"/></svg>',
+  seta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>',
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>',
+  grade: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M3.5 15h17M10 4v16"/></svg>'
+};
+const cabBd = (ic, cor, t, extra = '') => `<div class="bd-ch"><span class="ic ${cor}">${ICO[ic]}</span><h3>${t}</h3>${extra}</div>`;
+function anelBd(p, cor, rot, sub) {
+  const r = 50, c = 2 * Math.PI * r, v = Math.max(0, Math.min(100, p));
+  return `<div class="bd-ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--fundo)" stroke-width="13"/>
+    <circle cx="66" cy="66" r="${r}" fill="none" stroke="${cor}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${(c * v / 100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 66 66)"/>
+    <text x="66" y="72" text-anchor="middle" font-size="22" font-weight="900" fill="var(--texto)" font-family="inherit">${p.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%</text></svg><b>${rot}</b><span>${sub}</span></div>`;
+}
+function secBd(s) { BD_SEC = s; if (BD_LAST) renderBd(BD_LAST.d, BD_LAST.ms); }
+function filtraUsu() {
+  const q = up($('#bd-q') ? $('#bd-q').value : ''); BD_FIL.q = q;
+  document.querySelectorAll('#bd-usu tbody tr').forEach(tr => { const u = BD_USU[tr.dataset.i]; const okF = BD_FIL.f === 'TD' || (BD_FIL.f === 'PR' ? u.provisoria : BD_FIL.f === 'AT' ? (u.ativo && !u.provisoria) : !u.ativo);
+    tr.style.display = okF && (!q || up(u.nome + ' ' + u.re).includes(q)) ? '' : 'none'; });
+  document.querySelectorAll('.bd-busca .chip').forEach(c => c.classList.toggle('ativo', c.dataset.f === BD_FIL.f));
+}
 function renderBd(d, ms) {
-  const c = d.conta || {}, LIM_DB = 500 * 1048576, LIM_ST = 1073741824;
+  BD_LAST = { d, ms };
+  const c = d.conta || {}, GB = 1073741824, LIM_DB = 500 * 1048576, LIM_ST = GB;
   const pDb = d.db_bytes / LIM_DB * 100, pSt = (d.storage.bytes || 0) / LIM_ST * 100, pCx = d.conexoes / d.max_conexoes * 100;
   const dias = Math.floor((Date.now() - new Date(d.no_ar_desde)) / 864e5);
-  const ok = (cond, txtOk, txtRuim) => `<div class="bd-ck ${cond ? 'ok' : 'av'}">${cond ? '✓' : '⚠'} ${cond ? txtOk : txtRuim}</div>`;
-  const cor = p => p < 70 ? 'var(--verde)' : p < 90 ? 'var(--amarelo)' : 'var(--vermelho)';
-  const lin = (r, v) => `<div class="bd-l"><span>${r}</span><b>${v}</b></div>`;
-  const kpi = (r, v, s, cl) => `<div class="bd-k"><div class="r">${r}</div><div class="v" ${cl ? `style="color:${cl}"` : ''}>${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
   const pct = p => p.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
-  const saudavel = ms < 3000 && pDb < 90 && pCx < 80;
-  const tf = d.trafego, LIM_TF = 5 * 1073741824, agoraD = new Date(), diasMes = new Date(agoraD.getFullYear(), agoraD.getMonth() + 1, 0).getDate();
+  const cor = p => p < 60 ? 'var(--verde)' : p < 90 ? 'var(--amarelo)' : 'var(--vermelho)';
+  const lin = (r, v) => `<div class="bd-l"><span>${r}</span><b>${v}</b></div>`;
+  const tf = d.trafego, LIM_TF = 5 * GB, agoraD = new Date(), diasMes = new Date(agoraD.getFullYear(), agoraD.getMonth() + 1, 0).getDate();
   const tfTot = tf ? tf.atual.reduce((s, x) => s + Number(x.bytes), 0) : 0, iniCont = tf && tf.inicio_contagem ? new Date(tf.inicio_contagem) : null;
   const diaIni = iniCont && iniCont.getMonth() === agoraD.getMonth() && iniCont.getFullYear() === agoraD.getFullYear() ? iniCont.getDate() : 1;
-  const diasCont = Math.max(1, agoraD.getDate() - diaIni + 1), tfProj = tfTot / diasCont * diasMes, pTf = tfTot / LIM_TF * 100, pProj = tfProj / LIM_TF * 100;
-  const corTf = b => b < 3 * 1073741824 ? 'var(--verde)' : b < 4.5 * 1073741824 ? 'var(--amarelo)' : 'var(--vermelho)';
+  const tfProj = tfTot / Math.max(1, agoraD.getDate() - diaIni + 1) * diasMes, pTf = tfTot / LIM_TF * 100, pProj = tfProj / LIM_TF * 100;
+  const corTf = b => b < 3 * GB ? 'var(--verde)' : b < 4.5 * GB ? 'var(--amarelo)' : 'var(--vermelho)';
   const NOME_OR = { PLANILHAS: 'PLANILHAS BAIXADAS PELOS CELULARES', 'APP MECÂNICO': 'APONTAMENTOS DOS MECÂNICOS', CONSULTA: 'CONSULTAS DO APP', ANALISTA: 'ÁREA DO ANALISTA', OUTROS: 'OUTROS' };
   const MES_N = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
-  const cardTf = !tf ? '<div class="bd-card"><h3>TRÁFEGO DO MÊS (ESTIMADO)</h3><div class="txt">NÃO FOI POSSÍVEL LER O CONTADOR.</div></div>' : `<div class="bd-card"><h3>TRÁFEGO DO MÊS (ESTIMADO) · ${MES_N[agoraD.getMonth()]}</h3>
-    ${tfProj >= 3 * 1073741824 ? `<div class="bd-st ${tfProj >= 4.5 * 1073741824 ? 'vm' : 'am'}">⚠ NESTE RITMO O MÊS FECHA EM ${bytesBR(tfProj)} — PERTO DO LIMITE DE 5 GB</div>` : '<div class="bd-st vd">✓ TRÁFEGO DENTRO DO LIMITE</div>'}
-    <div class="bd-ks k3">${kpi('USADO NO MÊS', bytesBR(tfTot), pct(pTf) + ' DE 5 GB', corTf(tfTot))}${kpi('PREVISÃO ATÉ O FIM DO MÊS', bytesBR(tfProj), pct(pProj) + ' DE 5 GB', corTf(tfProj))}${kpi('LIMITE DO PLANO', '5 GB', 'AVISO AMARELO A PARTIR DE 3 GB')}</div>
-    <div class="bd-sub">DE ONDE VEM</div>
-    ${tf.atual.length ? tf.atual.map(x => lin(NOME_OR[x.origem] || esc(x.origem), bytesBR(x.bytes) + ' · ' + nBR(x.req) + ' DOWNLOAD(S)')).join('') : '<div class="txt">NENHUM DOWNLOAD CONTADO AINDA NESTE MÊS.</div>'}
-    ${tf.historico.length ? '<div class="bd-sub">MESES ANTERIORES</div>' + tf.historico.map(h => lin(MES_N[Number(h.mes.slice(5, 7)) - 1] + ' ' + h.mes.slice(0, 4), bytesBR(h.bytes))).join('') : ''}
-    <div class="bd-nota">CONTAGEM FEITA PELO PRÓPRIO APP DESDE ${iniCont ? quando(tf.inicio_contagem) : 'AGORA'}. É UMA ESTIMATIVA PARA CIMA (O SUPABASE COMPRIME OS DADOS, ENTÃO O REAL TENDE A SER MENOR). O CICLO DO SUPABASE PODE COMEÇAR EM OUTRO DIA DO MÊS — O NÚMERO OFICIAL FICA NO PAINEL, EM "USAGE".</div></div>`;
-  $('#bd-lista').innerHTML = `
-  <div class="bd-grid">
-    <div class="bd-card"><h3>SAÚDE</h3>
-      <div class="bd-st ${saudavel ? 'vd' : 'am'}">${saudavel ? '✓ ONLINE E SAUDÁVEL' : '⚠ ONLINE COM ATENÇÃO'}</div>
-      ${lin('TEMPO DE RESPOSTA', ms + ' MS')}${lin('NO AR HÁ', dias + ' DIA(S) · DESDE ' + quando(d.no_ar_desde))}${lin('CONEXÕES ABERTAS', d.conexoes + ' DE ' + d.max_conexoes + ' · ' + pct(pCx))}
-      ${lin('DADOS EM CACHE (MEMÓRIA)', (d.cache_hit ?? '—') + '%')}${lin('VERSÃO DO POSTGRESQL', d.versao)}${lin('ÚLTIMO ENVIO DE APONTAMENTO', quando(d.ultimo_envio))}${lin('CONSULTADO EM', quando(d.agora))}</div>
-    <div class="bd-card"><h3>ARMAZENAMENTO</h3>
-      <div class="bd-ks">${kpi('BANCO DE DADOS', bytesBR(d.db_bytes), pct(pDb) + ' DE 500 MB', cor(pDb))}${kpi('ARQUIVOS', bytesBR(d.storage.bytes), nBR(d.storage.arquivos) + ' ARQUIVO(S) · ' + pct(pSt) + ' DE 1 GB', cor(pSt))}</div>
-      <div class="bd-sub">PLANILHAS PUBLICADAS</div>
-      ${(d.planilhas || []).map(p => lin(NOME_PLAN[p.tabela] || up(p.tabela), nBR(p.linhas) + ' LINHAS · ' + bytesBR(p.bytes) + ' · ' + quando(p.em))).join('') || '<div class="txt">NENHUMA PLANILHA PUBLICADA</div>'}
-      <div class="bd-nota">LIMITES DO PLANO GRATUITO: 500 MB DE BANCO, 1 GB DE ARQUIVOS E 5 GB DE TRÁFEGO POR MÊS. O TRÁFEGO SÓ APARECE NO PAINEL DO SUPABASE.</div></div>
-    <div class="bd-card"><h3>CONTA SUPABASE</h3>
+  const cks = [[!d.abertas_antigas, 'NENHUMA JORNADA ESQUECIDA ABERTA', d.abertas_antigas + ' JORNADA(S) ABERTA(S) HÁ MAIS DE 1 DIA'],
+    [!d.aguardando_antigas, 'NENHUMA APROVAÇÃO ATRASADA', d.aguardando_antigas + ' JORNADA(S) AGUARDANDO APROVAÇÃO HÁ MAIS DE 3 DIAS'],
+    [!d.sem_fim, 'TODOS OS APONTAMENTOS ENCERRADOS TÊM HORA FIM', d.sem_fim + ' APONTAMENTO(S) SEM HORA FIM EM JORNADA ENCERRADA'],
+    [!d.orfaos, 'TODOS OS APONTAMENTOS TÊM JORNADA', d.orfaos + ' APONTAMENTO(S) SEM JORNADA'],
+    [pDb < 70, 'BANCO COM FOLGA DE ESPAÇO', 'BANCO USANDO ' + pct(pDb) + ' DO LIMITE'],
+    [tfProj < 3 * GB, 'TRÁFEGO DO MÊS DENTRO DO LIMITE', 'TRÁFEGO PREVISTO DE ' + bytesBR(tfProj) + ' NO MÊS'],
+    [d.excluidos < 5000, 'POUCOS REGISTROS EXCLUÍDOS ACUMULADOS', nBR(d.excluidos) + ' REGISTROS EXCLUÍDOS ACUMULADOS']];
+  const nOk = cks.filter(x => x[0]).length, saudavel = ms < 3000 && pDb < 90 && pCx < 80 && nOk >= cks.length - 1;
+  const kp = (r, v, s, cl) => `<div class="bd-kp" style="border-top-color:${cl}"><div class="r">${r}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+
+  let h = `<div class="bd-hero"><div class="sel ${saudavel ? 'vd' : 'am'}">${saudavel ? '✓' : '!'}</div>
+    <div class="tt"><small>BANCO DE DADOS · SUPABASE</small><b>${saudavel ? 'ONLINE E FUNCIONANDO BEM' : 'ONLINE — PEDE ATENÇÃO'}</b>
+      <span>${nOk} DE ${cks.length} VERIFICAÇÕES OK · POSTGRESQL ${esc(d.versao)} · ${esc((c.regiao || '').split(' ')[0].toUpperCase())} · CONSULTADO ${quando(d.agora)}</span></div>
+    <button class="btn sec" onclick="carregarBd()">↻ ATUALIZAR</button></div>
+  <div class="bd-kpis">
+    ${kp('TEMPO DE RESPOSTA', ms + ' MS', ms < 800 ? 'RÁPIDO' : ms < 3000 ? 'NORMAL' : 'LENTO', ms < 800 ? 'var(--verde)' : ms < 3000 ? 'var(--amarelo)' : 'var(--vermelho)')}
+    ${kp('ESPAÇO DO BANCO', bytesBR(d.db_bytes), pct(pDb) + ' DE 500 MB', cor(pDb))}
+    ${kp('TRÁFEGO DO MÊS', bytesBR(tfTot), 'PREVISÃO ' + bytesBR(tfProj) + ' · ' + pct(pProj), corTf(tfProj))}
+    ${kp('MECÂNICOS ATIVOS', nBR(d.mecanicos), nBR(d.senha_provisoria) + ' AINDA COM SENHA 0000', 'var(--azul)')}
+    ${kp('ACESSOS HOJE', nBR(d.acessos_hoje), nBR(d.usuarios_hoje) + ' PESSOA(S) · ' + nBR(d.acessos_7d) + ' EM 7 DIAS', '#6A1B9A')}
+  </div>
+  <div class="bd-seg">${[['geral', 'VISÃO GERAL'], ['usuarios', 'USUÁRIOS E SENHAS'], ['espaco', 'ESPAÇO E TRÁFEGO'], ['tabelas', 'TABELAS']].map(([k, n]) => `<button class="${BD_SEC === k ? 'ativo' : ''}" onclick="secBd('${k}')">${n}</button>`).join('')}</div>`;
+
+  if (BD_SEC === 'geral') h += `<div class="bd-g2">
+    <div class="bd-card">${cabBd('pulso', 'vd', 'SAÚDE DO SERVIDOR')}
+      ${lin('SITUAÇÃO', saudavel ? '<span class="bd-tag vd">ONLINE</span>' : '<span class="bd-tag am">ATENÇÃO</span>')}${lin('TEMPO DE RESPOSTA', ms + ' MS')}
+      ${lin('NO AR HÁ', dias + ' DIA(S) · DESDE ' + quando(d.no_ar_desde))}${lin('CONEXÕES ABERTAS', d.conexoes + ' DE ' + d.max_conexoes + ' (' + pct(pCx) + ')')}
+      ${lin('DADOS EM CACHE (MEMÓRIA)', (d.cache_hit ?? '—') + '%')}${lin('ÚLTIMO APONTAMENTO RECEBIDO', quando(d.ultimo_envio))}</div>
+    <div class="bd-card">${cabBd('escudo', nOk === cks.length ? 'vd' : 'am', 'VERIFICAÇÕES AUTOMÁTICAS', `<span class="bd-tag ${nOk === cks.length ? 'vd' : 'am'}">${nOk}/${cks.length} OK</span>`)}
+      ${cks.map(([okk, a, b]) => `<div class="bd-ck ${okk ? 'ok' : 'av'}"><i>${okk ? '✓' : '!'}</i>${okk ? a : b}</div>`).join('')}</div>
+  </div><div class="bd-g2">
+    <div class="bd-card">${cabBd('banco', 'az', 'DADOS DO APLICATIVO')}
+      <div class="bd-mini">${[['MECÂNICOS ATIVOS', d.mecanicos], ['ATIVIDADES', d.atividades], ['FROTAS', d.frotas], ['APONTAMENTOS', d.apontamentos], ['JORNADAS', d.jornadas], ['EM ANDAMENTO', d.j_abertas], ['AGUARDANDO APROVAÇÃO', d.j_encerradas], ['RECUSADAS', d.j_recusadas], ['APROVADAS', d.j_aprovadas]]
+        .map(([r, v]) => `<div class="bd-mn"><div class="r">${r}</div><div class="v">${nBR(v)}</div></div>`).join('')}</div>
+      ${lin('PERÍODO APONTADO', d.primeira_data ? dataBR(d.primeira_data) + ' A ' + dataBR(d.ultima_data) : '—')}</div>
+    <div class="bd-card">${cabBd('conta', 'rx', 'CONTA SUPABASE')}
       ${lin('PROJETO', esc(c.projeto || '—'))}${lin('PLANO', esc(c.plano || '—'))}${lin('REGIÃO DO SERVIDOR', esc(c.regiao || '—'))}${lin('CRIADO EM', c.criado_em ? quando(c.criado_em) : '—')}
-      ${lin('E-MAIL DA CONTA', esc((c.email_conta || '—').toUpperCase()))}${lin('CÓDIGO DO PROJETO', esc(c.ref || '—'))}
+      ${lin('E-MAIL DA CONTA', esc((c.email_conta || '—').toUpperCase()))}${lin('CÓDIGO DO PROJETO', esc((c.ref || '—').toUpperCase()))}
       ${c.painel ? `<a class="btn sec bd-a" href="${esc(c.painel)}" target="_blank" rel="noopener">ABRIR PAINEL DO SUPABASE ↗</a>` : ''}
       <div class="bd-nota">NO PLANO GRATUITO O PROJETO É PAUSADO SE FICAR 7 DIAS SEM USO. COM OS MECÂNICOS USANDO TODO DIA, ISSO NÃO ACONTECE.</div></div>
-  </div>
-  ${cardTf}
-  <div class="bd-card" style="margin-top:14px"><div class="bd-h"><h3>LOGINS, ACESSOS E SENHAS</h3><button class="btn sec" id="bd-ver" onclick="verSenhas()">👁 MOSTRAR SENHAS</button></div>
-      <div class="bd-ks k4">${kpi('ACESSOS HOJE', nBR(d.acessos_hoje))}${kpi('PESSOAS HOJE', nBR(d.usuarios_hoje))}${kpi('ACESSOS EM 7 DIAS', nBR(d.acessos_7d))}${kpi('SESSÕES ATIVAS', nBR(d.sessoes_ativas))}</div>
-      <table class="dg-t bd-t"><colgroup><col><col style="width:8%"><col style="width:10%"><col style="width:15%"><col style="width:14%"><col style="width:9%"><col style="width:12%"><col style="width:13%"></colgroup>
+  </div>`;
+
+  if (BD_SEC === 'usuarios') {
+    const U = d.usuarios || [], cnt = f => U.filter(u => f === 'TD' || (f === 'PR' ? u.provisoria : f === 'AT' ? (u.ativo && !u.provisoria) : !u.ativo)).length;
+    h += `<div class="bd-card">${cabBd('pessoas', 'az', 'USUÁRIOS, ACESSOS E SENHAS', `<button class="btn sec" id="bd-ver" onclick="verSenhas()">${SENHAS_VIS ? '🙈 ESCONDER SENHAS' : '👁 MOSTRAR SENHAS'}</button>`)}
+      <div class="bd-busca"><input class="busca" id="bd-q" placeholder="BUSCAR POR NOME OU RE…" value="${esc(BD_FIL.q)}" oninput="filtraUsu()">
+        <div class="chips">${[['TD', 'TODOS'], ['AT', 'ATIVOS'], ['PR', 'SENHA 0000'], ['IN', 'INATIVOS']].map(([k, n]) => `<button class="chip${BD_FIL.f === k ? ' ativo' : ''}" data-f="${k}" onclick="BD_FIL.f='${k}';filtraUsu()">${n} ${cnt(k)}</button>`).join('')}</div></div>
+      <table class="dg-t bd-t" id="bd-usu"><colgroup><col><col style="width:8%"><col style="width:10%"><col style="width:15%"><col style="width:14%"><col style="width:9%"><col style="width:12%"><col style="width:13%"></colgroup>
       <thead><tr><th>NOME</th><th>RE</th><th>PERFIL</th><th>ÚLTIMO LOGIN</th><th>ÚLTIMO ENVIO</th><th>SENHA</th><th>SITUAÇÃO</th><th></th></tr></thead>
-      <tbody>${(BD_USU = d.usuarios || []).map((u, i) => `<tr><td data-l="NOME">${esc(u.nome)}</td><td data-l="RE">${esc(u.re)}</td><td data-l="PERFIL">${u.perfil === 'ADMIN' ? 'ANALISTA' : 'MECÂNICO'}</td>
+      <tbody>${(BD_USU = U).map((u, i) => `<tr data-i="${i}"><td data-l="NOME">${esc(u.nome)}</td><td data-l="RE">${esc(u.re)}</td><td data-l="PERFIL">${u.perfil === 'ADMIN' ? 'ANALISTA' : 'MECÂNICO'}</td>
         <td data-l="ÚLTIMO LOGIN">${u.acesso ? quando(u.acesso) + '<small>' + haQuanto(u.acesso) + '</small>' : '—'}</td><td data-l="ÚLTIMO ENVIO">${u.envio ? quando(u.envio) : '—'}</td>
         <td data-l="SENHA"><span class="bd-pin" data-re="${esc(u.re)}">••••</span></td>
         <td data-l="SITUAÇÃO"><span class="bd-tag ${!u.ativo ? 'cz' : u.provisoria ? 'am' : 'vd'}">${!u.ativo ? 'INATIVO' : u.provisoria ? 'SENHA 0000' : 'ATIVO'}</span></td>
         <td>${u.provisoria ? '' : `<button class="btn sec bd-z" onclick="zerarSenha(${i})">ZERAR P/ 0000</button>`}</td></tr>`).join('')}</tbody></table>
-      <div class="bd-nota">"SENHA 0000" = AINDA NÃO ENTROU NO APP PELA PRIMEIRA VEZ (OU A SENHA FOI ZERADA). O HISTÓRICO DE LOGIN GUARDA SÓ AS SESSÕES DOS ÚLTIMOS DIAS. "ZERAR P/ 0000" DESCONECTA O MECÂNICO; NO PRÓXIMO ACESSO ELE ENTRA COM 0000 E É OBRIGADO A CRIAR UMA SENHA NOVA.</div></div>
-  <div class="bd-grid g2b" style="margin-top:14px">
-      <div class="bd-card"><h3>VERIFICAÇÕES</h3>
-        ${ok(!d.abertas_antigas, 'NENHUMA JORNADA ESQUECIDA ABERTA', d.abertas_antigas + ' JORNADA(S) ABERTA(S) HÁ MAIS DE 1 DIA')}
-        ${ok(!d.aguardando_antigas, 'NENHUMA APROVAÇÃO ATRASADA', d.aguardando_antigas + ' JORNADA(S) AGUARDANDO APROVAÇÃO HÁ MAIS DE 3 DIAS')}
-        ${ok(!d.sem_fim, 'TODOS OS APONTAMENTOS ENCERRADOS TÊM HORA FIM', d.sem_fim + ' APONTAMENTO(S) SEM HORA FIM EM JORNADA ENCERRADA')}
-        ${ok(!d.orfaos, 'TODOS OS APONTAMENTOS TÊM JORNADA', d.orfaos + ' APONTAMENTO(S) SEM JORNADA')}
-        ${ok(pDb < 70, 'BANCO COM FOLGA DE ESPAÇO', 'BANCO USANDO ' + pct(pDb) + ' DO LIMITE')}
-        ${ok(tfProj < 3 * 1073741824, 'TRÁFEGO DO MÊS DENTRO DO LIMITE', 'TRÁFEGO PREVISTO DE ' + bytesBR(tfProj) + ' NO MÊS (LIMITE 5 GB)')}
-        ${ok(d.excluidos < 5000, 'POUCOS REGISTROS EXCLUÍDOS ACUMULADOS (' + nBR(d.excluidos) + ')', nBR(d.excluidos) + ' REGISTROS EXCLUÍDOS ACUMULADOS')}</div>
-      <div class="bd-card"><h3>DADOS GUARDADOS</h3>
-        ${lin('MECÂNICOS ATIVOS', nBR(d.mecanicos) + (d.mecanicos_inativos ? ' · ' + d.mecanicos_inativos + ' INATIVO(S)' : ''))}${lin('AINDA COM SENHA 0000', nBR(d.senha_provisoria))}
-        ${lin('ATIVIDADES CADASTRADAS', nBR(d.atividades))}${lin('FROTAS NO APP', nBR(d.frotas))}${lin('APONTAMENTOS', nBR(d.apontamentos))}
-        ${lin('JORNADAS', nBR(d.jornadas) + ' · ' + d.j_abertas + ' EM ANDAMENTO · ' + d.j_encerradas + ' AGUARDANDO · ' + d.j_recusadas + ' RECUSADA(S) · ' + d.j_aprovadas + ' APROVADA(S)')}
-        ${lin('PERÍODO APONTADO', d.primeira_data ? dataBR(d.primeira_data) + ' A ' + dataBR(d.ultima_data) : '—')}</div>
-  </div>
-  <div class="bd-card"><h3>TABELAS DO BANCO</h3>
-    <table class="dg-t bd-t"><colgroup><col><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+      <div class="bd-nota">"SENHA 0000" = AINDA NÃO ENTROU NO APP PELA PRIMEIRA VEZ (OU A SENHA FOI ZERADA). "ZERAR P/ 0000" DESCONECTA O MECÂNICO; NO PRÓXIMO ACESSO ELE ENTRA COM 0000 E É OBRIGADO A CRIAR UMA SENHA NOVA. O HISTÓRICO DE LOGIN GUARDA SÓ AS SESSÕES DOS ÚLTIMOS DIAS.</div></div>`;
+  }
+
+  if (BD_SEC === 'espaco') h += `<div class="bd-card" style="margin-bottom:14px">${cabBd('banco', 'az', 'USO DO PLANO GRATUITO')}
+      <div class="bd-rings">${anelBd(pDb, cor(pDb), 'BANCO DE DADOS', bytesBR(d.db_bytes) + ' DE 500 MB')}${anelBd(pSt, cor(pSt), 'ARQUIVOS', bytesBR(d.storage.bytes) + ' DE 1 GB · ' + nBR(d.storage.arquivos) + ' ARQUIVO(S)')}${anelBd(pProj, corTf(tfProj), 'TRÁFEGO PREVISTO NO MÊS', bytesBR(tfProj) + ' DE 5 GB')}</div></div>
+    <div class="bd-g2">
+      <div class="bd-card">${cabBd('seta', tfProj < 3 * GB ? 'vd' : 'am', 'TRÁFEGO DE ' + MES_N[agoraD.getMonth()] + ' (ESTIMADO)')}
+        ${!tf ? '<div class="txt">NÃO FOI POSSÍVEL LER O CONTADOR.</div>' : `
+        ${tfProj >= 3 * GB ? `<div class="bd-st ${tfProj >= 4.5 * GB ? 'vm' : 'am'}">⚠ NESTE RITMO O MÊS FECHA EM ${bytesBR(tfProj)} — PERTO DO LIMITE DE 5 GB</div>` : '<div class="bd-st vd">✓ DENTRO DO LIMITE · AVISO AMARELO A PARTIR DE 3 GB</div>'}
+        ${lin('USADO ATÉ AGORA', bytesBR(tfTot) + ' (' + pct(pTf) + ')')}${lin('PREVISÃO ATÉ O FIM DO MÊS', bytesBR(tfProj) + ' (' + pct(pProj) + ')')}
+        ${tf.atual.map(x => lin(NOME_OR[x.origem] || esc(x.origem), bytesBR(x.bytes) + ' · ' + nBR(x.req) + ' DOWNLOAD(S)')).join('') || '<div class="txt">NENHUM DOWNLOAD CONTADO AINDA NESTE MÊS.</div>'}
+        ${tf.historico.map(hh => lin('TOTAL DE ' + MES_N[Number(hh.mes.slice(5, 7)) - 1] + ' ' + hh.mes.slice(0, 4), bytesBR(hh.bytes))).join('')}
+        <div class="bd-nota">CONTAGEM FEITA PELO PRÓPRIO APP DESDE ${iniCont ? quando(tf.inicio_contagem) : 'AGORA'}. ESTIMATIVA PARA CIMA (O SUPABASE COMPRIME OS DADOS). O NÚMERO OFICIAL FICA NO PAINEL DO SUPABASE, EM "USAGE".</div>`}</div>
+      <div class="bd-card">${cabBd('doc', 'vd', 'PLANILHAS PUBLICADAS')}
+        ${(d.planilhas || []).map(p => `<div class="bd-l"><span>${NOME_PLAN[p.tabela] || up(p.tabela)}<small style="display:block;font-size:9.5px;margin-top:2px">PUBLICADA ${quando(p.em)}</small></span><b>${nBR(p.linhas)} LINHAS<small style="display:block;font-size:9.5px;color:var(--cinza);margin-top:2px">${bytesBR(p.bytes)}</small></b></div>`).join('') || '<div class="txt">NENHUMA PLANILHA PUBLICADA</div>'}
+        <div class="bd-nota">LIMITES DO PLANO GRATUITO: 500 MB DE BANCO, 1 GB DE ARQUIVOS E 5 GB DE TRÁFEGO POR MÊS. CADA PUBLICAÇÃO FAZ OS CELULARES BAIXAREM AS PLANILHAS DE NOVO.</div></div>
+    </div>`;
+
+  if (BD_SEC === 'tabelas') h += `<div class="bd-card">${cabBd('grade', 'az', 'TABELAS DO BANCO', `<span class="bd-tag az">${(d.tabelas || []).length} TABELAS · ${bytesBR(d.db_bytes)}</span>`)}
+    <table class="dg-t bd-t"><colgroup><col><col style="width:22%"><col style="width:18%"><col style="width:16%"></colgroup>
     <thead><tr><th>TABELA</th><th>NOME NO BANCO</th><th>REGISTROS (APROX.)</th><th>TAMANHO</th></tr></thead>
-    <tbody>${(d.tabelas || []).map(t => `<tr><td data-l="TABELA">${NOME_TAB[t.nome] || up(t.nome)}</td><td data-l="NOME NO BANCO">${esc(t.nome)}</td><td data-l="REGISTROS">${nBR(t.linhas)}</td><td data-l="TAMANHO">${bytesBR(t.bytes)}</td></tr>`).join('')}</tbody></table></div>`;
+    <tbody>${(d.tabelas || []).map(t => `<tr><td data-l="TABELA">${NOME_TAB[t.nome] || up(t.nome)}</td><td data-l="NOME NO BANCO">${esc(t.nome).toUpperCase()}</td><td data-l="REGISTROS">${nBR(t.linhas)}</td><td data-l="TAMANHO">${bytesBR(t.bytes)}</td></tr>`).join('')}</tbody></table>
+    <div class="bd-nota">O TAMANHO TOTAL INCLUI ÍNDICES E ESTRUTURAS INTERNAS DO BANCO, POR ISSO É MAIOR QUE A SOMA DAS TABELAS.</div></div>`;
+
+  $('#bd-lista').innerHTML = h;
+  if (BD_SEC === 'usuarios') { filtraUsu(); if (SENHAS_VIS && SENHAS) document.querySelectorAll('.bd-pin').forEach(e => { e.textContent = SENHAS[e.dataset.re] || '—'; e.classList.add('vis'); }); }
 }
 
 /* ================= INÍCIO DO APP ================= */
