@@ -240,7 +240,6 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
         <select class="busca" id="os-per" onchange="renderOS(true)">
           <option value="">SAFRA TODA</option><option value="HOJE">HOJE</option><option value="7">ÚLTIMOS 7 DIAS</option><option value="30">ÚLTIMOS 30 DIAS</option><option value="ESC">ESCOLHER PERÍODO…</option>
         </select>
-        <select class="busca" id="os-sec" onchange="renderOS(true)"></select>
       </div>
       <div class="lin oculto" id="os-esc">
         <label class="per"><span>DE (ABERTURA)</span><input type="date" class="busca" id="os-de" onchange="renderOS(true)"></label>
@@ -468,7 +467,7 @@ function ir(p) {
 function irOS(f) {
   if (f === 'ABERTA') { setChip('ABERTA'); $('#os-per').value = ''; }
   if (f === 'HOJE') { setChip(''); $('#os-per').value = 'HOJE'; }
-  $('#os-busca').value = ''; $('#os-sec').value = '';
+  $('#os-busca').value = '';
   renderOS(true); ir('os');
 }
 function setChip(v) { document.querySelectorAll('#os-sit .chip').forEach(c => c.classList.toggle('ativo', c.dataset.v === v)); }
@@ -483,7 +482,6 @@ function opcoes(sel, valores, todos) {
 }
 function unicos(lista, campo) { return [...new Set(lista.map(x => x[campo]).filter(Boolean))].sort(); }
 function preencherFiltros() {
-  opcoes($('#os-sec'), unicos(D.os, 'SECAO'), 'TODAS AS SEÇÕES');
   opcoes($('#fr-classe'), unicos(D.frotas, 'CLASSE'), 'TODAS AS CLASSES');
   opcoes($('#ap-mec'), unicos(D.apontamentos, 'ABREV'), 'TODOS OS MECÂNICOS');
   const dia = $('#ap-dia');
@@ -516,7 +514,7 @@ function duracaoOS(o) {
 }
 function renderOS(reset) {
   if (reset) osLim = POR_PAGINA;
-  const q = norm($('#os-busca').value), sit = ($('#os-sit .chip.ativo')||{}).dataset?.v || '', per = $('#os-per').value, sec = $('#os-sec').value;
+  const q = norm($('#os-busca').value), sit = ($('#os-sit .chip.ativo')||{}).dataset?.v || '', per = $('#os-per').value, sec = '';
   let desde = '', ate = '';
   $('#os-esc').classList.toggle('oculto', per !== 'ESC');
   if (per === 'HOJE') desde = hojeISO();
