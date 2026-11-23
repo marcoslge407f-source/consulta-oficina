@@ -1,6 +1,6 @@
 {
-  "name": "CONSULTA OFICINA - USINA GRANELLI",
-  "short_name": "CONSULTA OFICINA",
+  "name": "PCM",
+  "short_name": "PCM",
   "description": "O.S., FROTAS E APONTAMENTOS DA OFICINA AUTOMOTIVA",
   "start_url": "./index.html",
   "scope": "./",
