@@ -91,6 +91,22 @@ html.escuro .alerta.am{background:#3D3000;color:#FFD54F} html.escuro .alerta.vm{
 .sug button{text-align:left;background:var(--fundo);border:1.5px solid var(--linha);border-radius:10px;padding:9px 11px;font-size:11.5px}
 .sug button b{color:var(--azul)}
 .frSel{margin-top:6px;font-size:11px;font-weight:800;color:#1B5E20;background:#E8F5E9;border-radius:8px;padding:7px 10px}
+.frBusca{display:flex;gap:8px;align-items:stretch}
+.frBusca .campo{flex:1;min-width:0}
+.lupa{flex:none;width:50px;border:0;border-radius:12px;background:var(--grad);display:flex;align-items:center;justify-content:center}
+.lupa svg{width:22px;height:22px}
+#lupa{position:fixed;inset:0;z-index:30;background:var(--fundo);overflow-y:auto}
+.lpTopo{position:sticky;top:0;z-index:2;background:var(--grad);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.lpTopo h2{font-size:16px;font-weight:900}
+.lpTopo button{border:0;background:rgba(255,255,255,.22);color:#fff;width:40px;height:40px;border-radius:10px;font-size:20px;font-weight:900;flex:none}
+.lpFil{padding:12px 14px 4px;display:flex;flex-direction:column;gap:8px;max-width:560px;margin:0 auto}
+.lpFil select.campo{font-size:12.5px;font-weight:800;padding:10px}
+.lpCont{font-size:10.5px;font-weight:800;color:var(--cinza);padding:4px 16px;max-width:560px;margin:0 auto}
+.lpLista{padding:6px 14px 30px;max-width:560px;margin:0 auto}
+.lpIt{display:block;width:100%;text-align:left;background:var(--card);border:0;border-left:5px solid var(--azul);border-radius:12px;padding:11px 12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lpIt .f{font-size:16px;font-weight:900;color:var(--azul)}
+.lpIt .m{font-size:12px;font-weight:800;margin-top:2px}
+.lpIt .d{font-size:10px;font-weight:700;color:var(--cinza);margin-top:3px;line-height:1.35}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1C2733;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;font-size:11.5px;z-index:50;max-width:90%;pointer-events:none}
 </style>
 </head>
@@ -352,7 +368,7 @@ function abrirForm(id){
   $('#modal').innerHTML=`<div class="fundo" onclick="if(event.target===this)fechar()"><div class="modal">
   <h2>${ex?'EDITAR APONTAMENTO':'NOVA ATIVIDADE'}</h2><div class="alerta az" style="margin:0">JORNADA DE ${dataBR(FORM.data)}</div>
   <label>ATIVIDADE</label><select class="campo" id="fAtiv" style="font-weight:800"><option value="">SELECIONE A ATIVIDADE</option>${extra}${op}</select><div id="fSt"></div>
-  <div id="fOS" class="oculto"><label>FROTA</label><input class="campo" id="fFrota" autocomplete="off" placeholder="DIGITE O NÚMERO DA FROTA" value="${esc(FORM.frota)}"><div id="fFrSel"></div><div id="fFrLista" class="sug"></div></div>
+  <div id="fOS" class="oculto"><label>FROTA</label><div class="frBusca"><input class="campo" id="fFrota" autocomplete="off" placeholder="Nº DA FROTA" value="${esc(FORM.frota)}"><button type="button" class="lupa" onclick="abrirLupa()" aria-label="PROCURAR FROTA"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button></div><div class="info" style="text-align:left;margin:4px 0 0">NÃO SABE A FROTA? TOQUE NA LUPA PARA PROCURAR POR PLACA, CHASSI, MODELO, PROJETO OU OPERAÇÃO.</div><div id="fFrSel"></div><div id="fFrLista" class="sug"></div></div>
   <div id="fTrava"></div>
   <div class="lin"><div><label>HORA DE INÍCIO</label><input class="campo" type="time" id="fIni" value="${FORM.inicio}"></div><div><label>HORA FIM</label><input class="campo" type="time" id="fFim" value="${FORM.fim||''}"></div></div>
   ${ex?'':'<div class="info" style="text-align:left;margin:6px 0 0">DEIXE A HORA FIM VAZIA SE AINDA ESTÁ FAZENDO A ATIVIDADE.</div>'}
@@ -392,6 +408,32 @@ function buscarFrota(){
 }
 function frotaSel(){const el=$('#fFrSel');if(!el)return;const f=frotasAtivas().find(x=>x.frota===up($('#fFrota').value));el.innerHTML=f?`<div class="frSel">✓ ${esc(f.frota)} · ${esc(descFrota(f))}${f.placa?' · PLACA '+esc(f.placa):''}</div>`:''}
 function fechar(){$('#modal').innerHTML='';FORM=null}
+/* ---------- lupa: procurar frota ---------- */
+const semAc=s=>up(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const valido=v=>v&&!/^SEM ?INFORMA/.test(semAc(v));
+let LP_LIM=40;
+function abrirLupa(){
+  const l=frotasAtivas(),uni=c=>[...new Set(l.map(f=>f[c]).filter(valido))].sort();
+  const sel=(id,n,c)=>`<select class="campo" id="${id}" onchange="LP_LIM=40;filtrarLupa()"><option value="">${n}: TODAS</option>${uni(c).map(v=>`<option>${esc(v)}</option>`).join('')}</select>`;
+  const d=document.createElement('div');d.id='lupa';
+  d.innerHTML=`<div class="lpTopo"><button onclick="fecharLupa()">‹</button><h2>PROCURAR FROTA</h2></div>
+  <div class="lpFil"><input class="campo" id="lpQ" placeholder="PLACA, CHASSI, MODELO, PROJETO…" autocomplete="off" oninput="LP_LIM=40;filtrarLupa()">
+  ${sel('lpOp','OPERAÇÃO','operacao')}${sel('lpSub','SUBOPERAÇÃO','suboperacao')}${sel('lpPr','PROJETO','projeto')}</div>
+  <div class="lpCont" id="lpCont"></div><div class="lpLista" id="lpLista"></div>`;
+  document.body.appendChild(d);LP_LIM=40;filtrarLupa();setTimeout(()=>$('#lpQ').focus(),50);
+}
+function fecharLupa(){const d=$('#lupa');if(d)d.remove()}
+function filtrarLupa(){
+  const q=semAc($('#lpQ').value).replace(/[\s-]/g,''),op=$('#lpOp').value,sb=$('#lpSub').value,pr=$('#lpPr').value;
+  const r=frotasAtivas().filter(f=>(!op||f.operacao===op)&&(!sb||f.suboperacao===sb)&&(!pr||f.projeto===pr)&&
+    (!q||[f.frota,f.placa,f.chassi,f.modelo,f.fabricante,f.classe,f.subclasse,f.projeto,f.operacao,f.suboperacao].some(v=>valido(v)&&semAc(v).replace(/[\s-]/g,'').includes(q))))
+    .sort((a,b)=>(+a.frota||0)-(+b.frota||0));
+  $('#lpCont').textContent=r.length+(r.length===1?' FROTA ENCONTRADA':' FROTAS ENCONTRADAS');
+  $('#lpLista').innerHTML=r.length?r.slice(0,LP_LIM).map(f=>`<button class="lpIt" onclick="escolherFrota('${esc(f.frota)}')"><div class="f">FROTA ${esc(f.frota)}</div><div class="m">${esc([f.fabricante,f.modelo].filter(valido).join(' · '))}</div>
+    <div class="d">${[valido(f.placa)?'PLACA '+esc(f.placa):'',valido(f.chassi)?'CHASSI '+esc(f.chassi):''].filter(Boolean).join(' · ')}${valido(f.placa)||valido(f.chassi)?'<br>':''}${esc([f.operacao,f.suboperacao,f.projeto].filter(valido).join(' · '))}</div></button>`).join('')
+    +(r.length>LP_LIM?`<button class="btn sec" onclick="LP_LIM+=40;filtrarLupa()">VER MAIS (${r.length-LP_LIM})</button>`:''):'<div class="vazio">NENHUMA FROTA ENCONTRADA</div>';
+}
+function escolherFrota(fr){const i=$('#fFrota');if(i){i.value=fr;$('#fFrLista').innerHTML='';frotaSel();$('#fMsg').textContent=''}fecharLupa();toast('FROTA '+fr+' SELECIONADA')}
 function salvarForm(){
   const ini=$('#fIni').value,fim=$('#fFim').value,data=FORM.data,erro=t=>{$('#fMsg').textContent=t};
   const a=ATIV.find(x=>nomeAtiv(x)===FORM.atividade),frota=up($('#fFrota').value);
