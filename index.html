@@ -205,6 +205,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .ic-b.x{color:var(--vermelho)}
 .jo-bt{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 .jo-bt .btn{width:auto;padding:12px 22px;font-size:12.5px}
+.btn.exj{background:#fff;color:var(--vermelho);border:2px solid var(--vermelho);margin-left:auto}
 .btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
 .ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
 #modal-an .cx{width:440px;max-width:92vw}
@@ -1144,6 +1145,7 @@ function cardJo(j) {
     if (j.st === 'AG') h += `<button class="btn vd" onclick="aprovarJo('${j.id}')">✓ APROVAR JORNADA</button><button class="btn vm" onclick="recusarJo('${j.id}')">✕ RECUSAR JORNADA</button>`;
     else if (j.st === 'AP') h += `<button class="btn cz" onclick="desfazerJo('${j.id}')">↩ DESFAZER APROVAÇÃO</button><div class="jo-al vd" style="margin:0;align-self:center">JORNADA APROVADA. PARA EDITAR OU EXCLUIR, DESFAÇA A APROVAÇÃO.</div>`;
     else h += `<div class="jo-al am" style="margin:0">${j.st === 'RE' ? 'AGUARDANDO O MECÂNICO CORRIGIR E ENCERRAR DE NOVO.' : 'O MECÂNICO AINDA NÃO ENCERROU ESTA JORNADA. APROVAR OU RECUSAR SÓ DEPOIS DO ENCERRAMENTO.'}</div>`;
+    h += `<button class="btn exj" onclick="excluirJo('${k}')">🗑 EXCLUIR JORNADA</button>`;
     h += '</div></div>';
   }
   return h + '</div>';
@@ -1211,6 +1213,22 @@ function excluirAp(id) {
     <div class="txt">EXCLUIR O APONTAMENTO <b>${esc(i.inicio)} – ${esc(i.fim || '…')} · ${esc(i.atividade)}</b> DA JORNADA DE ${nomeJo(j)}?</div>
     <div class="jo-al vm" style="margin:0">ESTA AÇÃO NÃO PODE SER DESFEITA.</div>
     <button class="btn vm" onclick="excluirSenha('${id}')">SIM, QUERO EXCLUIR</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
+}
+const joPorK = k => jornadasAp().find(j => j.mecanico_id + '|' + j.data === k);
+function excluirJo(k) {
+  const j = joPorK(k); if (!j) return; const t = totaisA(j.itens);
+  modalAn(`<h3 style="color:var(--vermelho)">EXCLUIR JORNADA INTEIRA</h3>
+    <div class="txt">EXCLUIR A JORNADA DE <b>${nomeJo(j)}</b>?</div>
+    <div class="txt">TODOS OS ${j.itens.length} APONTAMENTO(S) (${fmtA(t.T)}) SERÃO APAGADOS. FICA COMO SE O MECÂNICO NUNCA TIVESSE APONTADO NESTE DIA.</div>
+    <div class="jo-al vm" style="margin:0">ESTA AÇÃO NÃO PODE SER DESFEITA.</div>
+    <button class="btn vm" onclick="excluirJoSenha('${k}')">SIM, QUERO EXCLUIR A JORNADA</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
+}
+function excluirJoSenha(k) {
+  const j = joPorK(k); if (!j) return;
+  modalAn(`<h3 style="color:var(--vermelho)">CONFIRME COM A SENHA</h3>
+    <div class="txt">DIGITE A SENHA DO ANALISTA PARA EXCLUIR A JORNADA DE <b>${nomeJo(j)}</b>.</div>
+    <input class="busca" type="password" id="ex-pw" autocomplete="off" onkeydown="if(event.key==='Enter')$('#ex-ok').click()">
+    <div class="msg"></div><button class="btn vm" id="ex-ok" onclick="const s=$('#ex-pw').value;if(!s)return this.parentNode.querySelector('.msg').textContent='DIGITE A SENHA';acaoAn(this,()=>rpc('an_excluir_jornada',{p_senha:s,p_mecanico:'${j.mecanico_id}',p_data:'${j.data}'}))">EXCLUIR JORNADA DEFINITIVAMENTE</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
 }
 function excluirSenha(id) {
   const i = itemAp(id);
