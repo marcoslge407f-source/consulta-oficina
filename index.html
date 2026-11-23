@@ -167,6 +167,10 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .an-acoes{display:flex;gap:10px}
 .an-acoes .btn{width:auto;padding:11px 18px;font-size:12px}
 .an-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.an-abas{display:flex;gap:8px;margin-bottom:18px;border-bottom:2px solid var(--linha)}
+.an-aba{border:0;background:none;padding:12px 18px;font-size:13px;font-weight:900;color:var(--cinza);border-bottom:3px solid transparent;margin-bottom:-2px;letter-spacing:.5px}
+.an-aba.ativo{color:var(--azul);border-bottom-color:var(--azul)}
+.an-aviso{background:#E3EEFB;color:#0D47A1;border-radius:12px;padding:12px 14px;font-size:12px;font-weight:800;margin-bottom:16px;line-height:1.45}
 .an-card{border:1.5px solid var(--linha);border-radius:18px;padding:20px;background:#fff;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
 .an-card h3{font-size:16px;font-weight:900;color:var(--azul)}
 .an-card .pl{font-size:11px;color:var(--cinza);font-weight:700}
@@ -352,6 +356,9 @@ html.escuro .ap .obs{background:#0F1720}
     </div>
 
     <div id="an-painel" class="oculto">
+      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas">PLANILHAS</button></div>
+      <div id="an-planilhas">
+      <div class="an-aviso">ENVIE AQUI AS PLANILHAS PARA ATUALIZAR O APLICATIVO. CADA CARTÃO SÓ ACEITA A SUA PLANILHA: SE ESCOLHER UMA PLANILHA ERRADA POR ENGANO, ELA É BARRADA E NADA É PUBLICADO.</div>
       <div class="an-grid">
         <div class="an-card" data-t="os">
           <h3>ORDENS DE SERVIÇO</h3>
@@ -385,6 +392,7 @@ html.escuro .ap .obs{background:#0F1720}
         </div>
       </div>
       <button class="btn" id="pub-tudo" style="margin-top:22px;max-width:380px" disabled onclick="publicarTudo()">PUBLICAR TODAS AS PLANILHAS CARREGADAS</button>
+      </div>
     </div>
   </div>
   <div class="an-rod"><span><b>MARCOS AURÉLIO DE SIQUEIRA</b> · ANALISTA DE PCM AUTOMOTIVO</span><span>USINA GRANELLI · CHARQUEADA/SP</span></div>
@@ -828,6 +836,25 @@ function achaCabecalho(linhas, obrig) {
 function mapear(h, nomes) { const m = {}; for (const [k, alts] of Object.entries(nomes)) m[k] = alts.map(a => h.indexOf(a)).find(x => x >= 0) ?? -1; return m; }
 const g = (lin, idx) => idx >= 0 ? lin[idx] : null;
 
+const NOME_PL = { os: 'CONTROLE DE O.S.', apontamentos: 'CONTROLE DE APONTAMENTOS', frotas: 'CONTROLE DE FROTAS' };
+let META_AN = [];
+async function tipoPlanilha(x) {
+  const tem = n => x.abas.some(a => norm(a) === norm(n));
+  if (tem('ORDENS DE SERVIÇO')) { const L = await x.aba('ORDENS DE SERVIÇO', 30); if (L && achaCabecalho(L, ['EQP', 'NUMERODEOS', 'SITUACAO', 'ENTRADA'])) return 'os'; }
+  if (tem('APONTAMENTOS')) { const L = await x.aba('APONTAMENTOS', 30); if (L && achaCabecalho(L, ['DATA', 'ABREVIATURA', 'INICIO', 'FIM', 'MOTIVODAPARADA'])) return 'apontamentos'; }
+  for (const n of x.abas) {
+    const L = await x.aba(n, 40), c = L && (achaCabecalho(L, ['FROTA', 'MODELO', 'CLASSE']) || achaCabecalho(L, ['EQUIPAMENTO', 'MODELO', 'CLASSE']));
+    if (c && !c.h.includes('NUMERODEOS') && !c.h.includes('ABREVIATURA') && !c.h.includes('MOTIVODAPARADA')) return 'frotas';
+  }
+  return null;
+}
+function conferir(t, r) {
+  const n = r.rows.length, pct = f => r.rows.filter(f).length / n;
+  if (t === 'os' && pct(x => typeof x[9] === 'number' && x[16]) < 0.9) return 'MAIS DE 10% DAS O.S. ESTÃO SEM NÚMERO OU SEM DATA DE ENTRADA.';
+  if (t === 'apontamentos' && pct(x => x[13] && x[14] && x[15] > 0) < 0.9) return 'MAIS DE 10% DOS APONTAMENTOS ESTÃO SEM HORÁRIO DE INÍCIO OU FIM.';
+  if (t === 'frotas' && pct(x => x[4]) < 0.9) return 'MAIS DE 10% DAS FROTAS ESTÃO SEM MODELO.';
+  return '';
+}
 const LEITORES = {
   async os(x) {
     const L = await x.aba('ORDENS DE SERVIÇO'); if (!L) throw new Error('ABA "ORDENS DE SERVIÇO" NÃO ENCONTRADA');
@@ -914,7 +941,7 @@ async function entrarAnalista() {
 async function mostrarPainel() {
   $('#an-login').classList.add('oculto'); $('#an-painel').classList.remove('oculto'); $('#an-senha-btn').classList.remove('oculto');
   try {
-    const metas = await sb('consulta_meta?select=*');
+    const metas = await sb('consulta_meta?select=*'); META_AN = metas;
     for (const t of TABELAS) {
       const m = metas.find(x => x.tabela === t), el = card(t).querySelector('[data-st]');
       el.textContent = m ? dataHoraBR(isoLocal(m.atualizado_em)) + ' · ' + m.linhas.toLocaleString('pt-BR') + ' LINHAS' : 'NUNCA PUBLICADO';
@@ -927,9 +954,14 @@ async function lerPlanilha(t, inp) {
   const c = card(t), el = c.querySelector('[data-lido]');
   el.className = 'an-lido'; el.textContent = 'LENDO ' + up(f.name) + '…'; c.querySelector('[data-pub]').disabled = true; c.querySelector('[data-prog]').textContent = '';
   try {
-    const x = await abrirXlsx(f), r = await LEITORES[t](x);
-    if (!r.rows.length) throw new Error('NENHUMA LINHA ENCONTRADA');
-    lidos[t] = r; el.className = 'an-lido ok'; el.textContent = up(f.name) + ' · ' + r.resumo;
+    const x = await abrirXlsx(f), tp = await tipoPlanilha(x);
+    if (tp !== t) throw new Error(tp ? 'PLANILHA ERRADA — ESTA É A ' + NOME_PL[tp] + ' · AQUI SÓ ENTRA A ' + NOME_PL[t] + ' · NADA FOI PUBLICADO.' : 'PLANILHA NÃO RECONHECIDA — AQUI SÓ ENTRA A ' + NOME_PL[t] + ' · NADA FOI PUBLICADO.');
+    const r = await LEITORES[t](x);
+    if (!r.rows.length) throw new Error('NENHUMA LINHA ENCONTRADA. NADA FOI PUBLICADO.');
+    const q = conferir(t, r); if (q) throw new Error(q + ' NADA FOI PUBLICADO.');
+    const ant = (META_AN.find(m => m.tabela === t) || {}).linhas || 0;
+    if (ant && r.rows.length < ant * 0.5 && !confirm('ATENÇÃO: A PLANILHA TEM ' + r.rows.length + ' LINHAS E A VERSÃO PUBLICADA TEM ' + ant + '. PARECE INCOMPLETA. QUER CONTINUAR MESMO ASSIM?')) throw new Error('CANCELADO. NADA FOI PUBLICADO.');
+    lidos[t] = r; el.className = 'an-lido ok'; el.textContent = '✓ ' + up(f.name) + ' · ' + r.resumo + ' · DADOS CONFERIDOS';
     c.querySelector('[data-pub]').disabled = false;
   } catch (e) { delete lidos[t]; el.className = 'an-lido erro'; el.textContent = 'ERRO: ' + up(e.message); }
   inp.value = ''; $('#pub-tudo').disabled = !Object.keys(lidos).length;
