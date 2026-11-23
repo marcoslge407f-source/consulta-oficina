@@ -209,6 +209,8 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .dg-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
 .dg-cab b{display:block;font-size:15px;font-weight:900;color:var(--azul)} .dg-cab span{font-size:11px;font-weight:800;color:var(--cinza)}
 .dg-cab .btn{width:auto;padding:10px 16px;font-size:12px}
+.dg-bts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:900px){.dg-cab{flex-direction:column;align-items:stretch}.dg-bts{justify-content:stretch}.dg-bts .btn{flex:1}}
 .dg-t{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;font-weight:700}
 .dg-t th{background:var(--azul);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:.4px;text-align:left;padding:9px 8px}
 .dg-t th:first-child{border-radius:10px 0 0 10px} .dg-t th:last-child{border-radius:0 10px 10px 0}
@@ -1296,17 +1298,89 @@ function renderDg() {
   const L = linhasDg(), nj = new Set(L.map(l => l.j.id)).size;
   if (!L.length) { $('#dg-lista').innerHTML = '<div class="ap-vazio">NENHUMA JORNADA APROVADA NESTE PERÍODO</div>'; return; }
   $('#dg-lista').innerHTML = `<div class="dg-card"><div class="dg-cab"><div><b>APONTAMENTOS APROVADOS</b><span>${nj} JORNADA(S) · ${L.length} APONTAMENTO(S)</span></div>
-    <button class="btn sec" id="dg-cp" onclick="copiarDg()">COPIAR TABELA</button></div>
-    <table class="dg-t"><colgroup><col style="width:24%"><col style="width:11%"><col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:9%"><col><col style="width:44px"></colgroup>
-    <thead><tr><th>NOME</th><th>DATA</th><th>INÍCIO</th><th>FIM</th><th>FROTA</th><th>O.S.</th><th>MANUTENÇÃO</th><th></th></tr></thead>
-    <tbody>${L.map(l => `<tr class="${l.pri ? 'pri' : ''}"><td data-l="NOME">${esc(l.nome)}</td><td data-l="DATA">${dataBR(l.j.data)}</td><td data-l="INÍCIO">${esc(l.a.inicio)}</td><td data-l="FIM">${esc(l.a.fim || '')}</td><td data-l="FROTA">${esc(l.a.frota || '')}</td><td data-l="O.S."></td><td data-l="MANUTENÇÃO">${esc(l.a.observacao || '')}</td>
+    <div class="dg-bts"><button class="btn sec" id="dg-cp" onclick="copiarDg()">COPIAR TABELA</button><button class="btn sec" onclick="imprimirDg()">🖨 IMPRIMIR</button><button class="btn" id="dg-pdf" onclick="pdfDg()">⬇ EXPORTAR PDF</button></div></div>
+    <table class="dg-t"><colgroup><col style="width:19%"><col style="width:10%"><col style="width:7%"><col style="width:7%"><col style="width:19%"><col style="width:7%"><col style="width:7%"><col><col style="width:44px"></colgroup>
+    <thead><tr><th>NOME</th><th>DATA</th><th>INÍCIO</th><th>FIM</th><th>ATIVIDADE</th><th>FROTA</th><th>O.S.</th><th>MANUTENÇÃO</th><th></th></tr></thead>
+    <tbody>${L.map(l => `<tr class="${l.pri ? 'pri' : ''}"><td data-l="NOME">${esc(l.nome)}</td><td data-l="DATA">${dataBR(l.j.data)}</td><td data-l="INÍCIO">${esc(l.a.inicio)}</td><td data-l="FIM">${esc(l.a.fim || '')}</td><td data-l="ATIVIDADE">${esc(l.a.atividade || '')}</td><td data-l="FROTA">${esc(l.a.frota || '')}</td><td data-l="O.S."></td><td data-l="MANUTENÇÃO">${esc(l.a.observacao || '')}</td>
       <td>${l.pri ? `<button class="ic-b" title="DESFAZER APROVAÇÃO DESTA JORNADA" onclick="desfazerDg('${l.j.id}')">↩</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
 }
 async function copiarDg() {
-  const L = linhasDg(), t = [['NOME', 'DATA', 'INÍCIO', 'FIM', 'FROTA', 'O.S.', 'MANUTENÇÃO'].join('\t'),
-    ...L.map(l => [l.nome, dataBR(l.j.data), l.a.inicio, l.a.fim || '', l.a.frota || '', '', (l.a.observacao || '').replace(/\s+/g, ' ')].join('\t'))].join('\n');
+  const L = linhasDg(), t = [['NOME', 'DATA', 'INÍCIO', 'FIM', 'ATIVIDADE', 'FROTA', 'O.S.', 'MANUTENÇÃO'].join('\t'),
+    ...L.map(l => [l.nome, dataBR(l.j.data), l.a.inicio, l.a.fim || '', l.a.atividade || '', l.a.frota || '', '', (l.a.observacao || '').replace(/\s+/g, ' ')].join('\t'))].join('\n');
   try { await navigator.clipboard.writeText(t); $('#dg-cp').textContent = '✓ COPIADA — COLE NO EXCEL'; setTimeout(() => { const b = $('#dg-cp'); if (b) b.textContent = 'COPIAR TABELA'; }, 2500); }
   catch (e) { $('#dg-cp').textContent = 'NÃO FOI POSSÍVEL COPIAR'; }
+}
+/* ----- digitação: imprimir / exportar PDF ----- */
+const COLS_DG = ['NOME', 'DATA', 'INÍCIO', 'FIM', 'ATIVIDADE', 'FROTA', 'O.S.', 'MANUTENÇÃO'];
+function dadosDg() {
+  const L = linhasDg(), sel = $('#dg-mec'), ids = [];
+  const rows = L.map(l => { if (!ids.includes(l.j.id)) ids.push(l.j.id); return { g: ids.length % 2, c: [l.nome, dataBR(l.j.data), l.a.inicio || '', l.a.fim || '', l.a.atividade || '', l.a.frota || '', '', l.a.observacao || ''] }; });
+  const agora = new Date();
+  return { rows, nj: ids.length, per: dataBR($('#dg-de').value) + ' A ' + dataBR($('#dg-ate').value), mec: sel.value ? sel.selectedOptions[0].textContent : 'TODOS OS MECÂNICOS',
+    gerado: pad(agora.getDate()) + '/' + pad(agora.getMonth() + 1) + '/' + agora.getFullYear() + ' ' + pad(agora.getHours()) + ':' + pad(agora.getMinutes()) };
+}
+function imprimirDg() {
+  const d = dadosDg(); if (!d.rows.length) return;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>DIGITAÇÃO ${d.per}</title><style>
+    @page{size:A4 landscape;margin:9mm 10mm 9mm 0}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body{font-family:"Segoe UI",Roboto,Arial,sans-serif;color:#1C2733;text-transform:uppercase;padding-left:14mm}
+    .fx{position:fixed;left:0;top:0;bottom:0;width:6mm;background:linear-gradient(180deg,#1565C0,#2E9D4A)}
+    .m{font-size:10px;font-weight:900;color:#1565C0;letter-spacing:2px}
+    h1{font-size:24px;font-weight:900;color:#1565C0;margin-top:2px}
+    .s{font-size:12px;font-weight:900;color:#2E9D4A;margin-top:4px}
+    .i{display:flex;gap:24px;font-size:10px;font-weight:800;color:#6B7785;margin:8px 0 10px}.i b{color:#1C2733}
+    table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.5px;font-weight:700}
+    thead{display:table-header-group}
+    th{background:#1565C0;color:#fff;font-weight:900;text-align:left;padding:6px 5px;font-size:9px}
+    td{padding:5px;border-bottom:1px solid #DCE3EA;overflow-wrap:anywhere;vertical-align:top}
+    tr.g1 td{background:#F1F5F9} tr{page-break-inside:avoid}
+    tfoot{display:table-footer-group} tfoot td{border:0;height:9mm;padding:0}
+    .rod{position:fixed;bottom:0;left:14mm;right:0;display:flex;justify-content:space-between;font-size:8.5px;font-weight:800;color:#6B7785}
+  </style></head><body><div class="fx"></div>
+  <div class="m">USINA GRANELLI</div><h1>PCM AUTOMOTIVO</h1><div class="s">APONTAMENTOS APROVADOS · DIGITAÇÃO</div>
+  <div class="i"><span>PERÍODO: <b>${d.per}</b></span><span>MECÂNICO: <b>${esc(d.mec)}</b></span><span><b>${d.nj}</b> JORNADA(S) · <b>${d.rows.length}</b> APONTAMENTO(S)</span></div>
+  <table><colgroup><col style="width:17%"><col style="width:8%"><col style="width:6%"><col style="width:6%"><col style="width:18%"><col style="width:7%"><col style="width:7%"><col></colgroup>
+  <thead><tr>${COLS_DG.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+  <tbody>${d.rows.map(r => `<tr class="g${r.g}">${r.c.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><td colspan="8"></td></tr></tfoot></table>
+  <div class="rod"><span>MARCOS AURÉLIO DE SIQUEIRA · ANALISTA DE PCM AUTOMOTIVO</span><span>GERADO EM ${d.gerado}</span></div></body></html>`;
+  let f = $('#dg-print'); if (f) f.remove();
+  f = document.createElement('iframe'); f.id = 'dg-print'; f.style.cssText = 'position:fixed;width:0;height:0;border:0;left:-9999px';
+  document.body.appendChild(f);
+  f.onload = () => setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); }, 200);
+  f.srcdoc = html;
+}
+const carregaJs = src => new Promise((ok, erro) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = erro; document.head.appendChild(s); });
+async function pdfDg() {
+  const d = dadosDg(); if (!d.rows.length) return;
+  const b = $('#dg-pdf'), t0 = b.textContent; b.disabled = true; b.textContent = 'GERANDO PDF…';
+  try {
+    if (!window.jspdf) await carregaJs('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
+    if (!window.jspdf.jsPDF.API.autoTable) await carregaJs('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js');
+    const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = 297, H = 210;
+    const faixa = () => { for (let i = 0; i < 60; i++) { const k = i / 59; doc.setFillColor(Math.round(21 + k * (46 - 21)), Math.round(101 + k * (157 - 101)), Math.round(192 + k * (74 - 192))); doc.rect(0, i * H / 60, 6, H / 60 + 0.2, 'F'); } };
+    faixa();
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(21, 101, 192); doc.setFontSize(8); doc.text('USINA GRANELLI', 14, 13);
+    doc.setFontSize(20); doc.text('PCM AUTOMOTIVO', 14, 21);
+    doc.setFontSize(10); doc.setTextColor(46, 157, 74); doc.text('APONTAMENTOS APROVADOS · DIGITAÇÃO', 14, 27);
+    doc.setFontSize(8); doc.setTextColor(107, 119, 133);
+    doc.text(`PERÍODO: ${d.per}     MECÂNICO: ${d.mec}     ${d.nj} JORNADA(S) · ${d.rows.length} APONTAMENTO(S)`, 14, 33);
+    doc.autoTable({
+      startY: 37, margin: { left: 14, right: 10, bottom: 14, top: 12 },
+      head: [COLS_DG], body: d.rows.map(r => r.c),
+      styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 7.5, cellPadding: 1.6, textColor: [28, 39, 51], lineColor: [220, 227, 234], lineWidth: { bottom: 0.2 }, overflow: 'linebreak', valign: 'top' },
+      headStyles: { fillColor: [21, 101, 192], textColor: 255, fontSize: 7.5 },
+      columnStyles: { 0: { cellWidth: 46 }, 1: { cellWidth: 20 }, 2: { cellWidth: 14 }, 3: { cellWidth: 14 }, 4: { cellWidth: 50 }, 5: { cellWidth: 17 }, 6: { cellWidth: 17 } },
+      didParseCell: c => { if (c.section === 'body' && d.rows[c.row.index].g) c.cell.styles.fillColor = [241, 245, 249]; },
+      didDrawPage: () => { if (doc.internal.getNumberOfPages() > 1) faixa(); }
+    });
+    const n = doc.internal.getNumberOfPages();
+    for (let p = 1; p <= n; p++) { doc.setPage(p); doc.setFontSize(7); doc.setTextColor(107, 119, 133); doc.setFont('helvetica', 'bold');
+      doc.text('MARCOS AURÉLIO DE SIQUEIRA · ANALISTA DE PCM AUTOMOTIVO', 14, H - 6); doc.text(`GERADO EM ${d.gerado} · PÁGINA ${p} DE ${n}`, W - 10, H - 6, { align: 'right' }); }
+    doc.save('DIGITACAO_' + $('#dg-de').value + '_A_' + $('#dg-ate').value + '.pdf');
+    b.textContent = '✓ PDF BAIXADO'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 2500);
+  } catch (e) { b.textContent = 'ERRO — VERIFIQUE A INTERNET'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 3000); }
+  b.disabled = false;
 }
 function desfazerDg(id) {
   const j = DG.j.find(x => x.id === id); if (!j) return; const m = DG.m.find(x => x.id === j.mecanico_id) || { nome: '?' };
