@@ -184,6 +184,7 @@ async function carregarListas(){
 let REF=300;
 function refAbertura(j){if(!j||!j.aberta_em)return 300;const d=new Date(j.aberta_em);return((d.getHours()*60+d.getMinutes())-480+1440)%1440}
 function refDe(j){
+  if(j&&j.data===hoje())return 0; // jornada de hoje: nenhum horário pode ser de amanhã, então tudo até agora é de hoje
   const l=j?ITENS.filter(i=>!i.excluido&&i.data===j.data&&i.inicio):[];
   if(l.length){const fins=new Set(l.filter(i=>i.fim).map(i=>i.fim)),prim=l.filter(i=>!fins.has(i.inicio)),r=refAbertura(j);
     const p=prim.length?prim.reduce((a,b)=>((toMin(b.inicio)-r+1440)%1440)<((toMin(a.inicio)-r+1440)%1440)?b:a):l[0];return(toMin(p.inicio)-360+1440)%1440}
