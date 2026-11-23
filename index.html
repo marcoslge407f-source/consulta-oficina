@@ -476,7 +476,7 @@ async function sincronizar(manual) {
     if (mudou) { indexar(); atualizarTudo(); }
     localStorage.setItem('ultimaConsulta', new Date().toISOString());
     const ult = Object.values(D.meta).filter(Boolean).map(m => m.atualizado_em).sort().pop();
-    b.innerHTML = ult ? 'ATUALIZADO EM<br>' + dataBR(isoLocal(ult)) : 'ATUALIZADO';
+    b.innerHTML = ult ? 'ATUALIZADO EM<br>' + dataHoraBR(isoLocal(ult)) : 'ATUALIZADO';
   } catch (e) {
     b.textContent = 'SEM INTERNET'; b.classList.add('off');
   }
@@ -525,10 +525,10 @@ function renderInicio() {
   $('#k-hoje-t').textContent = 'O.S. ABERTAS ONTEM (' + dataBR(ontem).slice(0,5) + ')';
   $('#k-frotas').textContent = D.frotas.length;
   const u = ultimoDia(); $('#k-ult').textContent = u ? dataBR(u).slice(0,5) : '–';
-  const linha = (t, n) => { const m = D.meta[t]; return '<div class="campo"><div class="r">' + n + '</div><div class="x">' + (m ? dataBR(isoLocal(m.atualizado_em)) : 'SEM DADOS') + '</div></div>'; };
+  const linha = (t, n) => { const m = D.meta[t]; return '<div class="campo"><div class="r">' + n + '</div><div class="x">' + (m ? dataHoraBR(isoLocal(m.atualizado_em)) : 'SEM DADOS') + '</div></div>'; };
   const uc = localStorage.getItem('ultimaConsulta');
   $('#info-sync').innerHTML = linha('os','O.S. PUBLICADAS EM') + linha('apontamentos','APONTAMENTOS PUBLICADOS EM') + linha('frotas','FROTAS PUBLICADAS EM') +
-    '<div class="campo"><div class="r">ÚLTIMA CONSULTA</div><div class="x">' + (uc ? dataBR(isoLocal(uc)) : '–') + '</div></div>';
+    '<div class="campo"><div class="r">ÚLTIMA CONSULTA</div><div class="x">' + (uc ? dataHoraBR(isoLocal(uc)) : '–') + '</div></div>';
 }
 function isoLocal(ts) { const d = new Date(ts); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()); }
 
