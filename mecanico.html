@@ -158,9 +158,18 @@ aplicarTema();window.addEventListener('storage',aplicarTema);window.addEventList
 
 /* ---------- servidor ---------- */
 class ErroRede extends Error{}
+/* contador de tráfego (estimativa do que sai do Supabase) */
+const TRF_M='trf_pend_m';
+function contaTrf(t){try{const n=(()=>{try{return new TextEncoder().encode(t).length}catch(e){return(t||'').length}})()+400,p=JSON.parse(localStorage.getItem(TRF_M)||'{"b":0,"n":0}');p.b+=n;p.n++;localStorage.setItem(TRF_M,JSON.stringify(p))}catch(e){}}
+let trfE=false;
+async function enviarTrf(){if(trfE||!navigator.onLine)return;let p;try{p=JSON.parse(localStorage.getItem(TRF_M)||'null')}catch(e){return}if(!p||(!p.b&&!p.n))return;trfE=true;
+  try{const r=await fetch(SB_URL+'/rest/v1/rpc/trafego_somar',{method:'POST',keepalive:true,headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_origem:'APP MECÂNICO',p_bytes:p.b,p_req:p.n})});
+    if(r.ok){const q=JSON.parse(localStorage.getItem(TRF_M)||'{"b":0,"n":0}');q.b=Math.max(0,q.b-p.b);q.n=Math.max(0,q.n-p.n);localStorage.setItem(TRF_M,JSON.stringify(q))}}catch(e){}trfE=false}
+setInterval(enviarTrf,60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')enviarTrf()});
 async function rpc(nome,params){
   let r;try{r=await fetch(SB_URL+'/rest/v1/rpc/'+nome,{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(params)})}catch(e){throw new ErroRede('SEM CONEXÃO')}
   const t=await r.text();let j=null;try{j=t?JSON.parse(t):null}catch(e){}
+  if(r.ok)contaTrf(t);
   if(!r.ok)throw new Error((j&&(j.message||j.hint))||('ERRO '+r.status));return j;
 }
 const MSG={LOGIN_INVALIDO:'SENHA INCORRETA',SESSAO_INVALIDA:'SESSÃO EXPIRADA — ENTRE NOVAMENTE',SENHA_4_DIGITOS:'A SENHA DEVE TER 4 NÚMEROS',SENHA_0000:'A NOVA SENHA NÃO PODE SER 0000'};

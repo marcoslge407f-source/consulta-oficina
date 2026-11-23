@@ -233,7 +233,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .bd-st.vd{background:#E7F5EA;color:#1B5E20} .bd-st.am{background:#FFF6DC;color:#7A5600} .bd-st.vm{background:#FDECEA;color:#B71C1C}
 .bd-l{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;font-weight:800;color:var(--cinza);border-bottom:1px dashed var(--linha);padding:5px 0}
 .bd-l b{color:var(--texto);text-align:right}
-.bd-ks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bd-ks.k4{grid-template-columns:repeat(4,1fr)}
+.bd-ks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bd-ks.k4{grid-template-columns:repeat(4,1fr)}.bd-ks.k3{grid-template-columns:repeat(3,1fr)}
 .bd-k{background:var(--fundo);border-radius:12px;padding:12px}
 .bd-k .r{font-size:10px;font-weight:900;color:var(--cinza)} .bd-k .v{font-size:22px;font-weight:900;margin-top:2px;color:var(--azul)} .bd-k .s{font-size:10.5px;font-weight:800;color:var(--cinza);margin-top:2px}
 .bd-sub{font-size:10.5px;font-weight:900;color:var(--azul);margin-top:6px}
@@ -246,7 +246,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 @media (max-width:900px){.bd-t tr{padding:8px 0}.bd-t td:last-child{position:static;padding:2px 4px}}
 .bd-tag{display:inline-block;white-space:nowrap;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:900;color:#fff}
 .bd-tag.vd{background:var(--verde)} .bd-tag.am{background:var(--amarelo);color:#3B2C00} .bd-tag.cz{background:#90A4AE}
-@media (max-width:900px){.bd-grid,.bd-grid.g2{grid-template-columns:1fr}.bd-ks.k4{grid-template-columns:1fr 1fr}}
+@media (max-width:900px){.bd-grid,.bd-grid.g2{grid-template-columns:1fr}.bd-ks.k4{grid-template-columns:1fr 1fr}.bd-ks.k3{grid-template-columns:1fr}}
 .btn.exj{background:#fff;color:var(--vermelho);border:2px solid var(--vermelho);margin-left:auto}
 .btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
 .ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
@@ -548,9 +548,31 @@ async function sb(caminho, op = {}) {
     ...op, headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', ...(op.headers||{}) }
   });
   if (!r.ok) { let m = r.status + ''; try { const j = await r.json(); m = j.message || m; } catch(e){} throw new Error(m); }
-  const t = await r.text(); return t ? JSON.parse(t) : null;
+  const t = await r.text();
+  contaTrafego(caminho.startsWith('consulta_dados') ? 'PLANILHAS' : /^rpc\/(an_|consulta_)/.test(caminho) ? 'ANALISTA' : 'CONSULTA', tamBytes(t));
+  return t ? JSON.parse(t) : null;
 }
 const rpc = (fn, args) => sb('rpc/' + fn, { method: 'POST', body: JSON.stringify(args) });
+/* ----- contador de tráfego (estimativa do que sai do Supabase) ----- */
+const TRF_K = 'trf_pend';
+const tamBytes = t => { try { return new TextEncoder().encode(t).length + 400; } catch (e) { return (t || '').length + 400; } };
+function contaTrafego(origem, bytes) { try { const p = JSON.parse(localStorage.getItem(TRF_K) || '{}'), x = p[origem] || { b: 0, n: 0 }; x.b += bytes; x.n++; p[origem] = x; localStorage.setItem(TRF_K, JSON.stringify(p)); } catch (e) {} }
+let trfEnv = false;
+async function enviarTrafego() {
+  if (trfEnv || !navigator.onLine) return; let p; try { p = JSON.parse(localStorage.getItem(TRF_K) || '{}'); } catch (e) { return; }
+  const ks = Object.keys(p); if (!ks.length) return; trfEnv = true;
+  for (const k of ks) {
+    try {
+      const r = await fetch(SB_URL + '/rest/v1/rpc/trafego_somar', { method: 'POST', keepalive: true, headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_origem: k, p_bytes: p[k].b, p_req: p[k].n }) });
+      if (!r.ok) break;
+      const q = JSON.parse(localStorage.getItem(TRF_K) || '{}'); if (q[k]) { q[k].b -= p[k].b; q[k].n -= p[k].n; if (q[k].b <= 0 && q[k].n <= 0) delete q[k]; } localStorage.setItem(TRF_K, JSON.stringify(q));
+    } catch (e) { break; }
+  }
+  trfEnv = false;
+}
+setInterval(enviarTrafego, 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') enviarTrafego(); });
+
 
 /* ================= CACHE LOCAL (IndexedDB) ================= */
 const idb = (() => {
@@ -1431,6 +1453,7 @@ async function carregarBd() {
   $('#bd-lista').innerHTML = '<div class="ap-vazio">CARREGANDO…</div>';
   try {
     const t0 = performance.now(), d = await rpc('an_banco', { p_senha: senhaAn }), ms = Math.round(performance.now() - t0);
+    await enviarTrafego(); try { d.trafego = await rpc('an_trafego', { p_senha: senhaAn }); } catch (e) { d.trafego = null; }
     renderBd(d, ms);
   } catch (e) {
     if (up(e.message).includes('SENHA_INVALIDA')) { senhaAn = ''; sessionStorage.removeItem('senhaAn'); rota(); return; }
@@ -1447,6 +1470,20 @@ function renderBd(d, ms) {
   const kpi = (r, v, s, cl) => `<div class="bd-k"><div class="r">${r}</div><div class="v" ${cl ? `style="color:${cl}"` : ''}>${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
   const pct = p => p.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
   const saudavel = ms < 3000 && pDb < 90 && pCx < 80;
+  const tf = d.trafego, LIM_TF = 5 * 1073741824, agoraD = new Date(), diasMes = new Date(agoraD.getFullYear(), agoraD.getMonth() + 1, 0).getDate();
+  const tfTot = tf ? tf.atual.reduce((s, x) => s + Number(x.bytes), 0) : 0, iniCont = tf && tf.inicio_contagem ? new Date(tf.inicio_contagem) : null;
+  const diaIni = iniCont && iniCont.getMonth() === agoraD.getMonth() && iniCont.getFullYear() === agoraD.getFullYear() ? iniCont.getDate() : 1;
+  const diasCont = Math.max(1, agoraD.getDate() - diaIni + 1), tfProj = tfTot / diasCont * diasMes, pTf = tfTot / LIM_TF * 100, pProj = tfProj / LIM_TF * 100;
+  const corTf = b => b < 3 * 1073741824 ? 'var(--verde)' : b < 4.5 * 1073741824 ? 'var(--amarelo)' : 'var(--vermelho)';
+  const NOME_OR = { PLANILHAS: 'PLANILHAS BAIXADAS PELOS CELULARES', 'APP MECÂNICO': 'APONTAMENTOS DOS MECÂNICOS', CONSULTA: 'CONSULTAS DO APP', ANALISTA: 'ÁREA DO ANALISTA', OUTROS: 'OUTROS' };
+  const MES_N = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+  const cardTf = !tf ? '<div class="bd-card"><h3>TRÁFEGO DO MÊS (ESTIMADO)</h3><div class="txt">NÃO FOI POSSÍVEL LER O CONTADOR.</div></div>' : `<div class="bd-card"><h3>TRÁFEGO DO MÊS (ESTIMADO) · ${MES_N[agoraD.getMonth()]}</h3>
+    ${tfProj >= 3 * 1073741824 ? `<div class="bd-st ${tfProj >= 4.5 * 1073741824 ? 'vm' : 'am'}">⚠ NESTE RITMO O MÊS FECHA EM ${bytesBR(tfProj)} — PERTO DO LIMITE DE 5 GB</div>` : '<div class="bd-st vd">✓ TRÁFEGO DENTRO DO LIMITE</div>'}
+    <div class="bd-ks k3">${kpi('USADO NO MÊS', bytesBR(tfTot), pct(pTf) + ' DE 5 GB', corTf(tfTot))}${kpi('PREVISÃO ATÉ O FIM DO MÊS', bytesBR(tfProj), pct(pProj) + ' DE 5 GB', corTf(tfProj))}${kpi('LIMITE DO PLANO', '5 GB', 'AVISO AMARELO A PARTIR DE 3 GB')}</div>
+    <div class="bd-sub">DE ONDE VEM</div>
+    ${tf.atual.length ? tf.atual.map(x => lin(NOME_OR[x.origem] || esc(x.origem), bytesBR(x.bytes) + ' · ' + nBR(x.req) + ' DOWNLOAD(S)')).join('') : '<div class="txt">NENHUM DOWNLOAD CONTADO AINDA NESTE MÊS.</div>'}
+    ${tf.historico.length ? '<div class="bd-sub">MESES ANTERIORES</div>' + tf.historico.map(h => lin(MES_N[Number(h.mes.slice(5, 7)) - 1] + ' ' + h.mes.slice(0, 4), bytesBR(h.bytes))).join('') : ''}
+    <div class="bd-nota">CONTAGEM FEITA PELO PRÓPRIO APP DESDE ${iniCont ? quando(tf.inicio_contagem) : 'AGORA'}. É UMA ESTIMATIVA PARA CIMA (O SUPABASE COMPRIME OS DADOS, ENTÃO O REAL TENDE A SER MENOR). O CICLO DO SUPABASE PODE COMEÇAR EM OUTRO DIA DO MÊS — O NÚMERO OFICIAL FICA NO PAINEL, EM "USAGE".</div></div>`;
   $('#bd-lista').innerHTML = `
   <div class="bd-grid">
     <div class="bd-card"><h3>SAÚDE</h3>
@@ -1464,7 +1501,8 @@ function renderBd(d, ms) {
       ${c.painel ? `<a class="btn sec bd-a" href="${esc(c.painel)}" target="_blank" rel="noopener">ABRIR PAINEL DO SUPABASE ↗</a>` : ''}
       <div class="bd-nota">NO PLANO GRATUITO O PROJETO É PAUSADO SE FICAR 7 DIAS SEM USO. COM OS MECÂNICOS USANDO TODO DIA, ISSO NÃO ACONTECE.</div></div>
   </div>
-  <div class="bd-grid g2">
+  ${cardTf}
+  <div class="bd-grid g2" style="margin-top:14px">
     <div class="bd-card"><h3>LOGINS E ACESSOS</h3>
       <div class="bd-ks k4">${kpi('ACESSOS HOJE', nBR(d.acessos_hoje))}${kpi('PESSOAS HOJE', nBR(d.usuarios_hoje))}${kpi('ACESSOS EM 7 DIAS', nBR(d.acessos_7d))}${kpi('SESSÕES ATIVAS', nBR(d.sessoes_ativas))}</div>
       <table class="dg-t bd-t"><colgroup><col><col style="width:11%"><col style="width:13%"><col style="width:20%"><col style="width:18%"><col style="width:16%"></colgroup>
@@ -1480,6 +1518,7 @@ function renderBd(d, ms) {
         ${ok(!d.sem_fim, 'TODOS OS APONTAMENTOS ENCERRADOS TÊM HORA FIM', d.sem_fim + ' APONTAMENTO(S) SEM HORA FIM EM JORNADA ENCERRADA')}
         ${ok(!d.orfaos, 'TODOS OS APONTAMENTOS TÊM JORNADA', d.orfaos + ' APONTAMENTO(S) SEM JORNADA')}
         ${ok(pDb < 70, 'BANCO COM FOLGA DE ESPAÇO', 'BANCO USANDO ' + pct(pDb) + ' DO LIMITE')}
+        ${ok(tfProj < 3 * 1073741824, 'TRÁFEGO DO MÊS DENTRO DO LIMITE', 'TRÁFEGO PREVISTO DE ' + bytesBR(tfProj) + ' NO MÊS (LIMITE 5 GB)')}
         ${ok(d.excluidos < 5000, 'POUCOS REGISTROS EXCLUÍDOS ACUMULADOS (' + nBR(d.excluidos) + ')', nBR(d.excluidos) + ' REGISTROS EXCLUÍDOS ACUMULADOS')}</div>
       <div class="bd-card"><h3>DADOS GUARDADOS</h3>
         ${lin('MECÂNICOS ATIVOS', nBR(d.mecanicos) + (d.mecanicos_inativos ? ' · ' + d.mecanicos_inativos + ' INATIVO(S)' : ''))}${lin('AINDA COM SENHA 0000', nBR(d.senha_provisoria))}
