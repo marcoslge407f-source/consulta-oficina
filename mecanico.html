@@ -197,16 +197,19 @@ function telaLogin(){
   $('#tela').innerHTML=`<div class="capa"><div class="m">USINA GRANELLI</div><h2>APONTAMENTO DA JORNADA</h2><p>ENTRE COM SEU NOME E SUA SENHA</p></div>
   <div class="bloco"><label style="margin-top:0">QUEM É VOCÊ?</label><select class="campo" id="lgMat"><option value="">CARREGANDO NOMES…</option></select>
   <label>SENHA</label><input class="campo pin" id="lgPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
-  <button class="btn" style="margin-top:14px" id="btnEntrar" onclick="entrar()">ENTRAR</button><div class="msg" id="lgMsg"></div></div>
+  <button class="btn" style="margin-top:14px" id="btnEntrar" onclick="entrar()">ENTRAR</button><div class="alerta vd oculto" id="lgPrim">PRIMEIRO ACESSO: A SENHA 0000 JÁ ESTÁ PREENCHIDA. TOQUE EM ENTRAR E CRIE SUA SENHA DE 4 NÚMEROS.</div><div class="msg" id="lgMsg"></div></div>
   <div class="info">NO PRIMEIRO ACESSO A SENHA É 0000 E VOCÊ CRIA UMA NOVA.</div>`;
   $('#lgPin').addEventListener('keydown',e=>{if(e.key==='Enter')entrar()});
+  $('#lgMat').addEventListener('change',checarPrimeiro);
   const sel=$('#lgMat'),des=l=>{const ult=LS.get('mc_ultimo',''),m=l.filter(x=>x.perfil!=='ADMIN'),a=l.filter(x=>x.perfil==='ADMIN');
     sel.innerHTML='<option value="">SELECIONE SEU NOME</option>'+(m.length?'<optgroup label="MECÂNICOS">'+m.map(x=>`<option value="${esc(x.matricula)}">${esc(x.nome)}</option>`).join('')+'</optgroup>':'')+(a.length?'<optgroup label="ANALISTA">'+a.map(x=>`<option value="${esc(x.matricula)}">${esc(x.nome)}</option>`).join('')+'</optgroup>':'');
-    if(l.some(x=>x.matricula===ult))sel.value=ult};
+    if(l.some(x=>x.matricula===ult))sel.value=ult;PRIM=new Set(l.filter(x=>x.primeiro_acesso).map(x=>x.matricula));checarPrimeiro()};
   const g=LS.get('mc_nomes',null);if(g)des(g);
   rpc('listar_acesso',{}).then(l=>{LS.set('mc_nomes',l||[]);des(l||[])}).catch(()=>{if(!g)sel.innerHTML='<option value="">SEM INTERNET — CONECTE PARA CARREGAR</option>'});
   carregarListas();
 }
+let PRIM=new Set();
+function checarPrimeiro(){const m=$('#lgMat'),p=$('#lgPin'),i=$('#lgPrim');if(!m||!p||!i)return;const pr=PRIM.has(up(m.value));if(pr)p.value='0000';else if(p.dataset.auto)p.value='';p.dataset.auto=pr?'1':'';p.readOnly=pr;p.style.opacity=pr?.6:1;i.classList.toggle('oculto',!pr)}
 async function entrar(){
   const mat=up($('#lgMat').value),pin=$('#lgPin').value.trim(),msg=$('#lgMsg');msg.className='msg erro';
   if(!mat)return msg.textContent='SELECIONE SEU NOME';
@@ -230,7 +233,7 @@ function trocaSenha(s,obrig){
   <label>REPITA A NOVA SENHA</label><input class="campo pin" id="tsB" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
   <div class="msg erro" id="tsMsg"></div>
   <button class="btn" style="margin-top:10px" id="tsOk">SALVAR SENHA</button>
-  <button class="btn cinza" style="margin-top:8px" onclick="fechar()">CANCELAR</button></div></div>`;
+  <button class="btn cinza" style="margin-top:8px" onclick="fechar()">${obrig?'VOLTAR AO LOGIN':'CANCELAR'}</button></div></div>`;
   $('#tsOk').onclick=async()=>{const a=$('#tsA').value.trim(),b=$('#tsB').value.trim(),m=$('#tsMsg');
     if(!/^\d{4}$/.test(a))return m.textContent='A SENHA DEVE TER 4 NÚMEROS';
     if(a==='0000')return m.textContent='A NOVA SENHA NÃO PODE SER 0000';
