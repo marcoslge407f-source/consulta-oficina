@@ -205,6 +205,21 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .ic-b.x{color:var(--vermelho)}
 .jo-bt{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 .jo-bt .btn{width:auto;padding:12px 22px;font-size:12.5px}
+.dg-card{border:1.5px solid var(--linha);border-radius:18px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04);padding:16px 18px}
+.dg-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.dg-cab b{display:block;font-size:15px;font-weight:900;color:var(--azul)} .dg-cab span{font-size:11px;font-weight:800;color:var(--cinza)}
+.dg-cab .btn{width:auto;padding:10px 16px;font-size:12px}
+.dg-t{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;font-weight:700}
+.dg-t th{background:var(--azul);color:#fff;font-size:10.5px;font-weight:900;letter-spacing:.4px;text-align:left;padding:9px 8px}
+.dg-t th:first-child{border-radius:10px 0 0 10px} .dg-t th:last-child{border-radius:0 10px 10px 0}
+.dg-t td{padding:8px;border-bottom:1px solid var(--linha);vertical-align:middle;overflow-wrap:anywhere}
+.dg-t tr.pri td{border-top:2px solid #C9D6E3}
+.dg-t tbody tr:nth-child(even) td{background:#F8FAFC}
+.dg-t .ic-b{width:28px;height:28px;font-size:13px}
+@media (max-width:900px){.an-abas{gap:0}.an-aba{padding:10px 9px;font-size:11.5px}
+ .dg-t,.dg-t tbody,.dg-t tr,.dg-t td{display:block}.dg-t colgroup,.dg-t thead{display:none}
+ .dg-t tr{position:relative;padding:8px 40px 8px 0;border-bottom:1px solid var(--linha)}.dg-t tr.pri{border-top:2px solid #C9D6E3}.dg-t td{border:0!important;padding:2px 4px;background:none!important}
+ .dg-t td[data-l]::before{content:attr(data-l) ': ';color:var(--cinza);font-size:9.5px;font-weight:900}.dg-t td:empty{display:none}.dg-t td:last-child{position:absolute;right:4px;top:8px;padding:0}}
 .btn.exj{background:#fff;color:var(--vermelho);border:2px solid var(--vermelho);margin-left:auto}
 .btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
 .ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
@@ -401,7 +416,7 @@ html.escuro .ap .obs{background:#0F1720}
     </div>
 
     <div id="an-painel" class="oculto">
-      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas" onclick="anAba('planilhas')">PLANILHAS</button><button class="an-aba" data-a="aponts" onclick="anAba('aponts')">APONTAMENTOS</button></div>
+      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas" onclick="anAba('planilhas')">PLANILHAS</button><button class="an-aba" data-a="aponts" onclick="anAba('aponts')">APONTAMENTOS</button><button class="an-aba" data-a="digit" onclick="anAba('digit')">DIGITAÇÃO</button></div>
       <div id="an-planilhas">
       <div class="an-aviso">ENVIE AQUI AS PLANILHAS PARA ATUALIZAR O APLICATIVO. CADA CARTÃO SÓ ACEITA A SUA PLANILHA: SE ESCOLHER UMA PLANILHA ERRADA POR ENGANO, ELA É BARRADA E NADA É PUBLICADO.</div>
       <div class="an-grid">
@@ -439,7 +454,7 @@ html.escuro .ap .obs{background:#0F1720}
       <button class="btn" id="pub-tudo" style="margin-top:22px;max-width:380px" disabled onclick="publicarTudo()">PUBLICAR TODAS AS PLANILHAS CARREGADAS</button>
       </div>
       <div id="an-aponts" class="oculto">
-        <div class="an-aviso">AQUI VOCÊ CONFERE AS JORNADAS APONTADAS PELOS MECÂNICOS NO APLICATIVO. A APROVAÇÃO OU A RECUSA É SEMPRE DA JORNADA INTEIRA. AO RECUSAR, A JORNADA VOLTA PARA O MECÂNICO CORRIGIR E ENCERRAR DE NOVO.</div>
+        <div class="an-aviso">AQUI VOCÊ CONFERE AS JORNADAS APONTADAS PELOS MECÂNICOS NO APLICATIVO. A APROVAÇÃO OU A RECUSA É SEMPRE DA JORNADA INTEIRA. AO RECUSAR, A JORNADA VOLTA PARA O MECÂNICO CORRIGIR E ENCERRAR DE NOVO. AS JORNADAS APROVADAS VÃO PARA A ABA DIGITAÇÃO.</div>
         <div class="ap-fil">
           <div class="f"><div class="r">DE</div><input type="date" class="busca" id="aj-de" onchange="carregarAp()"></div>
           <div class="f"><div class="r">ATÉ</div><input type="date" class="busca" id="aj-ate" onchange="carregarAp()"></div>
@@ -448,6 +463,16 @@ html.escuro .ap .obs{background:#0F1720}
         </div>
         <div class="chips" id="aj-st"></div>
         <div id="aj-lista"></div>
+      </div>
+      <div id="an-digit" class="oculto">
+        <div class="an-aviso">AQUI FICAM OS APONTAMENTOS DAS JORNADAS JÁ APROVADAS, PRONTOS PARA DIGITAR. USE "COPIAR TABELA" PARA COLAR NO EXCEL.</div>
+        <div class="ap-fil">
+          <div class="f"><div class="r">DE</div><input type="date" class="busca" id="dg-de" onchange="carregarDg()"></div>
+          <div class="f"><div class="r">ATÉ</div><input type="date" class="busca" id="dg-ate" onchange="carregarDg()"></div>
+          <div class="f"><div class="r">MECÂNICO</div><select class="busca" id="dg-mec" onchange="renderDg()"><option value="">TODOS OS MECÂNICOS</option></select></div>
+          <button class="btn sec" onclick="carregarDg()">ATUALIZAR</button>
+        </div>
+        <div id="dg-lista"></div>
       </div>
 
     </div>
@@ -998,7 +1023,7 @@ async function entrarAnalista() {
 }
 async function mostrarPainel() {
   $('#an-login').classList.add('oculto'); $('#an-painel').classList.remove('oculto'); $('#an-senha-btn').classList.remove('oculto');
-  if (sessionStorage.getItem('anAba') === 'aponts') anAba('aponts');
+  if (['aponts', 'digit'].includes(sessionStorage.getItem('anAba'))) anAba(sessionStorage.getItem('anAba'));
   try {
     const metas = await sb('consulta_meta?select=*'); META_AN = metas;
     for (const t of TABELAS) {
@@ -1069,9 +1094,10 @@ const traduzAn = e => { const m = up(e && e.message); const k = Object.keys(MSG_
 
 function anAba(a) {
   document.querySelectorAll('.an-aba').forEach(b => b.classList.toggle('ativo', b.dataset.a === a));
-  $('#an-planilhas').classList.toggle('oculto', a !== 'planilhas'); $('#an-aponts').classList.toggle('oculto', a !== 'aponts');
+  $('#an-planilhas').classList.toggle('oculto', a !== 'planilhas'); $('#an-aponts').classList.toggle('oculto', a !== 'aponts'); $('#an-digit').classList.toggle('oculto', a !== 'digit');
   sessionStorage.setItem('anAba', a);
   if (a === 'aponts') { if (!$('#aj-de').value) { $('#aj-ate').value = hojeISO(); $('#aj-de').value = somaDiaA(hojeISO(), -7); } carregarAp(); }
+  if (a === 'digit') { if (!$('#dg-de').value) { $('#dg-ate').value = hojeISO(); $('#dg-de').value = somaDiaA(hojeISO(), -7); } carregarDg(); }
 }
 async function carregarAp() {
   const de = $('#aj-de').value, ate = $('#aj-ate').value;
@@ -1114,9 +1140,9 @@ function alertasA(j) {
   return a;
 }
 function renderAp() {
-  const mec = $('#aj-mec').value, todas = jornadasAp().filter(j => !mec || j.mecanico_id === mec);
+  const mec = $('#aj-mec').value, todas = jornadasAp().filter(j => j.st !== 'AP' && (!mec || j.mecanico_id === mec));
   const cont = k => todas.filter(j => k === 'TD' || j.st === k).length;
-  $('#aj-st').innerHTML = [['AG', 'AGUARDANDO APROVAÇÃO'], ['RE', 'RECUSADAS'], ['AN', 'EM ANDAMENTO'], ['AP', 'APROVADAS'], ['TD', 'TODAS']]
+  $('#aj-st').innerHTML = [['AG', 'AGUARDANDO APROVAÇÃO'], ['RE', 'RECUSADAS'], ['AN', 'EM ANDAMENTO'], ['TD', 'TODAS']]
     .map(([k, n]) => `<button class="chip${AP.st === k ? ' ativo' : ''}" onclick="AP.st='${k}';renderAp()">${n}<b>${cont(k)}</b></button>`).join('');
   const L = todas.filter(j => AP.st === 'TD' || j.st === AP.st);
   if (!L.length) { $('#aj-lista').innerHTML = '<div class="ap-vazio">NENHUMA JORNADA ' + (AP.st === 'TD' ? '' : ({ AG: 'AGUARDANDO APROVAÇÃO', RE: 'RECUSADA', AN: 'EM ANDAMENTO', AP: 'APROVADA' })[AP.st] + ' ') + 'NESTE PERÍODO</div>'; return; }
@@ -1157,9 +1183,9 @@ const nomeJo = j => esc(j.mec.nome) + ' DE ' + dataBR(j.data);
 /* ----- modal genérico ----- */
 function modalAn(html) { $('#modal-an-cx').innerHTML = html; $('#modal-an').classList.remove('oculto'); const f = $('#modal-an-cx').querySelector('input:not([readonly]),textarea'); if (f) setTimeout(() => f.focus(), 50); }
 function fecharAn() { $('#modal-an').classList.add('oculto'); $('#modal-an-cx').innerHTML = ''; }
-async function acaoAn(btn, fn) {
+async function acaoAn(btn, fn, depois = carregarAp) {
   const m = $('#modal-an-cx').querySelector('.msg'); btn.disabled = true; if (m) m.textContent = '';
-  try { await fn(); fecharAn(); await carregarAp(); } catch (e) { if (m) m.textContent = traduzAn(e); btn.disabled = false; }
+  try { await fn(); fecharAn(); await depois(); } catch (e) { if (m) m.textContent = traduzAn(e); btn.disabled = false; }
 }
 function aprovarJo(id) {
   const j = joPorId(id); if (!j) return;
@@ -1236,6 +1262,56 @@ function excluirSenha(id) {
     <div class="txt">DIGITE A SENHA DO ANALISTA PARA EXCLUIR <b>${esc(i.inicio)} – ${esc(i.fim || '…')} · ${esc(i.atividade)}</b>.</div>
     <input class="busca" type="password" id="ex-pw" autocomplete="off" onkeydown="if(event.key==='Enter')$('#ex-ok').click()">
     <div class="msg"></div><button class="btn vm" id="ex-ok" onclick="const s=$('#ex-pw').value;if(!s)return this.parentNode.querySelector('.msg').textContent='DIGITE A SENHA';acaoAn(this,()=>rpc('an_excluir_apont',{p_senha:s,p_id:'${id}'}))">EXCLUIR DEFINITIVAMENTE</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
+}
+
+/* ================= ANALISTA · DIGITAÇÃO ================= */
+let DG = { j: [], a: [], m: [] };
+async function carregarDg() {
+  const de = $('#dg-de').value, ate = $('#dg-ate').value;
+  if (!de || !ate || de > ate) { $('#dg-lista').innerHTML = '<div class="ap-vazio">ESCOLHA UM PERÍODO VÁLIDO</div>'; return; }
+  $('#dg-lista').innerHTML = '<div class="ap-vazio">CARREGANDO…</div>';
+  try {
+    DG = await rpc('an_listar', { p_senha: senhaAn, p_de: de, p_ate: ate }) || { j: [], a: [], m: [] };
+    const apr = new Set(DG.j.filter(j => j.status === 'APROVADA').map(j => j.mecanico_id));
+    const sel = $('#dg-mec'), v = sel.value;
+    sel.innerHTML = '<option value="">TODOS OS MECÂNICOS</option>' + DG.m.filter(m => apr.has(m.id)).map(m => `<option value="${m.id}">${esc(m.nome)}</option>`).join('');
+    sel.value = [...sel.options].some(o => o.value === v) ? v : '';
+    renderDg();
+  } catch (e) {
+    if (up(e.message).includes('SENHA_INVALIDA')) { senhaAn = ''; sessionStorage.removeItem('senhaAn'); rota(); return; }
+    $('#dg-lista').innerHTML = '<div class="ap-vazio">ERRO AO CARREGAR: ' + esc(traduzAn(e)) + '</div>';
+  }
+}
+function linhasDg() {
+  const mec = $('#dg-mec').value, L = [];
+  const jor = DG.j.filter(j => j.status === 'APROVADA' && (!mec || j.mecanico_id === mec));
+  for (const j of jor) {
+    const m = DG.m.find(x => x.id === j.mecanico_id) || { nome: '?' };
+    const itens = DG.a.filter(a => a.mecanico_id === j.mecanico_id && a.data === j.data), g = { itens };
+    itens.sort((x, y) => ordA(x, g) - ordA(y, g)).forEach((a, k) => L.push({ j, nome: m.nome, a, pri: k === 0 }));
+  }
+  return L.sort((x, y) => x.j.data.localeCompare(y.j.data) || x.nome.localeCompare(y.nome) || 0);
+}
+function renderDg() {
+  const L = linhasDg(), nj = new Set(L.map(l => l.j.id)).size;
+  if (!L.length) { $('#dg-lista').innerHTML = '<div class="ap-vazio">NENHUMA JORNADA APROVADA NESTE PERÍODO</div>'; return; }
+  $('#dg-lista').innerHTML = `<div class="dg-card"><div class="dg-cab"><div><b>APONTAMENTOS APROVADOS</b><span>${nj} JORNADA(S) · ${L.length} APONTAMENTO(S)</span></div>
+    <button class="btn sec" id="dg-cp" onclick="copiarDg()">COPIAR TABELA</button></div>
+    <table class="dg-t"><colgroup><col style="width:24%"><col style="width:11%"><col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:9%"><col><col style="width:44px"></colgroup>
+    <thead><tr><th>NOME</th><th>DATA</th><th>INÍCIO</th><th>FIM</th><th>FROTA</th><th>O.S.</th><th>MANUTENÇÃO</th><th></th></tr></thead>
+    <tbody>${L.map(l => `<tr class="${l.pri ? 'pri' : ''}"><td data-l="NOME">${esc(l.nome)}</td><td data-l="DATA">${dataBR(l.j.data)}</td><td data-l="INÍCIO">${esc(l.a.inicio)}</td><td data-l="FIM">${esc(l.a.fim || '')}</td><td data-l="FROTA">${esc(l.a.frota || '')}</td><td data-l="O.S."></td><td data-l="MANUTENÇÃO">${esc(l.a.observacao || '')}</td>
+      <td>${l.pri ? `<button class="ic-b" title="DESFAZER APROVAÇÃO DESTA JORNADA" onclick="desfazerDg('${l.j.id}')">↩</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+async function copiarDg() {
+  const L = linhasDg(), t = [['NOME', 'DATA', 'INÍCIO', 'FIM', 'FROTA', 'O.S.', 'MANUTENÇÃO'].join('\t'),
+    ...L.map(l => [l.nome, dataBR(l.j.data), l.a.inicio, l.a.fim || '', l.a.frota || '', '', (l.a.observacao || '').replace(/\s+/g, ' ')].join('\t'))].join('\n');
+  try { await navigator.clipboard.writeText(t); $('#dg-cp').textContent = '✓ COPIADA — COLE NO EXCEL'; setTimeout(() => { const b = $('#dg-cp'); if (b) b.textContent = 'COPIAR TABELA'; }, 2500); }
+  catch (e) { $('#dg-cp').textContent = 'NÃO FOI POSSÍVEL COPIAR'; }
+}
+function desfazerDg(id) {
+  const j = DG.j.find(x => x.id === id); if (!j) return; const m = DG.m.find(x => x.id === j.mecanico_id) || { nome: '?' };
+  modalAn(`<h3>DESFAZER APROVAÇÃO</h3><div class="txt">A JORNADA DE ${esc(m.nome)} DE ${dataBR(j.data)} SAI DA DIGITAÇÃO E VOLTA PARA "AGUARDANDO APROVAÇÃO" NA ABA APONTAMENTOS.</div>
+    <div class="msg"></div><button class="btn" onclick="acaoAn(this,()=>rpc('an_jornada',{p_senha:senhaAn,p_id:'${id}',p_acao:'DESFAZER'}),carregarDg)">CONFIRMAR</button><button class="btn sec" onclick="fecharAn()">VOLTAR</button>`);
 }
 
 /* ================= INÍCIO DO APP ================= */
