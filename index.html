@@ -97,6 +97,16 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .diatx{flex:1;text-align:center;font-weight:900;font-size:15px;padding:8px 10px}
 .diatx small{display:block;font-size:10px;color:var(--cinza);font-weight:800;margin-top:1px}
 .lk{color:var(--azul);text-decoration:underline;cursor:pointer}
+.graf{display:flex;align-items:flex-end;gap:6px}
+.gc{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.gv{font-size:11px;font-weight:900;text-align:center;line-height:1.1;margin-bottom:3px}
+.gv small{display:block;font-size:9px;color:var(--cinza);font-weight:800}
+.gb{width:100%;max-width:38px;border-radius:6px 6px 0 0;background:#9AA5B1}
+.gb.p{background:var(--verde)} .gb.i{background:var(--vermelho)}
+.gl{font-size:8.5px;font-weight:800;color:var(--cinza);text-align:center;margin-top:0;line-height:1.15;height:34px;overflow:hidden;word-break:normal;overflow-wrap:normal;border-top:1.5px solid var(--linha);padding-top:4px;width:100%}
+.gleg{display:flex;gap:6px;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--cinza);margin-top:8px}
+.gleg span{width:10px;height:10px;border-radius:3px;display:inline-block}
+.gleg .p{background:var(--verde)} .gleg .i{background:var(--vermelho);margin-left:8px}
 
 /* apontamentos */
 .dia{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -625,7 +635,7 @@ function renderApont() {
     const pc = t ? Math.round(p / t * 100) : 0, [fx, cls] = faixa(pc);
     const turnos = [...new Set(aps.map(a => a.PERIODO))].join(' / ');
     return '<div class="mec"><button class="cab" onclick="detMec(\'' + esc(nome) + '\',\'' + dia + '\')"><div class="nm">' + esc(nome) + '</div><div class="dir"><div class="hh">' + hhmm(t) + ' H ›</div></div></button></div>';
-  }).join('');
+  }).join('') + graficoAtiv(lista);
 }
 function togMec(n) { abertos.has(n) ? abertos.delete(n) : abertos.add(n); renderApont(); }
 function linhaAp(a) {
@@ -635,6 +645,16 @@ function linhaAp(a) {
     '<span class="hr">' + hora(a.INICIO) + '–' + hora(a.FIM) + '</span><span class="mt">' + esc(a.MOTIVO) + '</span><span class="tp ' + (pr ? 'prod' : 'imp') + '">' + hhmm(a.MIN) + '</span>' +
     '<span class="dt">' + alvo + ' · ' + esc(a.TIPO) + ' · <span style="color:' + (pr ? 'var(--verde)' : 'var(--vermelho)') + '">' + esc(a.STATUS) + '</span></span>' +
     (a.OBS && a.OBS !== 'SEM OBSERVAÇÕES' ? '<span class="obs">' + esc(a.OBS) + '</span>' : '') + '</div>';
+}
+function graficoAtiv(aps) {
+  const m = new Map();
+  for (const a of aps) { const k = a.MOTIVO || '–'; const o = m.get(k) || { min: 0, prod: a.STATUS === 'PRODUTIVO' }; o.min += a.MIN || 0; m.set(k, o); }
+  let it = [...m.entries()].map(([k, o]) => ({ k, min: o.min, prod: o.prod })).sort((a, b) => b.min - a.min);
+  if (!it.length) return '';
+  if (it.length > 7) { const r = it.slice(6); it = it.slice(0, 6); it.push({ k: 'OUTROS', min: r.reduce((s, x) => s + x.min, 0), prod: null }); }
+  const tot = it.reduce((s, x) => s + x.min, 0) || 1, mx = Math.max(...it.map(x => x.min)) || 1;
+  return '<div class="bloco" style="margin-top:12px"><h3>RESUMO POR ATIVIDADE</h3><div class="graf">' + it.map(x => '<div class="gc"><div class="gv">' + hhmm(x.min) + '<small>' + Math.round(x.min / tot * 100) + '%</small></div><div class="gb ' + (x.prod === null ? '' : x.prod ? 'p' : 'i') + '" style="height:' + Math.max(4, Math.round(x.min / mx * 120)) + 'px"></div><div class="gl">' + esc(x.k.split(' ').map(w => w.length > 8 ? w.slice(0, 6) + '.' : w).join(' ')) + '</div></div>').join('') +
+    '</div><div class="gleg"><span class="p"></span>PRODUTIVO <span class="i"></span>IMPRODUTIVO</div></div>';
 }
 const SEMANA = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
 function somaDia(dia, n) { const x = new Date(dia + 'T12:00:00'); x.setDate(x.getDate() + n); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()); }
@@ -648,7 +668,7 @@ function detMec(nome, dia, trocar) {
     '<div class="dia"><button onclick="' + ir(-1) + '">‹</button><div class="busca diatx">' + dataBR(dia) + '<small>' + SEMANA[new Date(dia + 'T12:00:00').getDay()] + '</small></div><button onclick="' + ir(1) + '">›</button></div>' +
     '<div class="resumo"><div class="kpi"><div class="v">' + hhmm(t) + '</div><div class="t">HORAS APONTADAS</div></div><div class="kpi"><div class="v verde">' + (t ? pc + '%' : '–') + '</div><div class="t">PRODUTIVO</div></div><div class="kpi"><div class="v verm">' + (t ? (100 - pc) + '%' : '–') + '</div><div class="t">IMPRODUTIVO</div></div></div>' +
     (aps.length ? '<div class="mec"><div class="cab"><div><div class="nm">' + esc(aps[0].NOME || nome) + '</div><div class="st">' + esc(aps[0].SETOR) + ' · ' + esc(turnos) + ' · ' + aps.length + ' APONT.</div></div>' +
-      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>'
+      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>' + graficoAtiv(aps)
       : '<div class="vazio">SEM APONTAMENTOS NESTE DIA (FOLGA)</div>'), trocar);
 }
 
