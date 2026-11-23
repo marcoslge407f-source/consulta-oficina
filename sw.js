@@ -1,5 +1,5 @@
 // SERVICE WORKER - CONSULTA OFICINA (funciona sem internet)
-const CACHE = 'consulta-oficina-v2';
+const CACHE = 'consulta-oficina-v3';
 const ARQUIVOS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png', './mecanico.html'];
 
 self.addEventListener('install', e => {
@@ -15,7 +15,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || url.origin !== location.origin) return; // dados do Supabase não passam pelo cache
   // rede primeiro (pega versão nova do app), cache se estiver sem internet
   e.respondWith(
-    fetch(e.request).then(r => {
+    fetch(e.request, { cache: 'no-cache' }).then(r => {
       const copia = r.clone();
       caches.open(CACHE).then(c => c.put(e.request, copia));
       return r;
