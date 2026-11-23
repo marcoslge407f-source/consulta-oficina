@@ -33,7 +33,7 @@ button{cursor:pointer}
 .topo .l1{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .topo h1{font-size:18px;font-weight:800;letter-spacing:.5px}
 .topo .sub{font-size:11px;opacity:.9;margin-top:2px;letter-spacing:.4px}
-.sync{font-size:10.5px;background:rgba(255,255,255,.18);border:0;color:#fff;border-radius:20px;padding:6px 10px;font-weight:700;white-space:nowrap}
+.sync{text-align:center;line-height:1.25;font-size:10.5px;background:rgba(255,255,255,.18);border:0;color:#fff;border-radius:20px;padding:6px 10px;font-weight:700;white-space:nowrap}
 .sync.off{background:rgba(211,47,47,.85)}
 .pag{padding:14px}
 .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--linha);display:flex;justify-content:center;z-index:10;padding-bottom:env(safe-area-inset-bottom)}
@@ -458,7 +458,8 @@ async function sincronizar(manual) {
     }
     if (mudou) { indexar(); atualizarTudo(); }
     localStorage.setItem('ultimaConsulta', new Date().toISOString());
-    b.textContent = 'ATUALIZADO';
+    const ult = Object.values(D.meta).filter(Boolean).map(m => m.atualizado_em).sort().pop();
+    b.innerHTML = ult ? 'ATUALIZADO EM<br>' + dataBR(isoLocal(ult)) : 'ATUALIZADO';
   } catch (e) {
     b.textContent = 'SEM INTERNET'; b.classList.add('off');
   }
@@ -507,10 +508,10 @@ function renderInicio() {
   $('#k-hoje-t').textContent = 'O.S. ABERTAS ONTEM (' + dataBR(ontem).slice(0,5) + ')';
   $('#k-frotas').textContent = D.frotas.length;
   const u = ultimoDia(); $('#k-ult').textContent = u ? dataBR(u).slice(0,5) : '–';
-  const linha = (t, n) => { const m = D.meta[t]; return '<div class="campo"><div class="r">' + n + '</div><div class="x">' + (m ? dataHoraBR(isoLocal(m.atualizado_em)) : 'SEM DADOS') + '</div></div>'; };
+  const linha = (t, n) => { const m = D.meta[t]; return '<div class="campo"><div class="r">' + n + '</div><div class="x">' + (m ? dataBR(isoLocal(m.atualizado_em)) : 'SEM DADOS') + '</div></div>'; };
   const uc = localStorage.getItem('ultimaConsulta');
   $('#info-sync').innerHTML = linha('os','O.S. PUBLICADAS EM') + linha('apontamentos','APONTAMENTOS PUBLICADOS EM') + linha('frotas','FROTAS PUBLICADAS EM') +
-    '<div class="campo"><div class="r">ÚLTIMA CONSULTA</div><div class="x">' + (uc ? dataHoraBR(isoLocal(uc)) : '–') + '</div></div>';
+    '<div class="campo"><div class="r">ÚLTIMA CONSULTA</div><div class="x">' + (uc ? dataBR(isoLocal(uc)) : '–') + '</div></div>';
 }
 function isoLocal(ts) { const d = new Date(ts); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()); }
 
