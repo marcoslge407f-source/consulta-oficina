@@ -538,6 +538,7 @@ function renderOS(reset) {
   osFiltradas = D.os.filter(o =>
     (!sit || o.SITUACAO === sit) && (!sec || o.SECAO === sec) && (!desde || (o.ENTRADA||'') >= desde) && (!ate || (o.ENTRADA||'').slice(0,10) <= ate) &&
     (!q || norm(o.NUM).includes(q) || norm(o.EQP).includes(q) || norm(o.MODELO).includes(q) || norm(o.MANUT).includes(q) || norm(o.CLASSE).includes(q)));
+  if (desde && (per === 'HOJE' || ate === desde)) osFiltradas.sort((x, y) => (x.ENTRADA||'').localeCompare(y.ENTRADA||'') || (x.NUM||0) - (y.NUM||0));
   $('#os-cont').textContent = osFiltradas.length + (osFiltradas.length === 1 ? ' ORDEM DE SERVIÇO' : ' ORDENS DE SERVIÇO');
   const vis = osFiltradas.slice(0, osLim);
   $('#os-lista').innerHTML = !D.os.length ? '<div class="vazio">AINDA NÃO HÁ O.S. PUBLICADAS.<br>AGUARDE O ANALISTA PUBLICAR.</div>' :
