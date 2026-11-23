@@ -284,7 +284,7 @@ async function sincronizar(puxar=true){
     if(puxar){
       const sj=await rpc('listar_jornadas',{p_token:U.token,p_de:addDias(hoje(),-30),p_ate:addDias(hoje(),1),p_mecanico:null})||[];
       const minhas=sj.filter(j=>j.mecanico_id===U.id),pendJ=JORN.filter(j=>j.pendente);
-      JORN=[...minhas.map(j=>(j.status==='ABERTA'&&pendJ.find(p=>p.data===j.data))||{id:j.id,mecanico_id:j.mecanico_id,data:j.data,status:j.status,aberta_em:j.aberta_em,encerrada_em:j.encerrada_em}),...pendJ.filter(p=>!minhas.some(j=>j.data===p.data))];salvarJ();
+      JORN=[...minhas.map(j=>{const lp=j.status==='ABERTA'&&pendJ.find(p=>p.data===j.data);return lp?{...lp,recusa_motivo:j.recusa_motivo}:{id:j.id,mecanico_id:j.mecanico_id,data:j.data,status:j.status,aberta_em:j.aberta_em,encerrada_em:j.encerrada_em,recusa_motivo:j.recusa_motivo}}),...pendJ.filter(p=>!minhas.some(j=>j.data===p.data))];salvarJ();
       const srv=await rpc('listar_apontamentos',{p_token:U.token,p_de:addDias(hoje(),-10),p_ate:addDias(hoje(),1),p_mecanico:null})||[];
       const loc=new Map(ITENS.filter(i=>i.pendente).map(i=>[i.id,i]));
       const novos=srv.filter(s=>s.mecanico_id===U.id&&!s.excluido).map(s=>loc.get(s.id)||limpa(s));
@@ -325,6 +325,7 @@ function telaCal(){
     <div class="calMes"><button class="calNav" ${podeV?'':'disabled'} onclick="CAL.mes--;if(CAL.mes<0){CAL.mes=11;CAL.ano--}telaCal()">‹</button><b>${MESES[CAL.mes]} ${CAL.ano}</b><button class="calNav" ${podeI?'':'disabled'} onclick="CAL.mes++;if(CAL.mes>11){CAL.mes=0;CAL.ano++}telaCal()">›</button></div>
     <div class="calGrade">${['D','S','T','Q','Q','S','S'].map(x=>`<span class="calSem">${x}</span>`).join('')}${cel}</div>
     <div class="calLeg"><span style="color:var(--azul)"><u>DIA</u> = HOJE</span><span style="color:var(--verde)">● ABERTA</span><span>● ENCERRADA</span></div>
+    ${abertas.filter(j=>j.recusa_motivo).map(j=>`<div class="alerta vm" style="text-align:center" onclick="CAL.sel='${j.data}';telaCal()">✕ JORNADA DE ${dataBR(j.data)} RECUSADA PELO ANALISTA — TOQUE NO DIA E CORRIJA</div>`).join('')}
     ${abertas.length?`<div class="alerta vd" style="text-align:center">JORNADA(S) ABERTA(S): ${abertas.map(j=>dataBR(j.data)).join(', ')}</div>`:''}
   </div>
   <button class="btn ${st&&st!=='ABERTA'?'cinza':''}" ${CAL.sel?'':'disabled'} onclick="iniciarJornada()">${!CAL.sel?'ESCOLHA UMA DATA':st==='ABERTA'?'CONTINUAR JORNADA DE '+dataBR(CAL.sel):st?'VER JORNADA DE '+dataBR(CAL.sel):'INICIAR JORNADA DE '+dataBR(CAL.sel)}</button>`;
@@ -352,6 +353,7 @@ function telaJornada(J){
   $('#tela').innerHTML=`<div class="bloco"><div class="jLin"><div><div class="jRot">JORNADA</div><div class="jData">${dataBR(J.data)}</div></div>
     <div style="text-align:right"><span class="tag" style="background:${COR_J[J.status]||'#78909C'}">${J.status}</span><div class="jRot" style="margin-top:4px">${J.encerrada_em?'ENCERRADA ÀS '+horaDe(J.encerrada_em):'DESDE '+horaDe(J.aberta_em)}</div></div></div>
     ${ed?'':'<div class="alerta am">SOMENTE VISUALIZAÇÃO. PARA CORRIGIR, FALE COM O ANALISTA.</div>'}
+    ${ed&&J.recusa_motivo?`<div class="alerta vm">✕ JORNADA RECUSADA PELO ANALISTA: ${esc(J.recusa_motivo)}<br>CORRIJA OS APONTAMENTOS E FAÇA O ENCERRAMENTO DE TURNO DE NOVO.</div>`:''}
     <button class="btn sec" style="margin-top:10px;padding:10px;font-size:12px" onclick="voltarCal()">↩ VOLTAR AO CALENDÁRIO</button></div>
   <div class="bloco"><h3>RESUMO DA JORNADA</h3><div class="tiles">${tiles(t)}</div>${alertas(dia).map(([c,x])=>`<div class="alerta ${c}">${x}</div>`).join('')}</div>
   <div class="bloco"><h3>APONTAMENTOS DA JORNADA</h3>

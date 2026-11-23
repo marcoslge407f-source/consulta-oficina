@@ -171,6 +171,50 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .an-aba{border:0;background:none;padding:12px 18px;font-size:13px;font-weight:900;color:var(--cinza);border-bottom:3px solid transparent;margin-bottom:-2px;letter-spacing:.5px}
 .an-aba.ativo{color:var(--azul);border-bottom-color:var(--azul)}
 .an-aviso{background:#E3EEFB;color:#0D47A1;border-radius:12px;padding:12px 14px;font-size:12px;font-weight:800;margin-bottom:16px;line-height:1.45}
+.ap-fil{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px}
+.ap-fil .f{display:flex;flex-direction:column;gap:4px}
+.ap-fil .f .r{font-size:10px;font-weight:900;color:var(--cinza);letter-spacing:.5px}
+.ap-fil .busca{width:auto;min-width:150px;padding:10px 12px;font-size:13px;font-weight:700}
+.ap-fil .btn{width:auto;padding:11px 18px;font-size:12px}
+#aj-st{margin-bottom:14px}
+#aj-st .chip{cursor:pointer;font-size:11.5px;padding:8px 14px}
+#aj-st .chip.ativo{background:var(--azul);border-color:var(--azul);color:#fff}
+#aj-st .chip b{margin-left:6px}
+.jo{border:1.5px solid var(--linha);border-left:6px solid var(--azul);border-radius:16px;background:#fff;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.jo.st-ag{border-left-color:var(--amarelo)} .jo.st-ap{border-left-color:var(--verde)} .jo.st-re{border-left-color:var(--vermelho)}
+.jo-cab{display:grid;grid-template-columns:130px 1fr auto;gap:14px;align-items:center;padding:14px 16px;cursor:pointer}
+.jo-dt b{display:block;font-size:17px;font-weight:900;color:var(--azul)} .jo-dt span{font-size:10px;font-weight:800;color:var(--cinza)}
+.jo-nm b{display:block;font-size:15px;font-weight:900} .jo-nm>span{font-size:11px;font-weight:700;color:var(--cinza)}
+.jo-mini{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+.jo-mini div{font-size:10px;font-weight:800;color:var(--cinza)} .jo-mini div i{font-style:normal;font-size:13px;font-weight:900;margin-left:4px;color:var(--texto)}
+.tg{display:inline-block;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:900;color:#fff;white-space:nowrap}
+.tg.ag{background:var(--amarelo);color:#3B2C00} .tg.ap{background:var(--verde)} .tg.re{background:var(--vermelho)} .tg.an{background:var(--azul)}
+.jo-dir{text-align:right;display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.jo-dir small{font-size:10px;font-weight:800;color:var(--cinza)}
+.jo-corpo{border-top:1px solid var(--linha);padding:12px 16px 16px}
+.jo-al{border-radius:10px;padding:9px 12px;font-size:11.5px;font-weight:800;margin-bottom:8px}
+.jo-al.vm{background:#FDECEA;color:#B71C1C} .jo-al.am{background:#FFF6DC;color:#7A5600} .jo-al.vd{background:#E7F5EA;color:#1B5E20}
+.ap-l{display:grid;grid-template-columns:110px 74px minmax(0,1.6fr) 70px 70px minmax(0,1.4fr) 76px;gap:10px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--linha);font-size:12px;font-weight:700}
+.ap-l.cab{font-size:10px;font-weight:900;color:var(--cinza);letter-spacing:.4px;padding-top:2px}
+.ap-l .h{font-weight:900} .ap-l .at{display:flex;gap:7px;align-items:center;min-width:0} .ap-l .at span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ap-l .dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+.ap-l .ob{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--cinza)}
+.ap-l em{font-style:normal;font-size:9px;font-weight:900;color:var(--azul);display:block}
+.ap-l .ac{display:flex;gap:6px;justify-content:flex-end}
+.ic-b{border:1.5px solid var(--linha);background:#fff;border-radius:9px;width:32px;height:32px;font-size:14px;font-weight:900;color:var(--azul);cursor:pointer}
+.ic-b.x{color:var(--vermelho)}
+.jo-bt{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.jo-bt .btn{width:auto;padding:12px 22px;font-size:12.5px}
+.btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
+.ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
+#modal-an .cx{width:440px;max-width:92vw}
+#modal-an .lin2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#modal-an .r{font-size:10px;font-weight:900;color:var(--cinza);margin-bottom:4px}
+#modal-an textarea.busca{min-height:80px;resize:none;font-family:inherit;text-transform:uppercase}
+#modal-an input.busca{text-transform:uppercase}
+#modal-an .txt{font-size:13px;font-weight:700;line-height:1.45}
+@media (max-width:900px){.an-in{padding:24px 14px 90px 40px}.jo-cab{grid-template-columns:1fr;gap:8px}.jo-dir{align-items:flex-start;text-align:left}
+ .ap-l{grid-template-columns:96px 1fr 76px}.ap-l.cab{display:none}.ap-l .du,.ap-l .fr,.ap-l .os,.ap-l .ob{display:none}.ap-l .at span{white-space:normal}}
 .an-card{border:1.5px solid var(--linha);border-radius:18px;padding:20px;background:#fff;display:flex;flex-direction:column;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
 .an-card h3{font-size:16px;font-weight:900;color:var(--azul)}
 .an-card .pl{font-size:11px;color:var(--cinza);font-weight:700}
@@ -340,7 +384,7 @@ html.escuro .ap .obs{background:#0F1720}
         <div class="marca">USINA GRANELLI</div>
         <h1>PCM AUTOMOTIVO</h1>
         <div class="s">PLANEJAMENTO E CONTROLE DA MANUTENÇÃO</div>
-        <div class="s2">ÁREA DO ANALISTA · PUBLICAR DADOS PARA OS MECÂNICOS</div>
+        <div class="s2">ÁREA DO ANALISTA</div>
       </div>
       <div class="an-acoes" id="an-acoes">
         <button class="btn sec oculto" id="an-senha-btn" onclick="abrirTrocaSenha()">TROCAR SENHA</button>
@@ -356,7 +400,7 @@ html.escuro .ap .obs{background:#0F1720}
     </div>
 
     <div id="an-painel" class="oculto">
-      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas">PLANILHAS</button></div>
+      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas" onclick="anAba('planilhas')">PLANILHAS</button><button class="an-aba" data-a="aponts" onclick="anAba('aponts')">APONTAMENTOS</button></div>
       <div id="an-planilhas">
       <div class="an-aviso">ENVIE AQUI AS PLANILHAS PARA ATUALIZAR O APLICATIVO. CADA CARTÃO SÓ ACEITA A SUA PLANILHA: SE ESCOLHER UMA PLANILHA ERRADA POR ENGANO, ELA É BARRADA E NADA É PUBLICADO.</div>
       <div class="an-grid">
@@ -393,11 +437,24 @@ html.escuro .ap .obs{background:#0F1720}
       </div>
       <button class="btn" id="pub-tudo" style="margin-top:22px;max-width:380px" disabled onclick="publicarTudo()">PUBLICAR TODAS AS PLANILHAS CARREGADAS</button>
       </div>
+      <div id="an-aponts" class="oculto">
+        <div class="an-aviso">AQUI VOCÊ CONFERE AS JORNADAS APONTADAS PELOS MECÂNICOS NO APLICATIVO. A APROVAÇÃO OU A RECUSA É SEMPRE DA JORNADA INTEIRA. AO RECUSAR, A JORNADA VOLTA PARA O MECÂNICO CORRIGIR E ENCERRAR DE NOVO.</div>
+        <div class="ap-fil">
+          <div class="f"><div class="r">DE</div><input type="date" class="busca" id="aj-de" onchange="carregarAp()"></div>
+          <div class="f"><div class="r">ATÉ</div><input type="date" class="busca" id="aj-ate" onchange="carregarAp()"></div>
+          <div class="f"><div class="r">MECÂNICO</div><select class="busca" id="aj-mec" onchange="renderAp()"><option value="">TODOS OS MECÂNICOS</option></select></div>
+          <button class="btn sec" onclick="carregarAp()">ATUALIZAR</button>
+        </div>
+        <div class="chips" id="aj-st"></div>
+        <div id="aj-lista"></div>
+      </div>
+
     </div>
   </div>
   <div class="an-rod"><span><b>MARCOS AURÉLIO DE SIQUEIRA</b> · ANALISTA DE PCM AUTOMOTIVO</span><span>USINA GRANELLI · CHARQUEADA/SP</span></div>
 </div>
 
+<div class="modal oculto" id="modal-an"><div class="cx" id="modal-an-cx"></div></div>
 <div class="modal oculto" id="modal-senha"><div class="cx">
   <h3>TROCAR SENHA DO ANALISTA</h3>
   <input class="busca" type="password" id="ns1" placeholder="NOVA SENHA">
@@ -940,6 +997,7 @@ async function entrarAnalista() {
 }
 async function mostrarPainel() {
   $('#an-login').classList.add('oculto'); $('#an-painel').classList.remove('oculto'); $('#an-senha-btn').classList.remove('oculto');
+  if (sessionStorage.getItem('anAba') === 'aponts') anAba('aponts');
   try {
     const metas = await sb('consulta_meta?select=*'); META_AN = metas;
     for (const t of TABELAS) {
@@ -993,6 +1051,173 @@ async function trocarSenha() {
   if (a !== b) return $('#ns-msg').textContent = 'AS SENHAS NÃO CONFEREM';
   try { await rpc('consulta_trocar_senha', { p_senha: senhaAn, p_nova: a }); senhaAn = a; sessionStorage.setItem('senhaAn', a); $('#modal-senha').classList.add('oculto'); }
   catch (e) { $('#ns-msg').textContent = 'ERRO: ' + up(e.message); }
+}
+
+/* ================= ANALISTA · APONTAMENTOS ================= */
+const AP = { j: [], a: [], m: [], ativ: [], st: 'AG', abertos: new Set(), de: '', ate: '' };
+const toMinA = h => /^\d{1,2}:\d{2}$/.test(h || '') ? Number(h.split(':')[0]) * 60 + Number(h.split(':')[1]) : null;
+const durA = (a, b) => { const x = toMinA(a), y = toMinA(b); if (x == null || y == null) return 0; return y >= x ? y - x : y + 1440 - x; };
+const fmtA = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+const somaDiaA = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const ehRef = i => /REFEI/.test(i.atividade || '');
+const corCatA = c => c === 'IMPRODUTIVO' ? 'var(--vermelho)' : 'var(--verde)';
+const ST_AP = { AG: ['AGUARDANDO APROVAÇÃO', 'ag'], RE: ['RECUSADA', 're'], AN: ['EM ANDAMENTO', 'an'], AP: ['APROVADA', 'ap'] };
+const MSG_AN = { SENHA_INVALIDA: 'SENHA INCORRETA', SO_ENCERRADA: 'SÓ É POSSÍVEL APROVAR OU RECUSAR UMA JORNADA ENCERRADA PELO MECÂNICO', SO_APROVADA: 'ESTA JORNADA NÃO ESTÁ APROVADA',
+  MOTIVO_OBRIGATORIO: 'ESCREVA O MOTIVO DA RECUSA', JORNADA_APROVADA: 'JORNADA JÁ APROVADA — DESFAÇA A APROVAÇÃO PARA ALTERAR', APONTAMENTO_NAO_ENCONTRADO: 'APONTAMENTO NÃO ENCONTRADO (ATUALIZE A TELA)', JORNADA_NAO_ENCONTRADA: 'JORNADA NÃO ENCONTRADA (ATUALIZE A TELA)' };
+const traduzAn = e => { const m = up(e && e.message); const k = Object.keys(MSG_AN).find(k => m.includes(k)); return k ? MSG_AN[k] : (/FETCH|NETWORK|FAILED/.test(m) ? 'SEM CONEXÃO COM A INTERNET' : m || 'ERRO'); };
+
+function anAba(a) {
+  document.querySelectorAll('.an-aba').forEach(b => b.classList.toggle('ativo', b.dataset.a === a));
+  $('#an-planilhas').classList.toggle('oculto', a !== 'planilhas'); $('#an-aponts').classList.toggle('oculto', a !== 'aponts');
+  sessionStorage.setItem('anAba', a);
+  if (a === 'aponts') { if (!$('#aj-de').value) { $('#aj-ate').value = hojeISO(); $('#aj-de').value = somaDiaA(hojeISO(), -7); } carregarAp(); }
+}
+async function carregarAp() {
+  const de = $('#aj-de').value, ate = $('#aj-ate').value;
+  if (!de || !ate || de > ate) { $('#aj-lista').innerHTML = '<div class="ap-vazio">ESCOLHA UM PERÍODO VÁLIDO</div>'; return; }
+  $('#aj-lista').innerHTML = '<div class="ap-vazio">CARREGANDO…</div>';
+  try {
+    const [r, at] = await Promise.all([rpc('an_listar', { p_senha: senhaAn, p_de: de, p_ate: ate }), AP.ativ.length ? AP.ativ : rpc('listar_atividades', {})]);
+    AP.j = r.j || []; AP.a = r.a || []; AP.m = r.m || []; AP.ativ = (at || []).slice().sort((x, y) => x.codigo - y.codigo);
+    const sel = $('#aj-mec'), v = sel.value, usados = new Set([...AP.j.map(j => j.mecanico_id), ...AP.a.map(a => a.mecanico_id)]);
+    sel.innerHTML = '<option value="">TODOS OS MECÂNICOS</option>' + AP.m.filter(m => usados.has(m.id)).map(m => `<option value="${m.id}">${esc(m.nome)}</option>`).join('');
+    sel.value = [...sel.options].some(o => o.value === v) ? v : '';
+    renderAp();
+  } catch (e) {
+    if (up(e.message).includes('SENHA_INVALIDA')) { senhaAn = ''; sessionStorage.removeItem('senhaAn'); rota(); return; }
+    $('#aj-lista').innerHTML = '<div class="ap-vazio">ERRO AO CARREGAR: ' + esc(traduzAn(e)) + '</div>';
+  }
+}
+function jornadasAp() {
+  const mp = new Map();
+  for (const j of AP.j) mp.set(j.mecanico_id + '|' + j.data, { ...j, itens: [] });
+  for (const a of AP.a) { const k = a.mecanico_id + '|' + a.data; if (!mp.has(k)) mp.set(k, { id: null, mecanico_id: a.mecanico_id, data: a.data, status: 'ABERTA', itens: [] }); mp.get(k).itens.push(a); }
+  const L = [...mp.values()].filter(j => j.itens.length || j.status !== 'ABERTA' || j.recusa_motivo);
+  for (const j of L) {
+    j.mec = AP.m.find(m => m.id === j.mecanico_id) || { nome: '?', matricula: '' };
+    j.st = j.status === 'ENCERRADA' ? 'AG' : j.status === 'APROVADA' ? 'AP' : j.recusa_motivo ? 'RE' : 'AN';
+    j.itens.sort((x, y) => ordA(x, j) - ordA(y, j));
+  }
+  return L.sort((x, y) => y.data.localeCompare(x.data) || x.mec.nome.localeCompare(y.mec.nome));
+}
+// ordem dentro da jornada (turno noturno passa da meia-noite)
+function ordA(i, j) { const m = toMinA(i.inicio) ?? 0, noturno = j.itens.some(x => /NOTURNO|^B/.test(x.periodo || '')); return noturno && m < 12 * 60 ? m + 1440 : m; }
+function totaisA(l) { const t = { P: 0, I: 0, R: 0, T: 0 }; l.forEach(i => { const m = i.fim ? durA(i.inicio, i.fim) : 0; if (i.categoria === 'IMPRODUTIVO') t.I += m; else t.P += m; if (ehRef(i)) t.R += m; t.T += m; }); t.pc = t.T ? Math.round(t.P / t.T * 100) : 0; return t; }
+function alertasA(j) {
+  const l = j.itens, a = []; if (!l.length) return [['am', 'JORNADA SEM APONTAMENTOS']];
+  if (!l.some(ehRef)) a.push(['am', '⚠ SEM REFEIÇÃO APONTADA']);
+  if (l.some(i => !i.fim)) a.push(['am', '⚠ ATIVIDADE AINDA EM ANDAMENTO (SEM HORA FIM)']);
+  let lac = 0, sob = 0;
+  for (let k = 1; k < l.length; k++) { const p = l[k - 1]; if (!p.fim) continue; const f = ordA(p, j) + durA(p.inicio, p.fim), ini = ordA(l[k], j); if (ini > f) lac++; else if (ini < f) sob++; }
+  if (lac) a.push(['vm', '⚠ ' + lac + ' INTERVALO(S) SEM APONTAMENTO']); if (sob) a.push(['vm', '⚠ ' + sob + ' HORÁRIO(S) SOBREPOSTO(S)']);
+  return a;
+}
+function renderAp() {
+  const mec = $('#aj-mec').value, todas = jornadasAp().filter(j => !mec || j.mecanico_id === mec);
+  const cont = k => todas.filter(j => k === 'TD' || j.st === k).length;
+  $('#aj-st').innerHTML = [['AG', 'AGUARDANDO APROVAÇÃO'], ['RE', 'RECUSADAS'], ['AN', 'EM ANDAMENTO'], ['AP', 'APROVADAS'], ['TD', 'TODAS']]
+    .map(([k, n]) => `<button class="chip${AP.st === k ? ' ativo' : ''}" onclick="AP.st='${k}';renderAp()">${n}<b>${cont(k)}</b></button>`).join('');
+  const L = todas.filter(j => AP.st === 'TD' || j.st === AP.st);
+  if (!L.length) { $('#aj-lista').innerHTML = '<div class="ap-vazio">NENHUMA JORNADA ' + (AP.st === 'TD' ? '' : ({ AG: 'AGUARDANDO APROVAÇÃO', RE: 'RECUSADA', AN: 'EM ANDAMENTO', AP: 'APROVADA' })[AP.st] + ' ') + 'NESTE PERÍODO</div>'; return; }
+  $('#aj-lista').innerHTML = L.map(cardJo).join('');
+}
+function cardJo(j) {
+  const k = j.mecanico_id + '|' + j.data, ab = AP.abertos.has(k), t = totaisA(j.itens), [fx] = faixa(t.pc), [stN, stC] = ST_AP[j.st];
+  const sub = j.st === 'AP' ? 'APROVADA EM ' + dataHoraBR(isoLocal(j.aprovada_em)) : j.st === 'AG' ? 'ENCERRADA EM ' + dataHoraBR(isoLocal(j.encerrada_em)) : j.st === 'RE' ? 'RECUSADA EM ' + dataHoraBR(isoLocal(j.recusada_em)) : '';
+  const dia = SEMANA[new Date(j.data + 'T12:00:00').getDay()];
+  let h = `<div class="jo st-${stC}"><div class="jo-cab" onclick="togJo('${k}')">
+    <div class="jo-dt"><b>${dataBR(j.data)}</b><span>${dia}</span></div>
+    <div class="jo-nm"><b>${esc(j.mec.nome)}</b><span>RE ${esc(j.mec.matricula)} · ${j.itens.length} APONTAMENTO(S)</span>
+      <div class="jo-mini"><div>PRODUTIVO<i style="color:var(--verde)">${fmtA(t.P)}</i></div><div>IMPRODUTIVO<i style="color:var(--vermelho)">${fmtA(t.I)}</i></div><div>REFEIÇÃO<i style="color:var(--amarelo)">${fmtA(t.R)}</i></div><div>TOTAL<i style="color:var(--azul)">${fmtA(t.T)}</i></div><div>ÍNDICE<i>${t.T ? t.pc + '% · ' + fx : '—'}</i></div></div></div>
+    <div class="jo-dir"><span class="tg ${stC}">${stN}</span>${j.st === 'AG' && j.recusa_motivo ? '<small>REENVIADA APÓS RECUSA</small>' : ''}<small>${sub}</small><small>${ab ? '▲ FECHAR' : '▼ VER APONTAMENTOS'}</small></div></div>`;
+  if (ab) {
+    const ed = j.st !== 'AP';
+    h += '<div class="jo-corpo">';
+    if (j.recusa_motivo && j.st !== 'AP') h += `<div class="jo-al vm">MOTIVO DA RECUSA: ${esc(j.recusa_motivo)}</div>`;
+    h += alertasA(j).map(([c, x]) => `<div class="jo-al ${c}">${x}</div>`).join('');
+    if (j.itens.length) h += '<div class="ap-l cab"><div>HORÁRIO</div><div class="du">DURAÇÃO</div><div>ATIVIDADE</div><div class="fr">FROTA</div><div class="os">O.S.</div><div class="ob">OBSERVAÇÃO</div><div></div></div>' +
+      j.itens.map(i => `<div class="ap-l"><div class="h">${esc(i.inicio)} – ${esc(i.fim || '…')}</div><div class="du">${i.fim ? fmtA(durA(i.inicio, i.fim)) : 'EM ANDAMENTO'}</div>
+        <div class="at"><i class="dot" style="background:${corCatA(i.categoria)}"></i><span>${esc(i.atividade)}${i.editado ? '<em>EDITADO PELO ANALISTA</em>' : ''}</span></div>
+        <div class="fr">${esc(i.frota || '–')}</div><div class="os">${esc(i.os || '–')}</div><div class="ob">${esc(i.observacao || '')}</div>
+        <div class="ac">${ed ? `<button class="ic-b" title="EDITAR" onclick="editarAp('${i.id}')">✎</button><button class="ic-b x" title="EXCLUIR" onclick="excluirAp('${i.id}')">✕</button>` : ''}</div></div>`).join('');
+    h += '<div class="jo-bt">';
+    if (j.st === 'AG') h += `<button class="btn vd" onclick="aprovarJo('${j.id}')">✓ APROVAR JORNADA</button><button class="btn vm" onclick="recusarJo('${j.id}')">✕ RECUSAR JORNADA</button>`;
+    else if (j.st === 'AP') h += `<button class="btn cz" onclick="desfazerJo('${j.id}')">↩ DESFAZER APROVAÇÃO</button><div class="jo-al vd" style="margin:0;align-self:center">JORNADA APROVADA. PARA EDITAR OU EXCLUIR, DESFAÇA A APROVAÇÃO.</div>`;
+    else h += `<div class="jo-al am" style="margin:0">${j.st === 'RE' ? 'AGUARDANDO O MECÂNICO CORRIGIR E ENCERRAR DE NOVO.' : 'O MECÂNICO AINDA NÃO ENCERROU ESTA JORNADA. APROVAR OU RECUSAR SÓ DEPOIS DO ENCERRAMENTO.'}</div>`;
+    h += '</div></div>';
+  }
+  return h + '</div>';
+}
+function togJo(k) { AP.abertos.has(k) ? AP.abertos.delete(k) : AP.abertos.add(k); renderAp(); }
+const joPorId = id => jornadasAp().find(j => j.id === id);
+const nomeJo = j => esc(j.mec.nome) + ' DE ' + dataBR(j.data);
+
+/* ----- modal genérico ----- */
+function modalAn(html) { $('#modal-an-cx').innerHTML = html; $('#modal-an').classList.remove('oculto'); const f = $('#modal-an-cx').querySelector('input:not([readonly]),textarea'); if (f) setTimeout(() => f.focus(), 50); }
+function fecharAn() { $('#modal-an').classList.add('oculto'); $('#modal-an-cx').innerHTML = ''; }
+async function acaoAn(btn, fn) {
+  const m = $('#modal-an-cx').querySelector('.msg'); btn.disabled = true; if (m) m.textContent = '';
+  try { await fn(); fecharAn(); await carregarAp(); } catch (e) { if (m) m.textContent = traduzAn(e); btn.disabled = false; }
+}
+function aprovarJo(id) {
+  const j = joPorId(id); if (!j) return;
+  const al = alertasA(j);
+  modalAn(`<h3>APROVAR JORNADA</h3><div class="txt">APROVAR A JORNADA INTEIRA DE ${nomeJo(j)}? (${j.itens.length} APONTAMENTOS · ${fmtA(totaisA(j.itens).T)})</div>
+    ${al.map(([c, x]) => `<div class="jo-al ${c}" style="margin:0">${x}</div>`).join('')}
+    <div class="msg"></div><button class="btn vd" onclick="acaoAn(this,()=>rpc('an_jornada',{p_senha:senhaAn,p_id:'${id}',p_acao:'APROVAR'}))">✓ CONFIRMAR APROVAÇÃO</button><button class="btn sec" onclick="fecharAn()">VOLTAR</button>`);
+}
+function recusarJo(id) {
+  const j = joPorId(id); if (!j) return;
+  modalAn(`<h3>RECUSAR JORNADA</h3><div class="txt">A JORNADA INTEIRA DE ${nomeJo(j)} VOLTA PARA O MECÂNICO CORRIGIR E ENCERRAR DE NOVO.</div>
+    <div><div class="r">MOTIVO DA RECUSA (O MECÂNICO VAI VER)</div><textarea class="busca" id="re-mot" maxlength="300"></textarea></div>
+    <div class="msg"></div><button class="btn vm" onclick="const v=$('#re-mot').value.trim();if(!v)return this.parentNode.querySelector('.msg').textContent='ESCREVA O MOTIVO DA RECUSA';acaoAn(this,()=>rpc('an_jornada',{p_senha:senhaAn,p_id:'${id}',p_acao:'RECUSAR',p_motivo:v}))">✕ CONFIRMAR RECUSA</button><button class="btn sec" onclick="fecharAn()">VOLTAR</button>`);
+}
+function desfazerJo(id) {
+  const j = joPorId(id); if (!j) return;
+  modalAn(`<h3>DESFAZER APROVAÇÃO</h3><div class="txt">A JORNADA DE ${nomeJo(j)} VOLTA PARA "AGUARDANDO APROVAÇÃO" E PODERÁ SER EDITADA.</div>
+    <div class="msg"></div><button class="btn" onclick="acaoAn(this,()=>rpc('an_jornada',{p_senha:senhaAn,p_id:'${id}',p_acao:'DESFAZER'}))">CONFIRMAR</button><button class="btn sec" onclick="fecharAn()">VOLTAR</button>`);
+}
+const itemAp = id => AP.a.find(a => a.id === id);
+function mascaraHoraAn(el) { let v = el.value.replace(/\D/g, '').slice(0, 4); if (v.length > 2) v = v.slice(0, 2) + ':' + v.slice(2); el.value = v; }
+function editarAp(id) {
+  const i = itemAp(id); if (!i) return;
+  const j = jornadasAp().find(x => x.mecanico_id === i.mecanico_id && x.data === i.data);
+  const opts = AP.ativ.map(a => { const n = pad(a.codigo) + ' - ' + up(a.descricao); return `<option value="${esc(n)}" data-c="${esc(a.status)}"${n === i.atividade ? ' selected' : ''}>${esc(n)}</option>`; }).join('');
+  const temAt = AP.ativ.some(a => pad(a.codigo) + ' - ' + up(a.descricao) === i.atividade);
+  modalAn(`<h3>EDITAR APONTAMENTO</h3><div class="txt">${nomeJo(j)}</div>
+    <div><div class="r">ATIVIDADE</div><select class="busca" id="ed-at">${temAt ? '' : `<option value="${esc(i.atividade)}" data-c="${esc(i.categoria)}" selected>${esc(i.atividade)}</option>`}${opts}</select></div>
+    <div class="lin2"><div><div class="r">INÍCIO (HH:MM)</div><input class="busca" id="ed-ini" inputmode="numeric" maxlength="5" value="${esc(i.inicio)}" oninput="mascaraHoraAn(this)"></div>
+      <div><div class="r">FIM (HH:MM)</div><input class="busca" id="ed-fim" inputmode="numeric" maxlength="5" value="${esc(i.fim || '')}" oninput="mascaraHoraAn(this)"></div></div>
+    <div class="lin2"><div><div class="r">FROTA</div><input class="busca" id="ed-fr" value="${esc(i.frota || '')}"></div><div><div class="r">O.S.</div><input class="busca" id="ed-os" value="${esc(i.os || '')}"></div></div>
+    <div><div class="r">OBSERVAÇÃO</div><input class="busca" id="ed-ob" value="${esc(i.observacao || '')}"></div>
+    <div class="msg"></div><button class="btn" onclick="salvarAp('${id}',this)">SALVAR ALTERAÇÃO</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
+}
+function salvarAp(id, btn) {
+  const i = itemAp(id), m = $('#modal-an-cx').querySelector('.msg'), ok = h => /^([01]\d|2[0-3]):[0-5]\d$/.test(h);
+  const ini = $('#ed-ini').value, fim = $('#ed-fim').value, sel = $('#ed-at'), at = sel.value, cat = sel.selectedOptions[0].dataset.c || i.categoria;
+  if (!ok(ini)) return m.textContent = 'HORA DE INÍCIO INVÁLIDA (USE HH:MM)';
+  if (fim && !ok(fim)) return m.textContent = 'HORA FIM INVÁLIDA (USE HH:MM)';
+  if (!fim && i.fim) return m.textContent = 'INFORME A HORA FIM';
+  const min = fim ? durA(ini, fim) : null;
+  if (fim && !min) return m.textContent = 'A HORA FIM DEVE SER DIFERENTE DO INÍCIO';
+  if (min > 16 * 60) return m.textContent = 'DURAÇÃO MAIOR QUE 16 HORAS — CONFIRA OS HORÁRIOS';
+  if (/REFEI/.test(at) && min > 60) return m.textContent = 'A REFEIÇÃO PODE TER NO MÁXIMO 01:00';
+  acaoAn(btn, () => rpc('an_salvar_apont', { p_senha: senhaAn, p_item: { id, inicio: ini, fim, minutos: min, categoria: cat, atividade: at, frota: $('#ed-fr').value, os: $('#ed-os').value, observacao: $('#ed-ob').value } }));
+}
+function excluirAp(id) {
+  const i = itemAp(id); if (!i) return;
+  const j = jornadasAp().find(x => x.mecanico_id === i.mecanico_id && x.data === i.data);
+  modalAn(`<h3 style="color:var(--vermelho)">EXCLUIR APONTAMENTO</h3>
+    <div class="txt">EXCLUIR O APONTAMENTO <b>${esc(i.inicio)} – ${esc(i.fim || '…')} · ${esc(i.atividade)}</b> DA JORNADA DE ${nomeJo(j)}?</div>
+    <div class="jo-al vm" style="margin:0">ESTA AÇÃO NÃO PODE SER DESFEITA.</div>
+    <button class="btn vm" onclick="excluirSenha('${id}')">SIM, QUERO EXCLUIR</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
+}
+function excluirSenha(id) {
+  const i = itemAp(id);
+  modalAn(`<h3 style="color:var(--vermelho)">CONFIRME COM A SENHA</h3>
+    <div class="txt">DIGITE A SENHA DO ANALISTA PARA EXCLUIR <b>${esc(i.inicio)} – ${esc(i.fim || '…')} · ${esc(i.atividade)}</b>.</div>
+    <input class="busca" type="password" id="ex-pw" autocomplete="off" onkeydown="if(event.key==='Enter')$('#ex-ok').click()">
+    <div class="msg"></div><button class="btn vm" id="ex-ok" onclick="const s=$('#ex-pw').value;if(!s)return this.parentNode.querySelector('.msg').textContent='DIGITE A SENHA';acaoAn(this,()=>rpc('an_excluir_apont',{p_senha:s,p_id:'${id}'}))">EXCLUIR DEFINITIVAMENTE</button><button class="btn sec" onclick="fecharAn()">CANCELAR</button>`);
 }
 
 /* ================= INÍCIO DO APP ================= */
