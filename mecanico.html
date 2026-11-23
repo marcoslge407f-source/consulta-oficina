@@ -107,6 +107,7 @@ html.escuro .alerta.am{background:#3D3000;color:#FFD54F} html.escuro .alerta.vm{
 .lpIt .f{font-size:16px;font-weight:900;color:var(--azul)}
 .lpIt .m{font-size:12px;font-weight:800;margin-top:2px}
 .lpIt .d{font-size:10px;font-weight:700;color:var(--cinza);margin-top:3px;line-height:1.35}
+.hora{font-size:20px!important;font-weight:900;text-align:center;letter-spacing:2px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1C2733;color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;font-size:11.5px;z-index:50;max-width:90%;pointer-events:none}
 </style>
 </head>
@@ -370,13 +371,15 @@ function abrirForm(id){
   <label>ATIVIDADE</label><select class="campo" id="fAtiv" style="font-weight:800"><option value="">SELECIONE A ATIVIDADE</option>${extra}${op}</select><div id="fSt"></div>
   <div id="fOS" class="oculto"><label>FROTA</label><div class="frBusca"><input class="campo" id="fFrota" autocomplete="off" placeholder="Nº DA FROTA" value="${esc(FORM.frota)}"><button type="button" class="lupa" onclick="abrirLupa()" aria-label="PROCURAR FROTA"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button></div><div class="info" style="text-align:left;margin:4px 0 0">NÃO SABE A FROTA? TOQUE NA LUPA PARA PROCURAR POR PLACA, CHASSI, MODELO, PROJETO OU OPERAÇÃO.</div><div id="fFrSel"></div><div id="fFrLista" class="sug"></div></div>
   <div id="fTrava"></div>
-  <div class="lin"><div><label>HORA DE INÍCIO</label><input class="campo" type="time" id="fIni" value="${FORM.inicio}"></div><div><label>HORA FIM</label><input class="campo" type="time" id="fFim" value="${FORM.fim||''}"></div></div>
+  <div class="lin"><div><label>HORA DE INÍCIO</label><input class="campo hora" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" autocomplete="off" id="fIni" value="${FORM.inicio}"></div><div><label>HORA FIM</label><input class="campo hora" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" autocomplete="off" id="fFim" value="${FORM.fim||''}"></div></div>
+  <div class="info" style="text-align:left;margin:6px 0 0">DIGITE A HORA COM 4 NÚMEROS (EX.: 0730 = 07:30). NÃO PODE PASSAR DO HORÁRIO ATUAL.</div>
   ${ex?'':'<div class="info" style="text-align:left;margin:6px 0 0">DEIXE A HORA FIM VAZIA SE AINDA ESTÁ FAZENDO A ATIVIDADE.</div>'}
   <label>OBSERVAÇÕES</label><textarea class="campo" id="fObs" rows="3">${esc(FORM.observacao)}</textarea>
   <div class="msg erro" id="fMsg"></div>
   <button class="btn" style="margin-top:8px" onclick="salvarForm()">${ex?'SALVAR':'INICIAR / SALVAR'}</button>
   <div class="lin" style="margin-top:8px">${ex?`<button class="btn verm" onclick="excluirItem('${ex.id}')">EXCLUIR</button>`:''}<button class="btn cinza" onclick="fechar()">CANCELAR</button></div></div></div>`;
   $('#fAtiv').value=FORM.atividade||'';
+  mascaraHora($('#fIni'));mascaraHora($('#fFim'));
   if(diaItens(FORM.data,FORM.id).some(ehRefeicao))$('#fAtiv').querySelectorAll('option').forEach(o=>{if(ehRefeicao({atividade:o.value})){o.disabled=true;o.textContent=o.value+' (JÁ APONTADA)'}});
   if(!ex)travarInicio();
   $('#fAtiv').onchange=()=>{const o=$('#fAtiv').selectedOptions[0];selAtiv(o?o.dataset.cat||'':'',$('#fAtiv').value);$('#fMsg').textContent=''};
@@ -385,6 +388,9 @@ function abrirForm(id){
   $('#fIni').addEventListener('change',()=>{if($('#fFim').dataset.auto==='1')$('#fFim').value=somaHM($('#fIni').value,REFEICAO_MAX)});
   selAtiv(FORM.categoria,FORM.atividade);
 }
+function mascaraHora(el){el.addEventListener('input',()=>{const d=el.value.replace(/\D/g,'').slice(0,4);el.value=d.length>2?d.slice(0,2)+':'+d.slice(2):d})}
+const horaOk=v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+function depoisDeAgora(data,hm){const dias=Math.round((new Date(hoje()+'T12:00:00')-new Date(data+'T12:00:00'))/864e5);return ordHM(hm)>dias*1440+toMin(agoraHM())}
 function travarInicio(){
   const l=diaItens(FORM.data,FORM.id),u=l[l.length-1],ini=$('#fIni'),box=$('#fTrava');ini.readOnly=false;box.innerHTML='';
   if(u&&u.fim){ini.value=u.fim;ini.readOnly=true;ini.style.opacity=.7;box.innerHTML=`<div class="alerta vd">A HORA DE INÍCIO É ${u.fim}, ONDE TERMINOU "${esc(u.atividade)}". ASSIM NÃO FICA BURACO NO DIA.</div>`}
@@ -439,6 +445,10 @@ function salvarForm(){
   const a=ATIV.find(x=>nomeAtiv(x)===FORM.atividade),frota=up($('#fFrota').value);
   if(!FORM.atividade)return erro('ESCOLHA A ATIVIDADE');
   if(!ini)return erro('INFORME A HORA DE INÍCIO');
+  if(!horaOk(ini))return erro('HORA DE INÍCIO INVÁLIDA. USE HH:MM (EX.: 07:30)');
+  if(fim&&!horaOk(fim))return erro('HORA FIM INVÁLIDA. USE HH:MM (EX.: 16:45)');
+  if(depoisDeAgora(data,ini))return erro('A HORA DE INÍCIO NÃO PODE SER DEPOIS DO HORÁRIO ATUAL ('+agoraHM()+')');
+  if(fim&&ordHM(ini)+dur(ini,fim)>Math.round((new Date(hoje()+'T12:00:00')-new Date(data+'T12:00:00'))/864e5)*1440+toMin(agoraHM()))return erro('A HORA FIM NÃO PODE SER DEPOIS DO HORÁRIO ATUAL ('+agoraHM()+')');
   if(a&&a.pede_os&&!frota)return erro('PARA ESTA ATIVIDADE INFORME A FROTA');
   if(frota&&frotasAtivas().length&&!frotasAtivas().some(f=>f.frota===frota))return erro('FROTA '+frota+' NÃO ESTÁ CADASTRADA. ESCOLHA NA LISTA.');
   if(fim&&fim===ini)return erro('A HORA FIM É IGUAL À HORA DE INÍCIO');
