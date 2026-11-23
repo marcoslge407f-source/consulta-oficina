@@ -624,10 +624,7 @@ function renderApont() {
     const t = aps.reduce((s, a) => s + (a.MIN||0), 0), p = aps.filter(a => a.STATUS === 'PRODUTIVO').reduce((s, a) => s + (a.MIN||0), 0);
     const pc = t ? Math.round(p / t * 100) : 0, [fx, cls] = faixa(pc);
     const turnos = [...new Set(aps.map(a => a.PERIODO))].join(' / ');
-    const aberto = abrirTodos || abertos.has(nome);
-    return '<div class="mec"><button class="cab" onclick="togMec(\'' + esc(nome) + '\')"><div><div class="nm">' + esc(nome) + '</div><div class="st">' + esc(aps[0].SETOR) + ' · ' + esc(turnos) + ' · ' + aps.length + ' APONT.</div></div>' +
-      '<div class="dir"><div class="hh">' + hhmm(t) + ' H</div><span class="tag ' + cls + '">' + pc + '% PRODUTIVO · ' + fx + '</span></div></button>' +
-      (aberto ? '<div class="lista">' + aps.map(linhaAp).join('') + '</div>' : '') + '</div>';
+    return '<div class="mec"><button class="cab" onclick="detMec(\'' + esc(nome) + '\',\'' + dia + '\')"><div class="nm">' + esc(nome) + '</div><div class="dir"><div class="hh">' + hhmm(t) + ' H ›</div></div></button></div>';
   }).join('');
 }
 function togMec(n) { abertos.has(n) ? abertos.delete(n) : abertos.add(n); renderApont(); }
