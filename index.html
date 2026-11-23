@@ -222,6 +222,31 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
  .dg-t,.dg-t tbody,.dg-t tr,.dg-t td{display:block}.dg-t colgroup,.dg-t thead{display:none}
  .dg-t tr{position:relative;padding:8px 40px 8px 0;border-bottom:1px solid var(--linha)}.dg-t tr.pri{border-top:2px solid #C9D6E3}.dg-t td{border:0!important;padding:2px 4px;background:none!important}
  .dg-t td[data-l]::before{content:attr(data-l) ': ';color:var(--cinza);font-size:9.5px;font-weight:900}.dg-t td:empty{display:none}.dg-t td:last-child{position:absolute;right:4px;top:8px;padding:0}}
+.bd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.bd-grid.g2{grid-template-columns:1.6fr 1fr}
+.bd-grid.g2>div{display:flex;flex-direction:column;gap:14px}
+.bd-card{border:1.5px solid var(--linha);border-radius:18px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04);padding:16px 18px;display:flex;flex-direction:column;gap:8px;margin-bottom:0}
+#bd-lista>.bd-card{margin-bottom:14px}
+.bd-card h3{font-size:14px;font-weight:900;color:var(--azul);letter-spacing:.5px}
+.bd-card .txt{font-size:12px;font-weight:700;color:var(--cinza)}
+.bd-st{border-radius:12px;padding:12px;font-size:15px;font-weight:900;text-align:center}
+.bd-st.vd{background:#E7F5EA;color:#1B5E20} .bd-st.am{background:#FFF6DC;color:#7A5600} .bd-st.vm{background:#FDECEA;color:#B71C1C}
+.bd-l{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;font-weight:800;color:var(--cinza);border-bottom:1px dashed var(--linha);padding:5px 0}
+.bd-l b{color:var(--texto);text-align:right}
+.bd-ks{display:grid;grid-template-columns:1fr 1fr;gap:10px}.bd-ks.k4{grid-template-columns:repeat(4,1fr)}
+.bd-k{background:var(--fundo);border-radius:12px;padding:12px}
+.bd-k .r{font-size:10px;font-weight:900;color:var(--cinza)} .bd-k .v{font-size:22px;font-weight:900;margin-top:2px;color:var(--azul)} .bd-k .s{font-size:10.5px;font-weight:800;color:var(--cinza);margin-top:2px}
+.bd-sub{font-size:10.5px;font-weight:900;color:var(--azul);margin-top:6px}
+.bd-nota{font-size:10.5px;font-weight:700;color:var(--cinza);line-height:1.45;background:var(--fundo);border-radius:10px;padding:8px 10px;margin-top:4px}
+.bd-a{text-align:center;text-decoration:none;display:block;margin-top:6px}
+.bd-ck{font-size:12px;font-weight:800;border-radius:10px;padding:9px 12px}
+.bd-ck.ok{background:#E7F5EA;color:#1B5E20} .bd-ck.av{background:#FFF6DC;color:#7A5600}
+.bd-t td small{display:block;font-size:9.5px;color:var(--cinza)}
+.bd-t td{overflow-wrap:normal;word-break:normal}
+@media (max-width:900px){.bd-t tr{padding:8px 0}.bd-t td:last-child{position:static;padding:2px 4px}}
+.bd-tag{display:inline-block;white-space:nowrap;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:900;color:#fff}
+.bd-tag.vd{background:var(--verde)} .bd-tag.am{background:var(--amarelo);color:#3B2C00} .bd-tag.cz{background:#90A4AE}
+@media (max-width:900px){.bd-grid,.bd-grid.g2{grid-template-columns:1fr}.bd-ks.k4{grid-template-columns:1fr 1fr}}
 .btn.exj{background:#fff;color:var(--vermelho);border:2px solid var(--vermelho);margin-left:auto}
 .btn.vd{background:var(--verde)} .btn.vm{background:var(--vermelho)} .btn.cz{background:#fff;color:var(--cinza);border:2px solid var(--linha)}
 .ap-vazio{padding:30px;text-align:center;font-size:13px;font-weight:800;color:var(--cinza);border:1.5px dashed var(--linha);border-radius:16px}
@@ -418,7 +443,7 @@ html.escuro .ap .obs{background:#0F1720}
     </div>
 
     <div id="an-painel" class="oculto">
-      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas" onclick="anAba('planilhas')">PLANILHAS</button><button class="an-aba" data-a="aponts" onclick="anAba('aponts')">APONTAMENTOS</button><button class="an-aba" data-a="digit" onclick="anAba('digit')">DIGITAÇÃO</button></div>
+      <div class="an-abas"><button class="an-aba ativo" data-a="planilhas" onclick="anAba('planilhas')">PLANILHAS</button><button class="an-aba" data-a="aponts" onclick="anAba('aponts')">APONTAMENTOS</button><button class="an-aba" data-a="digit" onclick="anAba('digit')">DIGITAÇÃO</button><button class="an-aba" data-a="banco" onclick="anAba('banco')">BANCO DE DADOS</button></div>
       <div id="an-planilhas">
       <div class="an-aviso">ENVIE AQUI AS PLANILHAS PARA ATUALIZAR O APLICATIVO. CADA CARTÃO SÓ ACEITA A SUA PLANILHA: SE ESCOLHER UMA PLANILHA ERRADA POR ENGANO, ELA É BARRADA E NADA É PUBLICADO.</div>
       <div class="an-grid">
@@ -475,6 +500,11 @@ html.escuro .ap .obs{background:#0F1720}
           <button class="btn sec" onclick="carregarDg()">ATUALIZAR</button>
         </div>
         <div id="dg-lista"></div>
+      </div>
+      <div id="an-banco" class="oculto">
+        <div class="ap-fil" style="justify-content:space-between;align-items:center"><div class="an-aviso" style="margin:0;flex:1">SITUAÇÃO DO BANCO DE DADOS (SUPABASE) QUE GUARDA TUDO DO APLICATIVO: SAÚDE, ESPAÇO USADO, CONTA E QUEM ENTROU NO APP.</div>
+          <button class="btn sec" onclick="carregarBd()">ATUALIZAR</button></div>
+        <div id="bd-lista"></div>
       </div>
 
     </div>
@@ -1025,7 +1055,7 @@ async function entrarAnalista() {
 }
 async function mostrarPainel() {
   $('#an-login').classList.add('oculto'); $('#an-painel').classList.remove('oculto'); $('#an-senha-btn').classList.remove('oculto');
-  if (['aponts', 'digit'].includes(sessionStorage.getItem('anAba'))) anAba(sessionStorage.getItem('anAba'));
+  if (['aponts', 'digit', 'banco'].includes(sessionStorage.getItem('anAba'))) anAba(sessionStorage.getItem('anAba'));
   try {
     const metas = await sb('consulta_meta?select=*'); META_AN = metas;
     for (const t of TABELAS) {
@@ -1096,10 +1126,11 @@ const traduzAn = e => { const m = up(e && e.message); const k = Object.keys(MSG_
 
 function anAba(a) {
   document.querySelectorAll('.an-aba').forEach(b => b.classList.toggle('ativo', b.dataset.a === a));
-  $('#an-planilhas').classList.toggle('oculto', a !== 'planilhas'); $('#an-aponts').classList.toggle('oculto', a !== 'aponts'); $('#an-digit').classList.toggle('oculto', a !== 'digit');
+  $('#an-planilhas').classList.toggle('oculto', a !== 'planilhas'); $('#an-aponts').classList.toggle('oculto', a !== 'aponts'); $('#an-digit').classList.toggle('oculto', a !== 'digit'); $('#an-banco').classList.toggle('oculto', a !== 'banco');
   sessionStorage.setItem('anAba', a);
   if (a === 'aponts') { if (!$('#aj-de').value) { $('#aj-ate').value = hojeISO(); $('#aj-de').value = somaDiaA(hojeISO(), -7); } carregarAp(); }
   if (a === 'digit') { if (!$('#dg-de').value) { $('#dg-ate').value = hojeISO(); $('#dg-de').value = somaDiaA(hojeISO(), -7); } carregarDg(); }
+  if (a === 'banco') carregarBd();
 }
 async function carregarAp() {
   const de = $('#aj-de').value, ate = $('#aj-ate').value;
@@ -1386,6 +1417,81 @@ function desfazerDg(id) {
   const j = DG.j.find(x => x.id === id); if (!j) return; const m = DG.m.find(x => x.id === j.mecanico_id) || { nome: '?' };
   modalAn(`<h3>DESFAZER APROVAÇÃO</h3><div class="txt">A JORNADA DE ${esc(m.nome)} DE ${dataBR(j.data)} SAI DA DIGITAÇÃO E VOLTA PARA "AGUARDANDO APROVAÇÃO" NA ABA APONTAMENTOS.</div>
     <div class="msg"></div><button class="btn" onclick="acaoAn(this,()=>rpc('an_jornada',{p_senha:senhaAn,p_id:'${id}',p_acao:'DESFAZER'}),carregarDg)">CONFIRMAR</button><button class="btn sec" onclick="fecharAn()">VOLTAR</button>`);
+}
+
+/* ================= ANALISTA · BANCO DE DADOS ================= */
+const NOME_TAB = { apontamentos: 'APONTAMENTOS DO APP', jornadas: 'JORNADAS', mecanicos: 'MECÂNICOS (USUÁRIOS)', sessoes: 'SESSÕES DE LOGIN', atividades: 'ATIVIDADES', frotas: 'FROTAS (CADASTRO DO APP)',
+  consulta_dados: 'PLANILHAS PUBLICADAS', consulta_meta: 'CONTROLE DAS PLANILHAS', consulta_config: 'CONFIGURAÇÃO (SENHA)', app_info: 'DADOS DA CONTA' };
+const NOME_PLAN = { os: 'CONTROLE DE O.S.', apontamentos: 'CONTROLE DE APONTAMENTOS', frotas: 'CONTROLE DE FROTAS' };
+const bytesBR = b => { b = Number(b) || 0; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toLocaleString('pt-BR', { maximumFractionDigits: 0 }) + ' KB'; if (b < 1073741824) return (b / 1048576).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' MB'; return (b / 1073741824).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' GB'; };
+const nBR = n => (Number(n) || 0).toLocaleString('pt-BR');
+const quando = ts => ts ? dataHoraBR(isoLocal(ts)) : '—';
+function haQuanto(ts) { if (!ts) return '—'; const m = Math.round((Date.now() - new Date(ts)) / 60000); if (m < 1) return 'AGORA'; if (m < 60) return 'HÁ ' + m + ' MIN'; const h = Math.floor(m / 60); if (h < 24) return 'HÁ ' + h + 'H'; return 'HÁ ' + Math.floor(h / 24) + ' DIA(S)'; }
+async function carregarBd() {
+  $('#bd-lista').innerHTML = '<div class="ap-vazio">CARREGANDO…</div>';
+  try {
+    const t0 = performance.now(), d = await rpc('an_banco', { p_senha: senhaAn }), ms = Math.round(performance.now() - t0);
+    renderBd(d, ms);
+  } catch (e) {
+    if (up(e.message).includes('SENHA_INVALIDA')) { senhaAn = ''; sessionStorage.removeItem('senhaAn'); rota(); return; }
+    $('#bd-lista').innerHTML = `<div class="bd-card"><div class="bd-st vm">✕ SEM RESPOSTA DO BANCO</div><div class="txt">${esc(traduzAn(e))}. SE PERSISTIR, O PROJETO PODE ESTAR PAUSADO — ABRA O PAINEL DO SUPABASE E CLIQUE EM "RESTORE".</div></div>`;
+  }
+}
+function renderBd(d, ms) {
+  const c = d.conta || {}, LIM_DB = 500 * 1048576, LIM_ST = 1073741824;
+  const pDb = d.db_bytes / LIM_DB * 100, pSt = (d.storage.bytes || 0) / LIM_ST * 100, pCx = d.conexoes / d.max_conexoes * 100;
+  const dias = Math.floor((Date.now() - new Date(d.no_ar_desde)) / 864e5);
+  const ok = (cond, txtOk, txtRuim) => `<div class="bd-ck ${cond ? 'ok' : 'av'}">${cond ? '✓' : '⚠'} ${cond ? txtOk : txtRuim}</div>`;
+  const cor = p => p < 70 ? 'var(--verde)' : p < 90 ? 'var(--amarelo)' : 'var(--vermelho)';
+  const lin = (r, v) => `<div class="bd-l"><span>${r}</span><b>${v}</b></div>`;
+  const kpi = (r, v, s, cl) => `<div class="bd-k"><div class="r">${r}</div><div class="v" ${cl ? `style="color:${cl}"` : ''}>${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+  const pct = p => p.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
+  const saudavel = ms < 3000 && pDb < 90 && pCx < 80;
+  $('#bd-lista').innerHTML = `
+  <div class="bd-grid">
+    <div class="bd-card"><h3>SAÚDE</h3>
+      <div class="bd-st ${saudavel ? 'vd' : 'am'}">${saudavel ? '✓ ONLINE E SAUDÁVEL' : '⚠ ONLINE COM ATENÇÃO'}</div>
+      ${lin('TEMPO DE RESPOSTA', ms + ' MS')}${lin('NO AR HÁ', dias + ' DIA(S) · DESDE ' + quando(d.no_ar_desde))}${lin('CONEXÕES ABERTAS', d.conexoes + ' DE ' + d.max_conexoes + ' · ' + pct(pCx))}
+      ${lin('DADOS EM CACHE (MEMÓRIA)', (d.cache_hit ?? '—') + '%')}${lin('VERSÃO DO POSTGRESQL', d.versao)}${lin('ÚLTIMO ENVIO DE APONTAMENTO', quando(d.ultimo_envio))}${lin('CONSULTADO EM', quando(d.agora))}</div>
+    <div class="bd-card"><h3>ARMAZENAMENTO</h3>
+      <div class="bd-ks">${kpi('BANCO DE DADOS', bytesBR(d.db_bytes), pct(pDb) + ' DE 500 MB', cor(pDb))}${kpi('ARQUIVOS', bytesBR(d.storage.bytes), nBR(d.storage.arquivos) + ' ARQUIVO(S) · ' + pct(pSt) + ' DE 1 GB', cor(pSt))}</div>
+      <div class="bd-sub">PLANILHAS PUBLICADAS</div>
+      ${(d.planilhas || []).map(p => lin(NOME_PLAN[p.tabela] || up(p.tabela), nBR(p.linhas) + ' LINHAS · ' + bytesBR(p.bytes) + ' · ' + quando(p.em))).join('') || '<div class="txt">NENHUMA PLANILHA PUBLICADA</div>'}
+      <div class="bd-nota">LIMITES DO PLANO GRATUITO: 500 MB DE BANCO, 1 GB DE ARQUIVOS E 5 GB DE TRÁFEGO POR MÊS. O TRÁFEGO SÓ APARECE NO PAINEL DO SUPABASE.</div></div>
+    <div class="bd-card"><h3>CONTA SUPABASE</h3>
+      ${lin('PROJETO', esc(c.projeto || '—'))}${lin('PLANO', esc(c.plano || '—'))}${lin('REGIÃO DO SERVIDOR', esc(c.regiao || '—'))}${lin('CRIADO EM', c.criado_em ? quando(c.criado_em) : '—')}
+      ${lin('E-MAIL DA CONTA', esc((c.email_conta || '—').toUpperCase()))}${lin('CÓDIGO DO PROJETO', esc(c.ref || '—'))}
+      ${c.painel ? `<a class="btn sec bd-a" href="${esc(c.painel)}" target="_blank" rel="noopener">ABRIR PAINEL DO SUPABASE ↗</a>` : ''}
+      <div class="bd-nota">NO PLANO GRATUITO O PROJETO É PAUSADO SE FICAR 7 DIAS SEM USO. COM OS MECÂNICOS USANDO TODO DIA, ISSO NÃO ACONTECE.</div></div>
+  </div>
+  <div class="bd-grid g2">
+    <div class="bd-card"><h3>LOGINS E ACESSOS</h3>
+      <div class="bd-ks k4">${kpi('ACESSOS HOJE', nBR(d.acessos_hoje))}${kpi('PESSOAS HOJE', nBR(d.usuarios_hoje))}${kpi('ACESSOS EM 7 DIAS', nBR(d.acessos_7d))}${kpi('SESSÕES ATIVAS', nBR(d.sessoes_ativas))}</div>
+      <table class="dg-t bd-t"><colgroup><col><col style="width:11%"><col style="width:13%"><col style="width:20%"><col style="width:18%"><col style="width:16%"></colgroup>
+      <thead><tr><th>NOME</th><th>RE</th><th>PERFIL</th><th>ÚLTIMO LOGIN</th><th>ÚLTIMO ENVIO</th><th>SITUAÇÃO</th></tr></thead>
+      <tbody>${(d.usuarios || []).map(u => `<tr><td data-l="NOME">${esc(u.nome)}</td><td data-l="RE">${esc(u.re)}</td><td data-l="PERFIL">${u.perfil === 'ADMIN' ? 'ANALISTA' : 'MECÂNICO'}</td>
+        <td data-l="ÚLTIMO LOGIN">${u.acesso ? quando(u.acesso) + '<small>' + haQuanto(u.acesso) + '</small>' : '—'}</td><td data-l="ÚLTIMO ENVIO">${u.envio ? quando(u.envio) : '—'}</td>
+        <td data-l="SITUAÇÃO"><span class="bd-tag ${!u.ativo ? 'cz' : u.provisoria ? 'am' : 'vd'}">${!u.ativo ? 'INATIVO' : u.provisoria ? 'SENHA 0000' : 'ATIVO'}</span></td></tr>`).join('')}</tbody></table>
+      <div class="bd-nota">"SENHA 0000" = AINDA NÃO ENTROU NO APP PELA PRIMEIRA VEZ (OU A SENHA FOI ZERADA). O HISTÓRICO DE LOGIN GUARDA SÓ AS SESSÕES DOS ÚLTIMOS DIAS.</div></div>
+    <div>
+      <div class="bd-card"><h3>VERIFICAÇÕES</h3>
+        ${ok(!d.abertas_antigas, 'NENHUMA JORNADA ESQUECIDA ABERTA', d.abertas_antigas + ' JORNADA(S) ABERTA(S) HÁ MAIS DE 1 DIA')}
+        ${ok(!d.aguardando_antigas, 'NENHUMA APROVAÇÃO ATRASADA', d.aguardando_antigas + ' JORNADA(S) AGUARDANDO APROVAÇÃO HÁ MAIS DE 3 DIAS')}
+        ${ok(!d.sem_fim, 'TODOS OS APONTAMENTOS ENCERRADOS TÊM HORA FIM', d.sem_fim + ' APONTAMENTO(S) SEM HORA FIM EM JORNADA ENCERRADA')}
+        ${ok(!d.orfaos, 'TODOS OS APONTAMENTOS TÊM JORNADA', d.orfaos + ' APONTAMENTO(S) SEM JORNADA')}
+        ${ok(pDb < 70, 'BANCO COM FOLGA DE ESPAÇO', 'BANCO USANDO ' + pct(pDb) + ' DO LIMITE')}
+        ${ok(d.excluidos < 5000, 'POUCOS REGISTROS EXCLUÍDOS ACUMULADOS (' + nBR(d.excluidos) + ')', nBR(d.excluidos) + ' REGISTROS EXCLUÍDOS ACUMULADOS')}</div>
+      <div class="bd-card"><h3>DADOS GUARDADOS</h3>
+        ${lin('MECÂNICOS ATIVOS', nBR(d.mecanicos) + (d.mecanicos_inativos ? ' · ' + d.mecanicos_inativos + ' INATIVO(S)' : ''))}${lin('AINDA COM SENHA 0000', nBR(d.senha_provisoria))}
+        ${lin('ATIVIDADES CADASTRADAS', nBR(d.atividades))}${lin('FROTAS NO APP', nBR(d.frotas))}${lin('APONTAMENTOS', nBR(d.apontamentos))}
+        ${lin('JORNADAS', nBR(d.jornadas) + ' · ' + d.j_abertas + ' EM ANDAMENTO · ' + d.j_encerradas + ' AGUARDANDO · ' + d.j_recusadas + ' RECUSADA(S) · ' + d.j_aprovadas + ' APROVADA(S)')}
+        ${lin('PERÍODO APONTADO', d.primeira_data ? dataBR(d.primeira_data) + ' A ' + dataBR(d.ultima_data) : '—')}</div>
+    </div>
+  </div>
+  <div class="bd-card"><h3>TABELAS DO BANCO</h3>
+    <table class="dg-t bd-t"><colgroup><col><col style="width:20%"><col style="width:20%"><col style="width:20%"></colgroup>
+    <thead><tr><th>TABELA</th><th>NOME NO BANCO</th><th>REGISTROS (APROX.)</th><th>TAMANHO</th></tr></thead>
+    <tbody>${(d.tabelas || []).map(t => `<tr><td data-l="TABELA">${NOME_TAB[t.nome] || up(t.nome)}</td><td data-l="NOME NO BANCO">${esc(t.nome)}</td><td data-l="REGISTROS">${nBR(t.linhas)}</td><td data-l="TAMANHO">${bytesBR(t.bytes)}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
 /* ================= INÍCIO DO APP ================= */
