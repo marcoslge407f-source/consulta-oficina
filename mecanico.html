@@ -199,12 +199,17 @@ async function carregarListas(){
 
 /* ---------- ordem dos horários (turno que vira a noite) ---------- */
 let REF=300;
-function refAbertura(j){if(!j||!j.aberta_em)return 300;const d=new Date(j.aberta_em);return((d.getHours()*60+d.getMinutes())-480+1440)%1440}
+// REF = minuto a partir do qual o horário é do PRÓPRIO dia da jornada; horários antes do REF são da madrugada seguinte (turno noturno).
+function refAbertura(j){if(!j||!j.aberta_em)return 0;
+  const min=Math.round((new Date(j.aberta_em)-new Date(j.data+'T00:00:00'))/60000);
+  if(min<0||min>=2160)return 0;            // aberta antes do dia ou dias depois (lançamento atrasado): sem turno noturno presumido
+  if(min>=1440)return 720;                  // aberta na madrugada/manhã seguinte: turno noturno, antes de 12:00 é do dia seguinte
+  return Math.max(0,min-480)}
 function refDe(j){
   if(j&&j.data===hoje())return 0; // jornada de hoje: nenhum horário pode ser de amanhã, então tudo até agora é de hoje
   const l=j?ITENS.filter(i=>!i.excluido&&i.data===j.data&&i.inicio):[];
   if(l.length){const fins=new Set(l.filter(i=>i.fim).map(i=>i.fim)),prim=l.filter(i=>!fins.has(i.inicio)),r=refAbertura(j);
-    const p=prim.length?prim.reduce((a,b)=>((toMin(b.inicio)-r+1440)%1440)<((toMin(a.inicio)-r+1440)%1440)?b:a):l[0];return(toMin(p.inicio)-360+1440)%1440}
+    const p=prim.length?prim.reduce((a,b)=>((toMin(b.inicio)-r+1440)%1440)<((toMin(a.inicio)-r+1440)%1440)?b:a):l[0];return Math.max(0,toMin(p.inicio)-360)}
   return refAbertura(j);
 }
 const ordHM=hm=>{const m=toMin(hm);return m<REF?m+1440:m};
