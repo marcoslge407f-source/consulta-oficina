@@ -401,6 +401,7 @@ html.escuro .ap .obs{background:#0F1720}
         <select class="busca" id="os-per" onchange="renderOS(true)">
           <option value="">SAFRA TODA</option><option value="HOJE">HOJE</option><option value="7">ÚLTIMOS 7 DIAS</option><option value="30">ÚLTIMOS 30 DIAS</option><option value="ESC">ESCOLHER PERÍODO…</option>
         </select>
+        <select class="busca" id="os-mec" onchange="renderOS(true)"><option value="">TODOS OS MECÂNICOS</option></select>
       </div>
       <div class="lin oculto" id="os-esc">
         <label class="per"><span>DE (ABERTURA)</span><input type="date" class="busca" id="os-de" onchange="renderOS(true)"></label>
@@ -711,6 +712,7 @@ function unicos(lista, campo) { return [...new Set(lista.map(x => x[campo]).filt
 function preencherFiltros() {
   opcoes($('#fr-classe'), unicos(D.frotas, 'CLASSE'), 'TODAS AS CLASSES');
   opcoes($('#ap-mec'), unicos(D.apontamentos, 'ABREV'), 'TODOS OS MECÂNICOS');
+  opcoes($('#os-mec'), unicos(D.apontamentos.filter(a => a.OS), 'ABREV'), 'TODOS OS MECÂNICOS');
   const dia = $('#ap-dia');
   if (!dia.value && D.apontamentos.length) dia.value = ultimoDia();
 }
@@ -751,11 +753,12 @@ function renderOS(reset) {
     desde = $('#os-de').value; ate = $('#os-ate').value;
   }
   else if (per) { const d = new Date(); d.setDate(d.getDate() - Number(per)); desde = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  const mec = $('#os-mec').value, doMec = mec ? new Set(D.apontamentos.filter(a => a.ABREV === mec && a.OS).map(a => String(a.OS))) : null;
   osFiltradas = D.os.filter(o =>
-    (!sit || o.SITUACAO === sit) && (!sec || o.SECAO === sec) && (!desde || (o.ENTRADA||'') >= desde) && (!ate || (o.ENTRADA||'').slice(0,10) <= ate) &&
+    (!doMec || doMec.has(String(o.NUM))) && (!sit || o.SITUACAO === sit) && (!sec || o.SECAO === sec) && (!desde || (o.ENTRADA||'') >= desde) && (!ate || (o.ENTRADA||'').slice(0,10) <= ate) &&
     (!q || norm(o.NUM).includes(q) || norm(o.EQP).includes(q) || norm(o.MODELO).includes(q) || norm(o.MANUT).includes(q) || norm(o.CLASSE).includes(q)));
   if (desde && (per === 'HOJE' || ate === desde)) osFiltradas.sort((x, y) => (x.ENTRADA||'').localeCompare(y.ENTRADA||'') || (x.NUM||0) - (y.NUM||0));
-  $('#os-cont').textContent = osFiltradas.length + (osFiltradas.length === 1 ? ' ORDEM DE SERVIÇO' : ' ORDENS DE SERVIÇO');
+  $('#os-cont').textContent = osFiltradas.length + (osFiltradas.length === 1 ? ' ORDEM DE SERVIÇO' : ' ORDENS DE SERVIÇO') + (mec ? ' COM ' + mec : '');
   const vis = osFiltradas.slice(0, osLim);
   $('#os-lista').innerHTML = !D.os.length ? '<div class="vazio">AINDA NÃO HÁ O.S. PUBLICADAS.<br>AGUARDE O ANALISTA PUBLICAR.</div>' :
     !vis.length ? '<div class="vazio">NENHUMA O.S. ENCONTRADA</div>' :
