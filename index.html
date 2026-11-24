@@ -896,7 +896,7 @@ function graficoSim(aps) {
   return '<div class="bloco" style="margin-top:12px"><h3>SIMULAÇÃO DE UM TURNO DE 12 HORAS</h3>' +
     '<div class="simh">SE O TURNO TIVESSE 12:00 H, COM A MESMA DIVISÃO DAS ' + hhmm(tot) + ' H APONTADAS</div>' +
     '<div class="graf simg">' + cats.map(c => '<div class="gc"><div class="gv">' + hhmm(c.sim) + ' H<small>' + Math.round(c.sim / 7.2) + '%</small></div>' +
-      '<div class="gb" style="max-width:54px;background:' + c.c + ';height:' + Math.max(c.sim ? 4 : 0, Math.round(c.sim / 720 * H)) + 'px"></div><div class="gl" style="height:auto">' + c.k + '<br><span style="font-weight:700;font-size:8px">' + c.s + '</span></div></div>').join('') + '</div>' +
+      '<div class="gb" style="max-width:54px;background:' + c.c + ';height:' + Math.max(c.sim ? 4 : 0, Math.round(c.sim / 720 * H)) + 'px"></div><div class="gl" style="height:46px">' + c.k + '<br><span style="font-weight:700;font-size:8px">' + c.s + '</span></div></div>').join('') + '</div>' +
     '<div class="simr"><span>EFICIÊNCIA (TRABALHADA ÷ TOTAL)</span><b>' + ef + '%</b></div></div>';
 }
 const SEMANA = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
