@@ -110,7 +110,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .gv{font-size:11px;font-weight:900;text-align:center;line-height:1.1;margin-bottom:3px}
 .gv small{display:block;font-size:9px;color:var(--cinza);font-weight:800}
 .gb{width:100%;max-width:38px;border-radius:6px 6px 0 0;background:#9AA5B1}
-.gb.p{background:var(--verde)} .gb.i{background:var(--vermelho)}
+.gb.t{background:#1B6B33} .gb.p{background:#7CCB8A} .gb.i{background:var(--vermelho)}
 .gl{font-size:8.5px;font-weight:800;color:var(--cinza);text-align:center;margin-top:0;line-height:1.15;height:34px;overflow:hidden;word-break:normal;overflow-wrap:normal;border-top:1.5px solid var(--linha);padding-top:4px;width:100%}
 .simh{font-size:10px;font-weight:800;color:var(--cinza);margin:-2px 0 10px;line-height:1.35}
 .sima{position:relative;height:0;margin-left:0}
@@ -118,9 +118,10 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .sima span{position:absolute;right:0;top:-16px;font-size:9px;font-weight:900;color:var(--cinza)}
 .simr{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--linha);font-size:10.5px;font-weight:800;color:var(--cinza)}
 .simr b{font-size:14px;color:var(--azul)}
-.gleg{display:flex;gap:6px;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--cinza);margin-top:8px}
+.gleg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:var(--cinza);margin-top:8px}
 .gleg span{width:10px;height:10px;border-radius:3px;display:inline-block}
-.gleg .p{background:var(--verde)} .gleg .i{background:var(--vermelho);margin-left:8px}
+.gleg .t{background:#1B6B33} .gleg .p{background:#7CCB8A} .gleg .i{background:var(--vermelho)}
+.gleg em{font-style:normal;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;margin:0 5px}
 
 /* apontamentos */
 .dia{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -875,13 +876,13 @@ function linhaAp(a) {
 }
 function graficoAtiv(aps) {
   const m = new Map();
-  for (const a of aps) { const k = a.MOTIVO || '–'; const o = m.get(k) || { min: 0, prod: a.STATUS === 'PRODUTIVO' }; o.min += a.MIN || 0; m.set(k, o); }
+  for (const a of aps) { const k = a.MOTIVO || '–'; const o = m.get(k) || { min: 0, prod: /TRABALH/.test(a.TIPO || '') || (!a.TIPO && a.OS) ? 't' : a.STATUS === 'PRODUTIVO' ? 'p' : 'i' }; o.min += a.MIN || 0; m.set(k, o); }
   let it = [...m.entries()].map(([k, o]) => ({ k, min: o.min, prod: o.prod })).sort((a, b) => b.min - a.min);
   if (!it.length) return '';
   if (it.length > 7) { const r = it.slice(6); it = it.slice(0, 6); it.push({ k: 'OUTROS', min: r.reduce((s, x) => s + x.min, 0), prod: null }); }
   const tot = it.reduce((s, x) => s + x.min, 0) || 1, mx = Math.max(...it.map(x => x.min)) || 1;
-  return '<div class="bloco" style="margin-top:12px"><h3>RESUMO POR ATIVIDADE</h3><div class="graf">' + it.map(x => '<div class="gc"><div class="gv">' + hhmm(x.min) + '<small>' + Math.round(x.min / tot * 100) + '%</small></div><div class="gb ' + (x.prod === null ? '' : x.prod ? 'p' : 'i') + '" style="height:' + Math.max(4, Math.round(x.min / mx * 120)) + 'px"></div><div class="gl">' + esc(x.k.split(' ').map(w => w.length > 8 ? w.slice(0, 6) + '.' : w).join(' ')) + '</div></div>').join('') +
-    '</div><div class="gleg"><span class="p"></span>PRODUTIVO <span class="i"></span>IMPRODUTIVO</div></div>';
+  return '<div class="bloco" style="margin-top:12px"><h3>RESUMO POR ATIVIDADE</h3><div class="graf">' + it.map(x => '<div class="gc"><div class="gv">' + hhmm(x.min) + '<small>' + Math.round(x.min / tot * 100) + '%</small></div><div class="gb ' + (x.prod || '') + '" style="height:' + Math.max(4, Math.round(x.min / mx * 120)) + 'px"></div><div class="gl">' + esc(x.k.split(' ').map(w => w.length > 8 ? w.slice(0, 6) + '.' : w).join(' ')) + '</div></div>').join('') +
+    '</div><div class="gleg"><em><span class="t"></span>TRABALHADA (O.S.)</em><em><span class="p"></span>PARADA PRODUTIVA</em><em><span class="i"></span>PARADA IMPRODUTIVA</em></div></div>';
 }
 function graficoSim(aps) {
   const tot = aps.reduce((s, a) => s + (a.MIN || 0), 0); if (!tot) return '';
