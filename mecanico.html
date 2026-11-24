@@ -226,7 +226,7 @@ function telaLogin(){
   <div class="bloco"><label style="margin-top:0">QUEM É VOCÊ?</label><select class="campo" id="lgMat"><option value="">CARREGANDO NOMES…</option></select>
   <label>SENHA</label><input class="campo pin" id="lgPin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
   <button class="btn" style="margin-top:14px" id="btnEntrar" onclick="entrar()">ENTRAR</button><div class="alerta vd oculto" id="lgPrim">PRIMEIRO ACESSO: A SENHA 0000 JÁ ESTÁ PREENCHIDA. TOQUE EM ENTRAR E CRIE SUA SENHA DE 4 NÚMEROS.</div><div class="msg" id="lgMsg"></div></div>
-  <div class="info">NO PRIMEIRO ACESSO A SENHA É 0000 E VOCÊ CRIA UMA NOVA.</div>`;
+  <div class="info" id="lgInfo">NO PRIMEIRO ACESSO A SENHA É 0000 E VOCÊ CRIA UMA NOVA.</div>`;
   $('#lgPin').addEventListener('keydown',e=>{if(e.key==='Enter')entrar()});
   $('#lgMat').addEventListener('change',checarPrimeiro);
   const sel=$('#lgMat'),des=l=>{const ult=LS.get('mc_ultimo',''),m=l.filter(x=>x.perfil!=='ADMIN'),a=l.filter(x=>x.perfil==='ADMIN');
@@ -237,7 +237,7 @@ function telaLogin(){
   carregarListas();
 }
 let PRIM=new Set();
-function checarPrimeiro(){const m=$('#lgMat'),p=$('#lgPin'),i=$('#lgPrim');if(!m||!p||!i)return;const pr=PRIM.has(up(m.value));if(pr)p.value='0000';else if(p.dataset.auto)p.value='';p.dataset.auto=pr?'1':'';p.readOnly=pr;p.style.opacity=pr?.6:1;i.classList.toggle('oculto',!pr)}
+function checarPrimeiro(){const m=$('#lgMat'),p=$('#lgPin'),i=$('#lgPrim');if(!m||!p||!i)return;const pr=PRIM.has(up(m.value));if(pr)p.value='0000';else if(p.dataset.auto)p.value='';p.dataset.auto=pr?'1':'';p.readOnly=pr;p.style.opacity=pr?.6:1;i.classList.toggle('oculto',!pr);const inf=$('#lgInfo');if(inf)inf.classList.toggle('oculto',!!m.value)}
 async function entrar(){
   const mat=up($('#lgMat').value),pin=$('#lgPin').value.trim(),msg=$('#lgMsg');msg.className='msg erro';
   if(!mat)return msg.textContent='SELECIONE SEU NOME';
@@ -267,7 +267,7 @@ function trocaSenha(s,obrig){
     if(a==='0000')return m.textContent='A NOVA SENHA NÃO PODE SER 0000';
     if(a!==b)return m.textContent='AS DUAS SENHAS NÃO SÃO IGUAIS';
     $('#tsOk').disabled=true;m.textContent='SALVANDO…';
-    try{await rpc('trocar_senha',{p_token:s.token,p_nova:a});const u={...s,trocar_senha:false};await guardar(u.matricula,a,u);fechar();toast('SENHA ALTERADA!');
+    try{await rpc('trocar_senha',{p_token:s.token,p_nova:a});const u={...s,trocar_senha:false};await guardar(u.matricula,a,u);{const n=LS.get('mc_nomes',[])||[];n.forEach(x=>{if(x.matricula===u.matricula)x.primeiro_acesso=false});LS.set('mc_nomes',n);PRIM.delete(u.matricula)}fechar();toast('SENHA ALTERADA!');
       if(obrig){U=u;LS.set('mc_sess',U);abrir()}}
     catch(e){m.textContent=e instanceof ErroRede?'SEM INTERNET — TENTE COM CONEXÃO':traduz(e);$('#tsOk').disabled=false}};
 }
