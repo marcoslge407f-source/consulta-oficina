@@ -1464,34 +1464,67 @@ function imprimirDg() {
 }
 const carregaJs = src => new Promise((ok, erro) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = erro; document.head.appendChild(s); });
 async function pdfDg() {
-  const d = dadosDg(); if (!d.rows.length) return;
+  const L = linhasDg(); if (!L.length) return;
   const b = $('#dg-pdf'), t0 = b.textContent; b.disabled = true; b.textContent = 'GERANDO PDF…';
   try {
     if (!window.jspdf) await carregaJs('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
     if (!window.jspdf.jsPDF.API.autoTable) await carregaJs('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js');
-    const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = 297, H = 210;
-    const faixa = () => { for (let i = 0; i < 60; i++) { const k = i / 59; doc.setFillColor(Math.round(21 + k * (46 - 21)), Math.round(101 + k * (157 - 101)), Math.round(192 + k * (74 - 192))); doc.rect(0, i * H / 60, 6, H / 60 + 0.2, 'F'); } };
+    const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = 297, H = 210, ML = 15, MR = 10, BOT = 15, FS = 7.6;
+    const AZ = [21, 101, 192], AZE = [13, 71, 161], VD = [46, 157, 74], CZ = [107, 119, 133], TX = [28, 39, 51], LN = [220, 227, 234];
+    const sel = $('#dg-mec'), per = dataBR($('#dg-de').value) + ' A ' + dataBR($('#dg-ate').value), mec = sel.value ? sel.selectedOptions[0].textContent : 'TODOS OS MECÂNICOS';
+    const ag = new Date(), gerado = pad(ag.getDate()) + '/' + pad(ag.getMonth() + 1) + '/' + ag.getFullYear() + ' ÀS ' + pad(ag.getHours()) + ':' + pad(ag.getMinutes());
+    const grupos = []; L.forEach(l => { let g = grupos[grupos.length - 1]; if (!g || g.j.id !== l.j.id) { g = { j: l.j, nome: l.nome, it: [] }; grupos.push(g); } g.it.push(l.a); });
+    const minA = a => a.fim ? durA(a.inicio, a.fim) : 0, totMin = L.reduce((s, l) => s + minA(l.a), 0), nMec = new Set(grupos.map(g => g.j.mecanico_id)).size;
+    // larguras fixas pelas palavras mais longas: nada é cortado; só a MANUTENÇÃO quebra linha (por palavras)
+    const tw = (t, est, fs) => { doc.setFont('helvetica', est); doc.setFontSize(fs || FS); return doc.getTextWidth(String(t || '')); };
+    const col = (txts, est, cab) => Math.max(tw(cab, 'bold', 7.4), ...txts.map(t => tw(t, est))) + 4.6;
+    const CW = [Math.min(72, col(L.map(l => l.nome), 'bold', 'NOME')), col(['00/00/0000'], 'normal', 'DATA'), col(['00:00'], 'bold', 'INÍCIO'), col(['00:00'], 'bold', 'FIM'),
+      Math.min(64, col(L.map(l => l.a.atividade), 'normal', 'ATIVIDADE')), col(L.map(l => l.a.frota), 'normal', 'FROTA'), 22, 0];
+    CW[7] = W - ML - MR - CW.slice(0, 7).reduce((s, x) => s + x, 0);
+    const CENT = [false, true, true, true, false, true, true, false];
+    const faixa = () => { for (let i = 0; i < 70; i++) { const k = i / 69; doc.setFillColor(Math.round(21 + k * 25), Math.round(101 + k * 56), Math.round(192 - k * 118)); doc.rect(0, i * H / 70, 6, H / 70 + 0.3, 'F'); } };
+    const cabCols = y => { doc.setFillColor(...AZE); doc.roundedRect(ML, y, W - ML - MR, 7.5, 1.2, 1.2, 'F'); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.4); doc.setTextColor(255, 255, 255);
+      let x = ML; COLS_DG.forEach((t, i) => { if (CENT[i]) doc.text(t, x + CW[i] / 2, y + 4.9, { align: 'center' }); else doc.text(t, x + 2, y + 4.9); x += CW[i]; }); };
+    const feitas = new Set([1]);
+    const decorar = () => { const p = doc.internal.getCurrentPageInfo().pageNumber; if (feitas.has(p)) return; feitas.add(p); faixa();
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); doc.setTextColor(...AZE); doc.text('PCM AUTOMOTIVO', ML, 13);
+      doc.setFontSize(7.5); doc.setTextColor(...CZ); doc.text('APONTAMENTOS APROVADOS · DIGITAÇÃO · ' + per + ' · ' + mec, ML + tw('PCM AUTOMOTIVO', 'bold', 9.5) + 4, 13); cabCols(17); };
+    // ---- 1ª página: cabeçalho e indicadores ----
     faixa();
-    doc.setFont('helvetica', 'bold'); doc.setTextColor(21, 101, 192); doc.setFontSize(8); doc.text('USINA GRANELLI', 14, 13);
-    doc.setFontSize(20); doc.text('PCM AUTOMOTIVO', 14, 21);
-    doc.setFontSize(10); doc.setTextColor(46, 157, 74); doc.text('APONTAMENTOS APROVADOS · DIGITAÇÃO', 14, 27);
-    doc.setFontSize(8); doc.setTextColor(107, 119, 133);
-    doc.text(`PERÍODO: ${d.per}     MECÂNICO: ${d.mec}     ${d.nj} JORNADA(S) · ${d.rows.length} APONTAMENTO(S)`, 14, 33);
-    doc.autoTable({
-      startY: 37, margin: { left: 14, right: 10, bottom: 14, top: 12 },
-      head: [COLS_DG], body: d.rows.map(r => r.c),
-      styles: { font: 'helvetica', fontStyle: 'bold', fontSize: 7.5, cellPadding: 1.6, textColor: [28, 39, 51], lineColor: [220, 227, 234], lineWidth: { bottom: 0.2 }, overflow: 'linebreak', valign: 'top' },
-      headStyles: { fillColor: [21, 101, 192], textColor: 255, fontSize: 7.5 },
-      columnStyles: { 0: { cellWidth: 46 }, 1: { cellWidth: 20 }, 2: { cellWidth: 14 }, 3: { cellWidth: 14 }, 4: { cellWidth: 50 }, 5: { cellWidth: 17 }, 6: { cellWidth: 17 } },
-      didParseCell: c => { if (c.section === 'body' && d.rows[c.row.index].g) c.cell.styles.fillColor = [241, 245, 249]; },
-      didDrawPage: () => { if (doc.internal.getNumberOfPages() > 1) faixa(); }
+    doc.setFont('helvetica', 'bold'); doc.setCharSpace(0.6); doc.setFontSize(7.5); doc.setTextColor(...AZ); doc.text('USINA GRANELLI', ML, 15); doc.setCharSpace(0);
+    doc.setFontSize(21); doc.setTextColor(...AZE); doc.text('PCM AUTOMOTIVO', ML, 23.5);
+    doc.setFontSize(8); doc.setTextColor(...CZ); doc.text('PLANEJAMENTO E CONTROLE DA MANUTENÇÃO', ML, 28.5);
+    doc.setFontSize(11); doc.setTextColor(...VD); doc.text('APONTAMENTOS APROVADOS · DIGITAÇÃO', ML, 35.5);
+    const bx = W - MR - 92; doc.setDrawColor(...LN); doc.setFillColor(244, 247, 250); doc.roundedRect(bx, 11, 92, 25, 2.5, 2.5, 'FD');
+    [['PERÍODO', per], ['MECÂNICO', mec], ['GERADO EM', gerado]].forEach(([r, v], i) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(...CZ); doc.text(r, bx + 5, 18 + i * 6.5); doc.setFontSize(8); doc.setTextColor(...TX); doc.text(doc.splitTextToSize(v, 58)[0], bx + 29, 18 + i * 6.5); });
+    const kp = [['JORNADAS APROVADAS', nBR(grupos.length), AZ], ['APONTAMENTOS', nBR(L.length), AZE], ['MECÂNICOS', nBR(nMec), VD], ['HORAS APONTADAS', fmtA(totMin) + ' H', [27, 107, 51]]], kw = (W - ML - MR - 15) / 4;
+    kp.forEach(([r, v, c], i) => { const x = ML + i * (kw + 5); doc.setFillColor(255, 255, 255); doc.setDrawColor(...LN); doc.roundedRect(x, 42, kw, 16, 2, 2, 'FD'); doc.setFillColor(...c); doc.rect(x + 0.4, 42.2, kw - 0.8, 1.6, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(...CZ); doc.text(r, x + 4, 48.5); doc.setFontSize(13); doc.setTextColor(...TX); doc.text(v, x + 4, 55.3); });
+    cabCols(63); let y = 71;
+    // ---- uma tabela por jornada (a faixa da jornada nunca fica sozinha no fim da página) ----
+    const DIAS = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    grupos.forEach(g => {
+      if (y + 8 + 2 * 8 > H - BOT) { doc.addPage(); decorar(); y = 25.5; }
+      const tm = g.it.reduce((s, a) => s + minA(a), 0), dsem = DIAS[new Date(g.j.data + 'T12:00:00').getDay()];
+      const body = [[{ content: g.nome + '   ·   ' + dataBR(g.j.data) + ' (' + dsem + ')   ·   ' + g.it.length + ' APONTAMENTO(S)   ·   ' + fmtA(tm) + ' H', colSpan: 8 }]]
+        .concat(g.it.map(a => [g.nome, dataBR(g.j.data), a.inicio || '', a.fim || '', a.atividade || '', a.frota || '', '', (a.observacao || '').replace(/\s+/g, ' ')]));
+      doc.autoTable({
+        startY: y, margin: { left: ML, right: MR, top: 25.5, bottom: BOT }, body, showHead: 'never', rowPageBreak: 'avoid', theme: 'plain', tableWidth: W - ML - MR,
+        styles: { font: 'helvetica', fontStyle: 'normal', fontSize: FS, textColor: TX, cellPadding: { top: 1.9, bottom: 1.9, left: 2, right: 2 }, overflow: 'linebreak', valign: 'middle', lineColor: LN, lineWidth: { bottom: 0.15 } },
+        columnStyles: Object.fromEntries(CW.map((w, i) => [i, { cellWidth: w, halign: CENT[i] ? 'center' : 'left', fontStyle: [0, 2, 3].includes(i) ? 'bold' : 'normal' }])),
+        didParseCell: c => { if (c.row.index === 0) Object.assign(c.cell.styles, { fillColor: [227, 238, 251], textColor: AZE, fontStyle: 'bold', fontSize: 7.8, halign: 'left', cellPadding: { top: 2.3, bottom: 2.3, left: 3, right: 2 }, lineWidth: 0 });
+          else if (c.row.index % 2 === 0) c.cell.styles.fillColor = [248, 250, 252]; },
+        didDrawCell: c => { if (c.column.index === 6 && c.row.index > 0) { doc.setDrawColor(190, 200, 212); doc.setLineWidth(0.2); doc.line(c.cell.x + 2.5, c.cell.y + c.cell.height - 2, c.cell.x + c.cell.width - 2.5, c.cell.y + c.cell.height - 2); } },
+        didDrawPage: () => decorar()
+      });
+      y = doc.lastAutoTable.finalY + 3;
     });
     const n = doc.internal.getNumberOfPages();
-    for (let p = 1; p <= n; p++) { doc.setPage(p); doc.setFontSize(7); doc.setTextColor(107, 119, 133); doc.setFont('helvetica', 'bold');
-      doc.text('MARCOS AURÉLIO DE SIQUEIRA · ANALISTA DE PCM AUTOMOTIVO', 14, H - 6); doc.text(`GERADO EM ${d.gerado} · PÁGINA ${p} DE ${n}`, W - 10, H - 6, { align: 'right' }); }
+    for (let p = 1; p <= n; p++) { doc.setPage(p); doc.setDrawColor(...LN); doc.setLineWidth(0.3); doc.line(ML, H - 10, W - MR, H - 10); doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...CZ);
+      doc.text('MARCOS AURÉLIO DE SIQUEIRA · ANALISTA DE PCM AUTOMOTIVO', ML, H - 6); doc.text('USINA GRANELLI · CHARQUEADA/SP', W / 2, H - 6, { align: 'center' }); doc.text('PÁGINA ' + p + ' DE ' + n, W - MR, H - 6, { align: 'right' }); }
     doc.save('DIGITACAO_' + $('#dg-de').value + '_A_' + $('#dg-ate').value + '.pdf');
     b.textContent = '✓ PDF BAIXADO'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 2500);
-  } catch (e) { b.textContent = 'ERRO — VERIFIQUE A INTERNET'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 3000); }
+  } catch (e) { console.error(e); b.textContent = 'ERRO — VERIFIQUE A INTERNET'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 3000); }
   b.disabled = false;
 }
 function desfazerDg(id) {
