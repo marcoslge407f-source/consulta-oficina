@@ -887,8 +887,8 @@ function graficoSim(aps) {
   const tot = aps.reduce((s, a) => s + (a.MIN || 0), 0); if (!tot) return '';
   const trab = a => /TRABALH/.test(a.TIPO || '') || (!a.TIPO && a.OS);
   const cats = [
-    { k: 'TRABALHADA', s: 'COM O.S.', c: 'var(--azul)', f: a => trab(a) },
-    { k: 'PARADA PRODUTIVA', s: 'DESLOCAMENTO, LIMPEZA…', c: 'var(--verde)', f: a => !trab(a) && a.STATUS === 'PRODUTIVO' },
+    { k: 'TRABALHADA', s: 'COM O.S.', c: '#1B6B33', f: a => trab(a) },
+    { k: 'PARADA PRODUTIVA', s: 'DESLOCAMENTO, LIMPEZA…', c: '#7CCB8A', f: a => !trab(a) && a.STATUS === 'PRODUTIVO' },
     { k: 'PARADA IMPRODUTIVA', s: 'OCIOSO, AGUARDANDO…', c: 'var(--vermelho)', f: a => !trab(a) && a.STATUS !== 'PRODUTIVO' }];
   cats.forEach(c => { c.min = aps.filter(c.f).reduce((s, a) => s + (a.MIN || 0), 0); c.sim = Math.round(c.min / tot * 720); });
   const dif = 720 - cats.reduce((s, c) => s + c.sim, 0); if (dif) cats.slice().sort((a, b) => b.min - a.min)[0].sim += dif;
