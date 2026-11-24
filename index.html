@@ -112,6 +112,12 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .gb{width:100%;max-width:38px;border-radius:6px 6px 0 0;background:#9AA5B1}
 .gb.p{background:var(--verde)} .gb.i{background:var(--vermelho)}
 .gl{font-size:8.5px;font-weight:800;color:var(--cinza);text-align:center;margin-top:0;line-height:1.15;height:34px;overflow:hidden;word-break:normal;overflow-wrap:normal;border-top:1.5px solid var(--linha);padding-top:4px;width:100%}
+.simh{font-size:10px;font-weight:800;color:var(--cinza);margin:-2px 0 10px;line-height:1.35}
+.sima{position:relative;height:0;margin-left:0}
+.simg{padding-top:4px}
+.sima span{position:absolute;right:0;top:-16px;font-size:9px;font-weight:900;color:var(--cinza)}
+.simr{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--linha);font-size:10.5px;font-weight:800;color:var(--cinza)}
+.simr b{font-size:14px;color:var(--azul)}
 .gleg{display:flex;gap:6px;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--cinza);margin-top:8px}
 .gleg span{width:10px;height:10px;border-radius:3px;display:inline-block}
 .gleg .p{background:var(--verde)} .gleg .i{background:var(--vermelho);margin-left:8px}
@@ -856,7 +862,7 @@ function renderApont() {
     const pc = t ? Math.round(p / t * 100) : 0, [fx, cls] = faixa(pc);
     const turnos = [...new Set(aps.map(a => a.PERIODO))].join(' / ');
     return '<div class="mec"><button class="cab" onclick="detMec(\'' + esc(nome) + '\',\'' + dia + '\')"><div class="nm">' + esc(nome) + '</div><div class="dir"><div class="hh">' + hhmm(t) + ' H ›</div></div></button></div>';
-  }).join('') + graficoAtiv(lista);
+  }).join('') + graficoAtiv(lista) + graficoSim(lista);
 }
 function togMec(n) { abertos.has(n) ? abertos.delete(n) : abertos.add(n); renderApont(); }
 function linhaAp(a) {
@@ -877,6 +883,22 @@ function graficoAtiv(aps) {
   return '<div class="bloco" style="margin-top:12px"><h3>RESUMO POR ATIVIDADE</h3><div class="graf">' + it.map(x => '<div class="gc"><div class="gv">' + hhmm(x.min) + '<small>' + Math.round(x.min / tot * 100) + '%</small></div><div class="gb ' + (x.prod === null ? '' : x.prod ? 'p' : 'i') + '" style="height:' + Math.max(4, Math.round(x.min / mx * 120)) + 'px"></div><div class="gl">' + esc(x.k.split(' ').map(w => w.length > 8 ? w.slice(0, 6) + '.' : w).join(' ')) + '</div></div>').join('') +
     '</div><div class="gleg"><span class="p"></span>PRODUTIVO <span class="i"></span>IMPRODUTIVO</div></div>';
 }
+function graficoSim(aps) {
+  const tot = aps.reduce((s, a) => s + (a.MIN || 0), 0); if (!tot) return '';
+  const trab = a => /TRABALH/.test(a.TIPO || '') || (!a.TIPO && a.OS);
+  const cats = [
+    { k: 'TRABALHADA', s: 'COM O.S.', c: 'var(--azul)', f: a => trab(a) },
+    { k: 'PARADA PRODUTIVA', s: 'DESLOCAMENTO, LIMPEZA…', c: 'var(--verde)', f: a => !trab(a) && a.STATUS === 'PRODUTIVO' },
+    { k: 'PARADA IMPRODUTIVA', s: 'OCIOSO, AGUARDANDO…', c: 'var(--vermelho)', f: a => !trab(a) && a.STATUS !== 'PRODUTIVO' }];
+  cats.forEach(c => { c.min = aps.filter(c.f).reduce((s, a) => s + (a.MIN || 0), 0); c.sim = Math.round(c.min / tot * 720); });
+  const dif = 720 - cats.reduce((s, c) => s + c.sim, 0); if (dif) cats.slice().sort((a, b) => b.min - a.min)[0].sim += dif;
+  const H = 130, ef = Math.round(cats[0].min / tot * 100);
+  return '<div class="bloco" style="margin-top:12px"><h3>SIMULAÇÃO DE UM TURNO DE 12 HORAS</h3>' +
+    '<div class="simh">SE O TURNO TIVESSE 12:00 H, COM A MESMA DIVISÃO DAS ' + hhmm(tot) + ' H APONTADAS</div>' +
+    '<div class="graf simg">' + cats.map(c => '<div class="gc"><div class="gv">' + hhmm(c.sim) + ' H<small>' + Math.round(c.sim / 7.2) + '%</small></div>' +
+      '<div class="gb" style="max-width:54px;background:' + c.c + ';height:' + Math.max(c.sim ? 4 : 0, Math.round(c.sim / 720 * H)) + 'px"></div><div class="gl" style="height:auto">' + c.k + '<br><span style="font-weight:700;font-size:8px">' + c.s + '</span></div></div>').join('') + '</div>' +
+    '<div class="simr"><span>EFICIÊNCIA (TRABALHADA ÷ TOTAL)</span><b>' + ef + '%</b></div></div>';
+}
 const SEMANA = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
 function somaDia(dia, n) { const x = new Date(dia + 'T12:00:00'); x.setDate(x.getDate() + n); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()); }
 function detMec(nome, dia, trocar) {
@@ -889,7 +911,7 @@ function detMec(nome, dia, trocar) {
     '<div class="dia"><button onclick="' + ir(-1) + '">‹</button><div class="busca diatx">' + dataBR(dia) + '<small>' + SEMANA[new Date(dia + 'T12:00:00').getDay()] + '</small></div><button onclick="' + ir(1) + '">›</button></div>' +
     '<div class="resumo"><div class="kpi"><div class="v">' + hhmm(t) + '</div><div class="t">HORAS APONTADAS</div></div><div class="kpi"><div class="v verde">' + (t ? pc + '%' : '–') + '</div><div class="t">PRODUTIVO</div></div><div class="kpi"><div class="v verm">' + (t ? (100 - pc) + '%' : '–') + '</div><div class="t">IMPRODUTIVO</div></div></div>' +
     (aps.length ? '<div class="mec"><div class="cab"><div><div class="nm">' + esc(aps[0].NOME || nome) + '</div><div class="st">' + esc(aps[0].SETOR || '') + '</div></div>' +
-      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>' + graficoAtiv(aps)
+      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>' + graficoAtiv(aps) + graficoSim(aps)
       : '<div class="vazio">SEM APONTAMENTOS NESTE DIA (FOLGA)</div>'), trocar);
 }
 
