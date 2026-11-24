@@ -328,26 +328,27 @@ function telaCal(){
   $('#btnNova').classList.add('oculto');
   if(!CAL){const d=new Date();CAL={ano:d.getFullYear(),mes:d.getMonth(),sel:hoje()}}
   const h=new Date().getHours(),saud=h<12?'BOM DIA':h<18?'BOA TARDE':'BOA NOITE';
-  const usadas=new Map(vivas().map(j=>[j.data,j.status]));
+  const temAp=iso=>ITENS.some(i=>!i.excluido&&i.data===iso); // jornada só conta como INICIADA se tiver apontamento
+  const usadas=new Map(vivas().map(j=>[j.data,j.status==='ABERTA'&&!temAp(j.data)?'VAZIA':j.status]));
   const prim=new Date(CAL.ano,CAL.mes,1),ini=prim.getDay(),nd=new Date(CAL.ano,CAL.mes+1,0).getDate(),lim=addDias(hoje(),-DIAS_VOLTA);
   let cel='';for(let k=0;k<ini;k++)cel+='<span></span>';
   for(let d=1;d<=nd;d++){const iso=CAL.ano+'-'+pad(CAL.mes+1)+'-'+pad(d),st=usadas.get(iso),pode=(iso<=hoje()&&iso>=lim)||!!st;
-    const cl=!pode?'off':st==='ABERTA'?'aberta':st?'fechada':'livre';
+    const cl=!pode?'off':st==='ABERTA'?'aberta':st&&st!=='VAZIA'?'fechada':'livre';
     cel+=`<button class="calD ${cl} ${iso===hoje()?'hoje':''} ${iso===CAL.sel?'sel':''}" ${pode?`onclick="CAL.sel='${iso}';telaCal()"`:'disabled'}>${d}</button>`}
   const maisAnt=vivas().reduce((m,j)=>j.data<m?j.data:m,lim);
   const podeV=new Date(CAL.ano,CAL.mes,1)>new Date(maisAnt+'T12:00:00'),podeI=new Date(CAL.ano,CAL.mes+1,1)<=new Date();
   const sel=CAL.sel?new Date(CAL.sel+'T12:00:00'):null,st=CAL.sel&&usadas.get(CAL.sel);
-  const abertas=vivas().filter(j=>j.status==='ABERTA').sort((a,b)=>b.data.localeCompare(a.data));
+  const abertas=vivas().filter(j=>j.status==='ABERTA').sort((a,b)=>b.data.localeCompare(a.data)),iniciadas=abertas.filter(j=>temAp(j.data));
   $('#tela').innerHTML=`<div class="capa"><div class="m">${saud}, ${esc((U.nome_abreviado||U.nome||'').split(' ')[0])}!</div><h2>ESCOLHA A DATA DA JORNADA</h2><p>TODOS OS APONTAMENTOS FICAM NESTA DATA, MESMO QUE O TURNO PASSE DA MEIA-NOITE.</p></div>
   <div class="bloco">
-    <div class="calSel ${!sel?'':st==='ABERTA'?'st-aberta':st?'':'st-livre'}">${sel?`<div class="calSelD">${pad(sel.getDate())}</div><div><b>${SEMANA[sel.getDay()]}</b><br>${MESES[sel.getMonth()]} DE ${sel.getFullYear()}${CAL.sel===hoje()?' · HOJE':''}<small>${st==='ABERTA'?'● JORNADA INICIADA, AINDA NÃO ENCERRADA':st?'● JORNADA ENCERRADA':'● DIA SEM JORNADA'}</small></div>`:'TOQUE EM UM DIA'}</div>
+    <div class="calSel ${!sel?'':st==='ABERTA'?'st-aberta':st&&st!=='VAZIA'?'':'st-livre'}">${sel?`<div class="calSelD">${pad(sel.getDate())}</div><div><b>${SEMANA[sel.getDay()]}</b><br>${MESES[sel.getMonth()]} DE ${sel.getFullYear()}${CAL.sel===hoje()?' · HOJE':''}<small>${st==='ABERTA'?'● JORNADA INICIADA, AINDA NÃO ENCERRADA':st&&st!=='VAZIA'?'● JORNADA ENCERRADA':'● DIA SEM JORNADA'}</small></div>`:'TOQUE EM UM DIA'}</div>
     <div class="calMes"><button class="calNav" ${podeV?'':'disabled'} onclick="CAL.mes--;if(CAL.mes<0){CAL.mes=11;CAL.ano--}telaCal()">‹</button><b>${MESES[CAL.mes]} ${CAL.ano}</b><button class="calNav" ${podeI?'':'disabled'} onclick="CAL.mes++;if(CAL.mes>11){CAL.mes=0;CAL.ano++}telaCal()">›</button></div>
     <div class="calGrade">${['D','S','T','Q','Q','S','S'].map(x=>`<span class="calSem">${x}</span>`).join('')}${cel}</div>
     <div class="calLeg"><span><i style="border-color:#2E9D4A;background:#E7F5EA"></i>JORNADA ENCERRADA</span><span><i style="border-color:#D32F2F;background:#FDECEA"></i>INICIADA, NÃO ENCERRADA</span><span><i style="border-color:#F2A900;background:#FFF8E1"></i>DIA SEM JORNADA</span><span style="color:var(--azul)"><u style="text-decoration-thickness:3px;text-underline-offset:3px">DIA</u>&nbsp;= HOJE</span></div>
     ${abertas.filter(j=>j.recusa_motivo).map(j=>`<div class="alerta vm" style="text-align:center" onclick="CAL.sel='${j.data}';telaCal()">✕ JORNADA DE ${dataBR(j.data)} RECUSADA PELO ANALISTA — TOQUE NO DIA E CORRIJA</div>`).join('')}
-    ${abertas.length?`<div class="alerta vm" style="text-align:center">JORNADA(S) INICIADA(S) E NÃO ENCERRADA(S): ${abertas.map(j=>dataBR(j.data)).join(', ')}</div>`:''}
+    ${iniciadas.length?`<div class="alerta vm" style="text-align:center">JORNADA(S) INICIADA(S) E NÃO ENCERRADA(S): ${iniciadas.map(j=>dataBR(j.data)).join(', ')}</div>`:''}
   </div>
-  <button class="btn ${st&&st!=='ABERTA'?'cinza':''}" ${CAL.sel?'':'disabled'} onclick="iniciarJornada()">${!CAL.sel?'ESCOLHA UMA DATA':st==='ABERTA'?'CONTINUAR JORNADA DE '+dataBR(CAL.sel):st?'VER JORNADA DE '+dataBR(CAL.sel):'INICIAR JORNADA DE '+dataBR(CAL.sel)}</button>`;
+  <button class="btn ${st&&st!=='ABERTA'&&st!=='VAZIA'?'cinza':''}" ${CAL.sel?'':'disabled'} onclick="iniciarJornada()">${!CAL.sel?'ESCOLHA UMA DATA':st==='ABERTA'?'CONTINUAR JORNADA DE '+dataBR(CAL.sel):st&&st!=='VAZIA'?'VER JORNADA DE '+dataBR(CAL.sel):'INICIAR JORNADA DE '+dataBR(CAL.sel)}</button>`;
   pill();
 }
 function iniciarJornada(){
