@@ -1410,7 +1410,7 @@ function renderDg() {
   const L = linhasDg(), nj = new Set(L.map(l => l.j.id)).size;
   if (!L.length) { $('#dg-lista').innerHTML = '<div class="ap-vazio">NENHUMA JORNADA APROVADA NESTE PERÍODO</div>'; return; }
   $('#dg-lista').innerHTML = `<div class="dg-card"><div class="dg-cab"><div><b>APONTAMENTOS APROVADOS</b><span>${nj} JORNADA(S) · ${L.length} APONTAMENTO(S)</span></div>
-    <div class="dg-bts"><button class="btn sec" id="dg-cp" onclick="copiarDg()">COPIAR TABELA</button><button class="btn sec" onclick="imprimirDg()">🖨 IMPRIMIR</button><button class="btn" id="dg-pdf" onclick="pdfDg()">⬇ EXPORTAR PDF</button></div></div>
+    <div class="dg-bts"><button class="btn sec" id="dg-cp" onclick="copiarDg()">COPIAR TABELA</button><button class="btn sec" id="dg-imp" onclick="imprimirDg()">🖨 IMPRIMIR</button><button class="btn" id="dg-pdf" onclick="pdfDg()">⬇ EXPORTAR PDF</button></div></div>
     <table class="dg-t"><colgroup><col style="width:19%"><col style="width:10%"><col style="width:7%"><col style="width:7%"><col style="width:19%"><col style="width:7%"><col style="width:7%"><col><col style="width:44px"></colgroup>
     <thead><tr><th>NOME</th><th>DATA</th><th>INÍCIO</th><th>FIM</th><th>ATIVIDADE</th><th>FROTA</th><th>O.S.</th><th>MANUTENÇÃO</th><th></th></tr></thead>
     <tbody>${L.map(l => `<tr class="${l.pri ? 'pri' : ''}"><td data-l="NOME">${esc(l.nome)}</td><td data-l="DATA">${dataBR(l.j.data)}</td><td data-l="INÍCIO">${esc(l.a.inicio)}</td><td data-l="FIM">${esc(l.a.fim || '')}</td><td data-l="ATIVIDADE">${esc(l.a.atividade || '')}</td><td data-l="FROTA">${esc(l.a.frota || '')}</td><td data-l="O.S."></td><td data-l="MANUTENÇÃO">${esc(l.a.observacao || '')}</td>
@@ -1431,41 +1431,11 @@ function dadosDg() {
   return { rows, nj: ids.length, per: dataBR($('#dg-de').value) + ' A ' + dataBR($('#dg-ate').value), mec: sel.value ? sel.selectedOptions[0].textContent : 'TODOS OS MECÂNICOS',
     gerado: pad(agora.getDate()) + '/' + pad(agora.getMonth() + 1) + '/' + agora.getFullYear() + ' ' + pad(agora.getHours()) + ':' + pad(agora.getMinutes()) };
 }
-function imprimirDg() {
-  const d = dadosDg(); if (!d.rows.length) return;
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>DIGITAÇÃO ${d.per}</title><style>
-    @page{size:A4 landscape;margin:9mm 10mm 9mm 0}
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    body{font-family:"Segoe UI",Roboto,Arial,sans-serif;color:#1C2733;text-transform:uppercase;padding-left:14mm}
-    .fx{position:fixed;left:0;top:0;bottom:0;width:6mm;background:linear-gradient(180deg,#1565C0,#2E9D4A)}
-    .m{font-size:10px;font-weight:900;color:#1565C0;letter-spacing:2px}
-    h1{font-size:24px;font-weight:900;color:#1565C0;margin-top:2px}
-    .s{font-size:12px;font-weight:900;color:#2E9D4A;margin-top:4px}
-    .i{display:flex;gap:24px;font-size:10px;font-weight:800;color:#6B7785;margin:8px 0 10px}.i b{color:#1C2733}
-    table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.5px;font-weight:700}
-    thead{display:table-header-group}
-    th{background:#1565C0;color:#fff;font-weight:900;text-align:left;padding:6px 5px;font-size:9px}
-    td{padding:5px;border-bottom:1px solid #DCE3EA;overflow-wrap:anywhere;vertical-align:top}
-    tr.g1 td{background:#F1F5F9} tr{page-break-inside:avoid}
-    tfoot{display:table-footer-group} tfoot td{border:0;height:9mm;padding:0}
-    .rod{position:fixed;bottom:0;left:14mm;right:0;display:flex;justify-content:space-between;font-size:8.5px;font-weight:800;color:#6B7785}
-  </style></head><body><div class="fx"></div>
-  <div class="m">USINA GRANELLI</div><h1>PCM AUTOMOTIVO</h1><div class="s">APONTAMENTOS APROVADOS · DIGITAÇÃO</div>
-  <div class="i"><span>PERÍODO: <b>${d.per}</b></span><span>MECÂNICO: <b>${esc(d.mec)}</b></span><span><b>${d.nj}</b> JORNADA(S) · <b>${d.rows.length}</b> APONTAMENTO(S)</span></div>
-  <table><colgroup><col style="width:17%"><col style="width:8%"><col style="width:6%"><col style="width:6%"><col style="width:18%"><col style="width:7%"><col style="width:7%"><col></colgroup>
-  <thead><tr>${COLS_DG.map(c => `<th>${c}</th>`).join('')}</tr></thead>
-  <tbody>${d.rows.map(r => `<tr class="g${r.g}">${r.c.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody><tfoot><tr><td colspan="8"></td></tr></tfoot></table>
-  <div class="rod"><span>MARCOS AURÉLIO DE SIQUEIRA · ANALISTA DE PCM AUTOMOTIVO</span><span>GERADO EM ${d.gerado}</span></div></body></html>`;
-  let f = $('#dg-print'); if (f) f.remove();
-  f = document.createElement('iframe'); f.id = 'dg-print'; f.style.cssText = 'position:fixed;width:0;height:0;border:0;left:-9999px';
-  document.body.appendChild(f);
-  f.onload = () => setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); }, 200);
-  f.srcdoc = html;
-}
+function imprimirDg() { pdfDg('imprimir'); }
 const carregaJs = src => new Promise((ok, erro) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = erro; document.head.appendChild(s); });
-async function pdfDg() {
+async function pdfDg(modo) {
   const L = linhasDg(); if (!L.length) return;
-  const b = $('#dg-pdf'), t0 = b.textContent; b.disabled = true; b.textContent = 'GERANDO PDF…';
+  const imp = modo === 'imprimir', b = $(imp ? '#dg-imp' : '#dg-pdf'), t0 = b.textContent; b.disabled = true; b.textContent = imp ? 'PREPARANDO…' : 'GERANDO PDF…';
   try {
     if (!window.jspdf) await carregaJs('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js');
     if (!window.jspdf.jsPDF.API.autoTable) await carregaJs('https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js');
@@ -1522,6 +1492,15 @@ async function pdfDg() {
     const n = doc.internal.getNumberOfPages();
     for (let p = 1; p <= n; p++) { doc.setPage(p); doc.setDrawColor(...LN); doc.setLineWidth(0.3); doc.line(ML, H - 10, W - MR, H - 10); doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...CZ);
       doc.text('MARCOS AURÉLIO DE SIQUEIRA · ANALISTA DE PCM AUTOMOTIVO', ML, H - 6); doc.text('USINA GRANELLI · CHARQUEADA/SP', W / 2, H - 6, { align: 'center' }); doc.text('PÁGINA ' + p + ' DE ' + n, W - MR, H - 6, { align: 'right' }); }
+    if (imp) {
+      doc.autoPrint(); const url = URL.createObjectURL(doc.output('blob'));
+      if (matchMedia('(hover:hover)').matches) {
+        let f = $('#dg-print'); if (f) f.remove(); f = document.createElement('iframe'); f.id = 'dg-print'; f.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';
+        f.onload = () => setTimeout(() => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { window.open(url, '_blank'); } }, 300);
+        f.src = url; document.body.appendChild(f);
+      } else window.open(url, '_blank');
+      b.textContent = t0; b.disabled = false; return;
+    }
     doc.save('DIGITACAO_' + $('#dg-de').value + '_A_' + $('#dg-ate').value + '.pdf');
     b.textContent = '✓ PDF BAIXADO'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 2500);
   } catch (e) { console.error(e); b.textContent = 'ERRO — VERIFIQUE A INTERNET'; setTimeout(() => { const x = $('#dg-pdf'); if (x) x.textContent = t0; }, 3000); }
