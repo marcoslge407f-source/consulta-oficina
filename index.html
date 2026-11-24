@@ -398,10 +398,10 @@ html.escuro .ap .obs{background:#0F1720}
         <button class="chip" data-v="ENCERRADA">ENCERRADAS</button>
       </div>
       <div class="lin">
-        <select class="busca" id="os-per" onchange="renderOS(true)">
+        <select class="busca" id="os-per" data-titulo="PERÍODO (DATA DE ABERTURA)" onchange="renderOS(true)">
           <option value="">SAFRA TODA</option><option value="HOJE">HOJE</option><option value="7">ÚLTIMOS 7 DIAS</option><option value="30">ÚLTIMOS 30 DIAS</option><option value="ESC">ESCOLHER PERÍODO…</option>
         </select>
-        <select class="busca" id="os-mec" onchange="renderOS(true)"><option value="">TODOS OS MECÂNICOS</option></select>
+        <select class="busca" id="os-mec" data-titulo="MECÂNICO QUE TRABALHOU NA O.S." onchange="renderOS(true)"><option value="">TODOS OS MECÂNICOS</option></select>
       </div>
       <div class="lin oculto" id="os-esc">
         <label class="per"><span>DE (ABERTURA)</span><input type="date" class="busca" id="os-de" onchange="renderOS(true)"></label>
@@ -416,7 +416,7 @@ html.escuro .ap .obs{background:#0F1720}
   <section class="pag oculto" id="p-frotas">
     <div class="filtros">
       <input class="busca" id="fr-busca" placeholder="BUSCAR FROTA, MODELO, PLACA OU CHASSI" oninput="renderFrotas(true)">
-      <select class="busca" id="fr-classe" onchange="renderFrotas(true)"></select>
+      <select class="busca" id="fr-classe" data-titulo="CLASSE DA FROTA" onchange="renderFrotas(true)"></select>
     </div>
     <div class="cont" id="fr-cont"></div>
     <div id="fr-lista"></div>
@@ -430,7 +430,7 @@ html.escuro .ap .obs{background:#0F1720}
       <button onclick="mudaDia(1)">›</button>
     </div>
     <div class="lin" style="margin-bottom:12px">
-      <select class="busca" id="ap-mec" onchange="renderApont()"></select>
+      <select class="busca" id="ap-mec" data-titulo="MECÂNICO" onchange="renderApont()"></select>
     </div>
     <div class="resumo">
       <div class="kpi"><div class="v" id="ap-tot">–</div><div class="t">HORAS APONTADAS</div></div>
@@ -1653,6 +1653,98 @@ rota();
 carregarCache().then(() => sincronizar());
 setInterval(() => { if (document.visibilityState === 'visible') sincronizar(); }, 5 * 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sincronizar(); });
+</script>
+<!-- ===== MENUS DE ESCOLHA (substitui a lista padrão do celular) ===== -->
+<style>
+.selw{position:relative;display:block;min-width:0}
+.selw>select{width:100%}
+.selw>.selx{position:absolute;inset:0;cursor:pointer;border-radius:12px;-webkit-tap-highlight-color:transparent}
+.selw.dis>.selx{display:none}
+.selfd{position:fixed;inset:0;z-index:9999;background:rgba(15,23,32,.45);display:flex;align-items:flex-end;justify-content:center;animation:selfd .15s ease}
+@keyframes selfd{from{opacity:0}to{opacity:1}}
+@keyframes selsb{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.selpn{background:var(--card,#fff);color:var(--texto,#1C2733);width:100%;max-width:520px;max-height:78vh;border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);display:flex;flex-direction:column;animation:selsb .18s ease;padding-bottom:env(safe-area-inset-bottom)}
+@media (min-width:700px){.selfd{align-items:center}.selpn{border-radius:20px;max-height:70vh;width:440px}}
+.selpn .selpg{width:40px;height:4px;border-radius:4px;background:var(--linha,#E3E8EE);margin:8px auto 2px}
+.selpn .selcb{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 18px 10px}
+.selpn .selcb b{font-size:12px;font-weight:900;letter-spacing:.6px;color:var(--azul,#1565C0)}
+.selpn .selcb button{border:0;background:var(--fundo,#F4F7FA);color:var(--cinza,#6B7785);width:32px;height:32px;border-radius:50%;font-size:15px;font-weight:900;cursor:pointer}
+.selpn .selbs{margin:0 16px 8px;border:1.5px solid var(--linha,#E3E8EE);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;background:var(--fundo,#F4F7FA);color:var(--texto,#1C2733);outline:none;text-transform:uppercase;font-family:inherit}
+.selpn .selbs:focus{border-color:var(--azul,#1565C0)}
+.selpn .sells{overflow-y:auto;padding:2px 10px 14px;scrollbar-width:none;-ms-overflow-style:none}
+.selpn .sells::-webkit-scrollbar{display:none}
+.selpn .selgr{font-size:10px;font-weight:900;color:var(--cinza,#6B7785);letter-spacing:.8px;padding:12px 10px 4px}
+.selpn .selop{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;font-family:inherit;font-size:13px;font-weight:800;color:var(--texto,#1C2733);padding:11px 12px;border-radius:12px;cursor:pointer;text-transform:uppercase;line-height:1.3}
+.selpn .selop:active{background:var(--fundo,#F4F7FA)}
+@media (hover:hover){.selpn .selop:hover{background:var(--fundo,#F4F7FA)}}
+.selpn .selop span{flex:1;min-width:0}
+.selpn .selop i{font-style:normal;width:20px;height:20px;border-radius:50%;border:2px solid var(--linha,#E3E8EE);flex:0 0 20px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+.selpn .selop.on{background:rgba(21,101,192,.09);color:var(--azul,#1565C0)}
+.selpn .selop.on i{background:var(--azul,#1565C0);border-color:var(--azul,#1565C0)}
+.selpn .selop.vz{color:var(--cinza,#6B7785)}
+.selpn .selop:disabled{opacity:.4;cursor:default}
+.selpn .selnd{padding:18px;text-align:center;font-size:12px;font-weight:800;color:var(--cinza,#6B7785)}
+</style>
+<script>
+(function () {
+  const tituloDe = s => {
+    if (s.dataset.titulo) return s.dataset.titulo;
+    let p = s.closest('.selw') || s, a = p.previousElementSibling;
+    if (a && (a.tagName === 'LABEL' || a.classList.contains('r'))) return a.textContent.trim();
+    const f = s.closest('label'); if (f && f.querySelector('span')) return f.querySelector('span').textContent.trim();
+    const o = s.options[0]; return o && o.value === '' ? o.textContent.trim().replace(/…$/, '') : 'ESCOLHA UMA OPÇÃO';
+  };
+  const escH = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function abrir(s) {
+    if (s.disabled) return;
+    const fd = document.createElement('div'); fd.className = 'selfd';
+    const itens = []; let html = '';
+    [...s.children].forEach(el => {
+      const add = o => { itens.push(o); html += `<button type="button" class="selop${o.selected ? ' on' : ''}${o.value === '' ? ' vz' : ''}" data-k="${itens.length - 1}"${o.disabled ? ' disabled' : ''}><i>${o.selected ? '✓' : ''}</i><span>${escH(o.textContent)}</span></button>`; };
+      if (el.tagName === 'OPTGROUP') { html += `<div class="selgr" data-g>${escH(el.label)}</div>`; [...el.children].forEach(add); } else if (el.tagName === 'OPTION') add(el);
+    });
+    const busca = itens.length > 9;
+    fd.innerHTML = `<div class="selpn" role="dialog"><div class="selpg"></div><div class="selcb"><b>${escH(tituloDe(s))}</b><button type="button" aria-label="FECHAR">✕</button></div>
+      ${busca ? '<input class="selbs" placeholder="BUSCAR…" autocomplete="off">' : ''}<div class="sells">${html}<div class="selnd" style="display:none">NADA ENCONTRADO</div></div></div>`;
+    document.body.appendChild(fd);
+    const fechar = () => { fd.remove(); document.removeEventListener('keydown', esc); };
+    const esc = e => { if (e.key === 'Escape') fechar(); };
+    document.addEventListener('keydown', esc);
+    fd.addEventListener('click', e => {
+      if (e.target === fd || e.target.closest('.selcb button')) return fechar();
+      const b = e.target.closest('.selop'); if (!b || b.disabled) return;
+      const o = itens[+b.dataset.k]; fechar();
+      if (s.value !== o.value || s.selectedIndex !== o.index) { s.selectedIndex = o.index; s.dispatchEvent(new Event('input', { bubbles: true })); s.dispatchEvent(new Event('change', { bubbles: true })); }
+    });
+    const on = fd.querySelector('.selop.on'); if (on) on.scrollIntoView({ block: 'center' });
+    if (busca) {
+      const inp = fd.querySelector('.selbs');
+      inp.addEventListener('input', () => {
+        const q = inp.value.trim().toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); let n = 0;
+        fd.querySelectorAll('.selop').forEach(b => { const v = !q || b.textContent.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q); b.style.display = v ? '' : 'none'; if (v) n++; });
+        fd.querySelectorAll('[data-g]').forEach(g => { g.style.display = q ? 'none' : ''; });
+        fd.querySelector('.selnd').style.display = n ? 'none' : '';
+      });
+      if (matchMedia('(hover:hover)').matches) setTimeout(() => inp.focus(), 50);
+    }
+  }
+  function melhorar(s) {
+    if (s.multiple || s.dataset.selok || s.closest('.selw')) return;
+    s.dataset.selok = '1';
+    const w = document.createElement('span'); w.className = 'selw';
+    s.parentNode.insertBefore(w, s); w.appendChild(s);
+    const x = document.createElement('span'); x.className = 'selx'; x.setAttribute('role', 'button'); x.tabIndex = -1;
+    x.addEventListener('click', e => { e.preventDefault(); abrir(s); });
+    w.appendChild(x);
+    const sync = () => w.classList.toggle('dis', s.disabled); sync();
+    new MutationObserver(sync).observe(s, { attributes: true, attributeFilter: ['disabled'] });
+    s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); abrir(s); } });
+  }
+  const varrer = () => document.querySelectorAll('select').forEach(melhorar);
+  let pend = false;
+  new MutationObserver(() => { if (!pend) { pend = true; requestAnimationFrame(() => { pend = false; varrer(); }); } }).observe(document.documentElement, { childList: true, subtree: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', varrer); else varrer();
+})();
 </script>
 </body>
 </html>
