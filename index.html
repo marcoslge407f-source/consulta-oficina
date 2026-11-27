@@ -237,6 +237,11 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .dm-obs{background:var(--fundo)!important;border:0!important}
 .dm-gap{background:none!important;border:1.5px dashed var(--linha)!important;color:var(--cinza)!important}
 .dm-ra .pc{color:var(--texto)!important}
+.dm-jr{grid-template-columns:repeat(3,1fr)!important}
+.dm-tg em.kt,.dm-tg em.kp,.dm-tg em.ki{font-size:11.5px!important;padding:4px 10px!important;border:0!important}
+.dm-tg em.kt{background:#1B6B33!important;color:#fff!important}
+.dm-tg em.kp{background:#7CCB8A!important;color:#0F3D1E!important}
+.dm-tg em.ki{background:#D32F2F!important;color:#fff!important}
 /* ===== INÍCIO ===== */
 .ini-hero{position:relative;overflow:hidden;border-radius:22px;padding:18px 18px 16px;color:#fff;background:linear-gradient(135deg,#0D47A1 0%,#1565C0 38%,#1E88A8 68%,#2E9D4A 100%);box-shadow:0 10px 24px rgba(13,71,161,.22)}
 .ini-agua{position:absolute;right:-34px;top:-22px;width:190px;height:190px;opacity:.16;filter:brightness(0) invert(1);pointer-events:none}
@@ -1073,10 +1078,8 @@ function detMec(nome, dia, trocar) {
   const base = outros.filter(a => dias.includes(a.DATA)), bt = base.reduce((s, a) => s + (a.MIN || 0), 0), bo = base.filter(a => catAp(a) === 't').reduce((s, a) => s + (a.MIN || 0), 0);
   const med = bt ? Math.round(bo / bt * 100) : null, mh = dias.length ? Math.round(bt / dias.length) : 0, df = med == null ? 0 : pc('t') - med;
   let h = nav + '<div class="dm-cab"><div class="dm-top"><div><div class="dm-nm">' + esc(aps[0].NOME || nome) + '</div><div class="dm-st">' + esc(aps[0].SETOR || '') + '</div></div><div class="dm-fx ' + fcl + '"><b>' + pc('t') + '%</b>' + fx + '</div></div>' +
-    '<div class="dm-jr"><div><span>INÍCIO</span><b>' + ini + '</b></div><div><span>FIM</span><b>' + fim + '</b></div><div><span>APONTADO</span><b>' + hhmm(t) + ' H</b></div><div><span>O.S. / FROTAS</span><b>' + nOS + ' / ' + nFr + '</b></div></div>' +
-    (med == null ? '<div class="dm-cmp">PRIMEIRO DIA APONTADO — AINDA SEM MÉDIA PARA COMPARAR</div>' :
-      '<div class="dm-cmp"><div><span>MÉDIA DELE · ' + dias.length + ' DIA' + (dias.length > 1 ? 'S' : '') + ' APONTADO' + (dias.length > 1 ? 'S' : '') + '</span><b>' + med + '% EM O.S. · ' + hhmm(mh) + ' H/DIA</b></div>' +
-      '<div class="dm-sd ' + (df > 2 ? 'up' : df < -2 ? 'dn' : 'eq') + '">' + (df > 2 ? '▲ ' + df + ' PTS<small>ACIMA DA MÉDIA</small>' : df < -2 ? '▼ ' + (-df) + ' PTS<small>ABAIXO DA MÉDIA</small>' : '= NA MÉDIA<small>' + (df >= 0 ? '+' : '') + df + ' PTS</small>') + '</div></div>') + '</div>';
+    '<div class="dm-jr"><div><span>INÍCIO</span><b>' + ini + '</b></div><div><span>FIM</span><b>' + fim + '</b></div><div><span>APONTADO</span><b>' + hhmm(t) + ' H</b></div></div>' +
+    '</div>';
   // distribuição
   const mxc = Math.max(v.t, v.p, v.i) || 1;
   h += '<div class="bloco"><h3>DISTRIBUIÇÃO DA JORNADA</h3><div class="dm-col">' +
@@ -1098,7 +1101,7 @@ function detMec(nome, dia, trocar) {
   // resumo por atividade (lista)
   const m = new Map(); aps.forEach(a => { const kk = a.MOTIVO || '–', o = m.get(kk) || { min: 0, n: 0, k: catAp(a) }; o.min += a.MIN || 0; o.n++; m.set(kk, o); });
   h += '<div class="bloco"><h3>RESUMO POR ATIVIDADE</h3>' + [...m.entries()].sort((a, b) => b[1].min - a[1].min).map(([kk, o]) =>
-    '<div class="dm-ra"><i style="background:' + CAT[o.k][1] + '"></i><div class="n">' + esc(kk) + '<small>' + o.n + (o.n > 1 ? ' VEZES' : ' VEZ') + ' · ' + CAT[o.k][0] + '</small></div><div class="h">' + hhmm(o.min) + ' H</div><div class="pc">' + (t ? Math.round(o.min / t * 100) : 0) + '%</div></div>').join('') + '</div>';
+    '<div class="dm-ra"><i style="background:' + CAT[o.k][1] + '"></i><div class="n">' + esc(kk) + '</div><div class="h">' + hhmm(o.min) + ' H</div><div class="pc">' + (t ? Math.round(o.min / t * 100) : 0) + '%</div></div>').join('') + '</div>';
   abrirDet('JORNADA · ' + nome, h, trocar);
 }
 
