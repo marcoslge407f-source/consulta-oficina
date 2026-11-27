@@ -162,6 +162,43 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .inst .tx{font-size:11px;font-weight:700;color:var(--cinza);line-height:1.35}
 
 
+.dm-cab{background:linear-gradient(135deg,#0D47A1,#1565C0 55%,#1B7A35);color:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 4px 14px rgba(13,71,161,.22)}
+.dm-nm{font-size:18px;font-weight:900;line-height:1.2}
+.dm-st{font-size:12px;font-weight:800;opacity:.85;margin-top:3px;letter-spacing:.4px}
+.dm-jr{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.dm-jr div{background:rgba(255,255,255,.14);border-radius:10px;padding:8px 6px;text-align:center}
+.dm-jr span{display:block;font-size:9.5px;font-weight:800;opacity:.85;letter-spacing:.3px}
+.dm-jr b{display:block;font-size:16px;font-weight:900;margin-top:2px;white-space:nowrap}
+.dm-dist{display:flex;align-items:center;gap:14px}
+.dm-anel{width:118px;height:118px;flex:0 0 118px}
+.dm-anel .a1{font-size:22px;font-weight:900;fill:var(--texto)} .dm-anel .a2{font-size:9.5px;font-weight:800;fill:var(--cinza)}
+.dm-cats{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.dm-c{display:grid;grid-template-columns:12px 1fr auto auto;gap:8px;align-items:center}
+.dm-c i,.dm-ra i{width:12px;height:12px;border-radius:4px}
+.dm-c .n{font-size:12px;font-weight:800;line-height:1.15}
+.dm-c .h{font-size:13px;font-weight:900;white-space:nowrap}
+.dm-c .pc{font-size:15px;font-weight:900;min-width:42px;text-align:right}
+.dm-aviso{margin-top:12px;background:#FFF6DD;color:#7A5600;border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800}
+.dm-tl{display:flex;flex-direction:column;gap:9px}
+.dm-it{display:flex;gap:12px;background:var(--fundo);border-radius:12px;padding:11px 12px;border-left:5px solid var(--c);cursor:default}
+.dm-it[onclick]{cursor:pointer}
+.dm-hr{flex:0 0 62px;box-sizing:border-box;text-align:center;border-right:1.5px solid var(--linha);padding-right:10px}
+.dm-hr b{display:block;font-size:16px;font-weight:900}
+.dm-hr span{display:block;font-size:13px;font-weight:800;color:var(--cinza);margin-top:3px}
+.dm-cx{flex:1;min-width:0}
+.dm-l1{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.dm-mt{font-size:14px;font-weight:900;line-height:1.25}
+.dm-du{font-size:14px;font-weight:900;white-space:nowrap;color:var(--azul)}
+.dm-tg{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.dm-tg em{font-style:normal;font-size:10.5px;font-weight:900;padding:3px 8px;border-radius:20px;background:var(--card);border:1px solid var(--linha);white-space:nowrap}
+.dm-tg em.kt{background:#1B6B33;color:#fff;border-color:#1B6B33} .dm-tg em.kp{background:#DDF3E1;color:#1B6B33;border-color:#BFE6C7} .dm-tg em.ki{background:#FDE7E7;color:#B71C1C;border-color:#F6C6C6}
+.dm-obs{margin-top:8px;font-size:12.5px;font-weight:700;line-height:1.35;background:var(--card);border-radius:8px;padding:7px 9px;border:1px solid var(--linha)}
+.dm-gap{text-align:center;font-size:11.5px;font-weight:800;color:#7A5600;background:#FFF6DD;border:1.5px dashed #F2C94C;border-radius:10px;padding:6px}
+.dm-ra{display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha)}
+.dm-ra:last-child{border-bottom:0}
+.dm-ra .n{font-size:13px;font-weight:900;line-height:1.2} .dm-ra .n small{display:block;font-size:10.5px;font-weight:700;color:var(--cinza);margin-top:2px}
+.dm-ra .h{font-size:14px;font-weight:900;white-space:nowrap} .dm-ra .pc{font-size:14px;font-weight:900;color:var(--azul);min-width:40px;text-align:right}
+@media(max-width:380px){.dm-jr{grid-template-columns:repeat(2,1fr)}.dm-dist{flex-direction:column}}
 /* ===== INÍCIO ===== */
 .ini-hero{position:relative;overflow:hidden;border-radius:22px;padding:18px 18px 16px;color:#fff;background:linear-gradient(135deg,#0D47A1 0%,#1565C0 38%,#1E88A8 68%,#2E9D4A 100%);box-shadow:0 10px 24px rgba(13,71,161,.22)}
 .ini-agua{position:absolute;right:-34px;top:-22px;width:190px;height:190px;opacity:.16;filter:brightness(0) invert(1);pointer-events:none}
@@ -972,18 +1009,51 @@ function graficoSim(aps) {
 }
 const SEMANA = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
 function somaDia(dia, n) { const x = new Date(dia + 'T12:00:00'); x.setDate(x.getDate() + n); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()); }
+function catAp(a) { return /TRABALH/.test(a.TIPO || '') || (!a.TIPO && a.OS) ? 't' : a.STATUS === 'PRODUTIVO' ? 'p' : 'i'; }
+const CAT = { t: ['TRABALHADA (O.S.)', '#1B6B33'], p: ['PARADA PRODUTIVA', '#7CCB8A'], i: ['PARADA IMPRODUTIVA', '#D32F2F'] };
+function anelDm(v) {
+  const tot = v.t + v.p + v.i || 1, R = 46, C = 2 * Math.PI * R; let ac = 0;
+  const arcs = ['t', 'p', 'i'].map(k => { const f = v[k] / tot, a = '<circle cx="60" cy="60" r="' + R + '" fill="none" stroke="' + CAT[k][1] + '" stroke-width="16" stroke-dasharray="' + (f * C).toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-ac * C).toFixed(2) + '" transform="rotate(-90 60 60)"/>'; ac += f; return f ? a : ''; }).join('');
+  return '<svg viewBox="0 0 120 120" class="dm-anel"><circle cx="60" cy="60" r="' + R + '" fill="none" stroke="var(--linha)" stroke-width="16"/>' + arcs +
+    '<text x="60" y="58" text-anchor="middle" class="a1">' + Math.round(v.t / tot * 100) + '%</text><text x="60" y="74" text-anchor="middle" class="a2">EM O.S.</text></svg>';
+}
 function detMec(nome, dia, trocar) {
   const aps = D.apontamentos.filter(a => a.ABREV === nome && a.DATA === dia).sort((a, b) => (a.INICIO||'').localeCompare(b.INICIO||''));
-  const t = aps.reduce((s, a) => s + (a.MIN||0), 0), p = aps.filter(a => a.STATUS === 'PRODUTIVO').reduce((s, a) => s + (a.MIN||0), 0);
-  const pc = t ? Math.round(p / t * 100) : 0, [fx, cls] = faixa(pc);
+  const t = aps.reduce((s, a) => s + (a.MIN||0), 0), v = { t: 0, p: 0, i: 0 };
+  aps.forEach(a => v[catAp(a)] += a.MIN || 0);
+  const pc = k => t ? Math.round(v[k] / t * 100) : 0;
   const ir = n => 'detMec(\'' + esc(nome) + '\',\'' + somaDia(dia, n) + '\',1)';
-  const turnos = [...new Set(aps.map(a => a.PERIODO))].join(' / ');
-  abrirDet('JORNADA · ' + nome,
-    '<div class="dia"><button onclick="' + ir(-1) + '">‹</button><div class="busca diatx">' + dataBR(dia) + '<small>' + SEMANA[new Date(dia + 'T12:00:00').getDay()] + '</small></div><button onclick="' + ir(1) + '">›</button></div>' +
-    '<div class="resumo"><div class="kpi"><div class="v">' + hhmm(t) + '</div><div class="t">HORAS APONTADAS</div></div><div class="kpi"><div class="v verde">' + (t ? pc + '%' : '–') + '</div><div class="t">PRODUTIVO</div></div><div class="kpi"><div class="v verm">' + (t ? (100 - pc) + '%' : '–') + '</div><div class="t">IMPRODUTIVO</div></div></div>' +
-    (aps.length ? '<div class="mec"><div class="cab"><div><div class="nm">' + esc(aps[0].NOME || nome) + '</div><div class="st">' + esc(aps[0].SETOR || '') + '</div></div>' +
-      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>' + graficoAtiv(aps)
-      : '<div class="vazio">SEM APONTAMENTOS NESTE DIA (FOLGA)</div>'), trocar);
+  const nav = '<div class="dia"><button onclick="' + ir(-1) + '">‹</button><div class="busca diatx">' + dataBR(dia) + '<small>' + SEMANA[new Date(dia + 'T12:00:00').getDay()] + '</small></div><button onclick="' + ir(1) + '">›</button></div>';
+  if (!aps.length) return abrirDet('JORNADA · ' + nome, nav + '<div class="vazio">SEM APONTAMENTOS NESTE DIA (FOLGA)</div>', trocar);
+  const ini = hora(aps[0].INICIO), fim = hora(aps[aps.length - 1].FIM);
+  const ms = x => { const d = new Date(String(x || '').replace(' ', 'T')); return isNaN(d) ? null : d.getTime(); };
+  const span = ms(aps[0].INICIO) != null && ms(aps[aps.length - 1].FIM) != null ? Math.round((ms(aps[aps.length - 1].FIM) - ms(aps[0].INICIO)) / 60000) : 0;
+  const nOS = new Set(aps.filter(a => a.OS).map(a => String(a.OS))).size, nFr = new Set(aps.filter(a => a.EQP).map(a => String(a.EQP))).size;
+  // cabeçalho
+  let h = nav + '<div class="dm-cab"><div class="dm-nm">' + esc(aps[0].NOME || nome) + '</div><div class="dm-st">' + esc(aps[0].SETOR || '') + '</div>' +
+    '<div class="dm-jr"><div><span>INÍCIO</span><b>' + ini + '</b></div><div><span>FIM</span><b>' + fim + '</b></div><div><span>APONTADO</span><b>' + hhmm(t) + ' H</b></div><div><span>O.S. / FROTAS</span><b>' + nOS + ' / ' + nFr + '</b></div></div></div>';
+  // distribuição
+  h += '<div class="bloco"><h3>DISTRIBUIÇÃO DA JORNADA</h3><div class="dm-dist">' + anelDm(v) + '<div class="dm-cats">' +
+    ['t', 'p', 'i'].map(k => '<div class="dm-c"><i style="background:' + CAT[k][1] + '"></i><div class="n">' + CAT[k][0] + '</div><div class="h">' + hhmm(v[k]) + ' H</div><div class="pc" style="color:' + (k === 'p' ? '#2E8B47' : CAT[k][1]) + '">' + pc(k) + '%</div></div>').join('') +
+    '</div></div>' + (span > t + 5 ? '<div class="dm-aviso">⚠ ' + hhmm(span - t) + ' H SEM APONTAMENTO ENTRE ' + ini + ' E ' + fim + '</div>' : '') + '</div>';
+  // linha do tempo
+  h += '<div class="bloco"><h3>LINHA DO TEMPO · ' + aps.length + ' APONTAMENTO' + (aps.length > 1 ? 'S' : '') + '</h3><div class="dm-tl">';
+  aps.forEach((a, n) => {
+    if (n) { const g = ms(a.INICIO) != null && ms(aps[n - 1].FIM) != null ? Math.round((ms(a.INICIO) - ms(aps[n - 1].FIM)) / 60000) : 0;
+      if (g > 0) h += '<div class="dm-gap">INTERVALO SEM APONTAMENTO · ' + hora(aps[n - 1].FIM) + '–' + hora(a.INICIO) + ' · ' + hhmm(g) + ' H</div>'; }
+    const k = catAp(a), temOS = a.OS && D.os.some(o => String(o.NUM) === String(a.OS));
+    h += '<div class="dm-it" style="--c:' + CAT[k][1] + '"' + (temOS ? ' onclick="detOS(\'' + esc(a.OS) + '\')"' : '') + '>' +
+      '<div class="dm-hr"><b>' + hora(a.INICIO) + '</b><span>' + hora(a.FIM) + '</span></div>' +
+      '<div class="dm-cx"><div class="dm-l1"><div class="dm-mt">' + esc(a.MOTIVO || '–') + '</div><div class="dm-du">' + hhmm(a.MIN) + ' H</div></div>' +
+      '<div class="dm-tg"><em class="k' + k + '">' + CAT[k][0] + '</em>' + (a.OS ? '<em>O.S. ' + esc(a.OS) + (temOS ? ' ›' : '') + '</em>' : '') + (a.EQP ? '<em>FROTA ' + esc(a.EQP) + '</em>' : '') + '</div>' +
+      (a.OBS && a.OBS !== 'SEM OBSERVAÇÕES' ? '<div class="dm-obs">' + esc(a.OBS) + '</div>' : '') + '</div></div>';
+  });
+  h += '</div></div>';
+  // resumo por atividade (lista)
+  const m = new Map(); aps.forEach(a => { const kk = a.MOTIVO || '–', o = m.get(kk) || { min: 0, n: 0, k: catAp(a) }; o.min += a.MIN || 0; o.n++; m.set(kk, o); });
+  h += '<div class="bloco"><h3>RESUMO POR ATIVIDADE</h3>' + [...m.entries()].sort((a, b) => b[1].min - a[1].min).map(([kk, o]) =>
+    '<div class="dm-ra"><i style="background:' + CAT[o.k][1] + '"></i><div class="n">' + esc(kk) + '<small>' + o.n + 'X · ' + CAT[o.k][0] + '</small></div><div class="h">' + hhmm(o.min) + ' H</div><div class="pc">' + (t ? Math.round(o.min / t * 100) : 0) + '%</div></div>').join('') + '</div>';
+  abrirDet('JORNADA · ' + nome, h, trocar);
 }
 
 /* ================= DETALHE (tela cheia) ================= */
