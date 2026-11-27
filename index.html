@@ -933,7 +933,7 @@ function renderApont() {
     const pc = t ? Math.round(p / t * 100) : 0, [fx, cls] = faixa(pc);
     const turnos = [...new Set(aps.map(a => a.PERIODO))].join(' / ');
     return '<div class="mec"><button class="cab" onclick="detMec(\'' + esc(nome) + '\',\'' + dia + '\')"><div class="nm">' + esc(nome) + '</div><div class="dir"><div class="hh">' + hhmm(t) + ' H ›</div></div></button></div>';
-  }).join('') + graficoAtiv(lista) + graficoSim(lista);
+  }).join('') + graficoAtiv(lista);
 }
 function togMec(n) { abertos.has(n) ? abertos.delete(n) : abertos.add(n); renderApont(); }
 function linhaAp(a) {
@@ -982,7 +982,7 @@ function detMec(nome, dia, trocar) {
     '<div class="dia"><button onclick="' + ir(-1) + '">‹</button><div class="busca diatx">' + dataBR(dia) + '<small>' + SEMANA[new Date(dia + 'T12:00:00').getDay()] + '</small></div><button onclick="' + ir(1) + '">›</button></div>' +
     '<div class="resumo"><div class="kpi"><div class="v">' + hhmm(t) + '</div><div class="t">HORAS APONTADAS</div></div><div class="kpi"><div class="v verde">' + (t ? pc + '%' : '–') + '</div><div class="t">PRODUTIVO</div></div><div class="kpi"><div class="v verm">' + (t ? (100 - pc) + '%' : '–') + '</div><div class="t">IMPRODUTIVO</div></div></div>' +
     (aps.length ? '<div class="mec"><div class="cab"><div><div class="nm">' + esc(aps[0].NOME || nome) + '</div><div class="st">' + esc(aps[0].SETOR || '') + '</div></div>' +
-      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>' + graficoAtiv(aps) + graficoSim(aps)
+      '<div class="dir"><span class="tag ' + cls + '">' + pc + '% · ' + fx + '</span></div></div><div class="lista">' + aps.map(linhaAp).join('') + '</div></div>' + graficoAtiv(aps)
       : '<div class="vazio">SEM APONTAMENTOS NESTE DIA (FOLGA)</div>'), trocar);
 }
 
