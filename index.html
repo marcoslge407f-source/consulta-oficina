@@ -162,6 +162,21 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .inst .tx{font-size:11px;font-weight:700;color:var(--cinza);line-height:1.35}
 
 
+.dm-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.dm-fx{flex:0 0 auto;text-align:center;background:#fff;border-radius:12px;padding:6px 10px;font-size:10px;font-weight:900;letter-spacing:.4px;min-width:62px}
+.dm-fx b{display:block;font-size:20px;line-height:1.1}
+.dm-fx.otimo{color:#1B6B33} .dm-fx.bom{color:#B7791F} .dm-fx.ruim{color:#C62828}
+.dm-cmp{margin-top:10px;background:rgba(255,255,255,.95);color:var(--texto);border-radius:12px;padding:9px 11px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:800}
+.dm-cmp span{display:block;font-size:9.5px;color:#6B7785;letter-spacing:.3px}
+.dm-cmp b{display:block;font-size:13px;font-weight:900;margin-top:2px;color:#1C2733}
+.dm-sd{text-align:center;font-size:14px;font-weight:900;white-space:nowrap;border-radius:10px;padding:5px 9px}
+.dm-sd small{display:block;font-size:8.5px;font-weight:800;letter-spacing:.3px}
+.dm-sd.up{background:#E3F4E7;color:#1B6B33} .dm-sd.dn{background:#FDE7E7;color:#C62828} .dm-sd.eq{background:#EEF2F6;color:#455A64}
+.dm-hh{display:flex;align-items:flex-end;gap:3px}
+.dm-hh .c{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}
+.dm-hh .pl{width:100%;max-width:26px;background:var(--linha);border-radius:5px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.dm-hh .pl i{display:block;width:100%}
+.dm-hh span{font-size:10px;font-weight:900;color:var(--cinza);margin-top:4px}
 .dm-cab{background:linear-gradient(135deg,#0D47A1,#1565C0 55%,#1B7A35);color:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 4px 14px rgba(13,71,161,.22)}
 .dm-nm{font-size:18px;font-weight:900;line-height:1.2}
 .dm-st{font-size:12px;font-weight:800;opacity:.85;margin-top:3px;letter-spacing:.4px}
@@ -1030,12 +1045,34 @@ function detMec(nome, dia, trocar) {
   const span = ms(aps[0].INICIO) != null && ms(aps[aps.length - 1].FIM) != null ? Math.round((ms(aps[aps.length - 1].FIM) - ms(aps[0].INICIO)) / 60000) : 0;
   const nOS = new Set(aps.filter(a => a.OS).map(a => String(a.OS))).size, nFr = new Set(aps.filter(a => a.EQP).map(a => String(a.EQP))).size;
   // cabeçalho
-  let h = nav + '<div class="dm-cab"><div class="dm-nm">' + esc(aps[0].NOME || nome) + '</div><div class="dm-st">' + esc(aps[0].SETOR || '') + '</div>' +
-    '<div class="dm-jr"><div><span>INÍCIO</span><b>' + ini + '</b></div><div><span>FIM</span><b>' + fim + '</b></div><div><span>APONTADO</span><b>' + hhmm(t) + ' H</b></div><div><span>O.S. / FROTAS</span><b>' + nOS + ' / ' + nFr + '</b></div></div></div>';
+  const [fx, fcl] = faixa(pc('t'));
+  const outros = D.apontamentos.filter(a => a.ABREV === nome && a.DATA !== dia && a.DATA < dia), dias = [...new Set(outros.map(a => a.DATA))].sort().slice(-30);
+  const base = outros.filter(a => dias.includes(a.DATA)), bt = base.reduce((s, a) => s + (a.MIN || 0), 0), bo = base.filter(a => catAp(a) === 't').reduce((s, a) => s + (a.MIN || 0), 0);
+  const med = bt ? Math.round(bo / bt * 100) : null, mh = dias.length ? Math.round(bt / dias.length) : 0, df = med == null ? 0 : pc('t') - med;
+  let h = nav + '<div class="dm-cab"><div class="dm-top"><div><div class="dm-nm">' + esc(aps[0].NOME || nome) + '</div><div class="dm-st">' + esc(aps[0].SETOR || '') + '</div></div><div class="dm-fx ' + fcl + '"><b>' + pc('t') + '%</b>' + fx + '</div></div>' +
+    '<div class="dm-jr"><div><span>INÍCIO</span><b>' + ini + '</b></div><div><span>FIM</span><b>' + fim + '</b></div><div><span>APONTADO</span><b>' + hhmm(t) + ' H</b></div><div><span>O.S. / FROTAS</span><b>' + nOS + ' / ' + nFr + '</b></div></div></div>' +
+    (med == null ? '<div class="dm-cmp">PRIMEIRO DIA APONTADO — AINDA SEM MÉDIA PARA COMPARAR</div>' :
+      '<div class="dm-cmp"><div><span>MÉDIA DELE · ' + dias.length + ' DIA' + (dias.length > 1 ? 'S' : '') + ' APONTADO' + (dias.length > 1 ? 'S' : '') + '</span><b>' + med + '% EM O.S. · ' + hhmm(mh) + ' H/DIA</b></div>' +
+      '<div class="dm-sd ' + (df > 2 ? 'up' : df < -2 ? 'dn' : 'eq') + '">' + (df > 2 ? '▲ ' + df + ' PTS<small>ACIMA DA MÉDIA</small>' : df < -2 ? '▼ ' + (-df) + ' PTS<small>ABAIXO DA MÉDIA</small>' : '= NA MÉDIA<small>' + (df >= 0 ? '+' : '') + df + ' PTS</small>') + '</div></div>') + '</div>';
   // distribuição
   h += '<div class="bloco"><h3>DISTRIBUIÇÃO DA JORNADA</h3><div class="dm-dist">' + anelDm(v) + '<div class="dm-cats">' +
     ['t', 'p', 'i'].map(k => '<div class="dm-c"><i style="background:' + CAT[k][1] + '"></i><div class="n">' + CAT[k][0] + '</div><div class="h">' + hhmm(v[k]) + ' H</div><div class="pc" style="color:' + (k === 'p' ? '#2E8B47' : CAT[k][1]) + '">' + pc(k) + '%</div></div>').join('') +
     '</div></div>' + (span > t + 5 ? '<div class="dm-aviso">⚠ ' + hhmm(span - t) + ' H SEM APONTAMENTO ENTRE ' + ini + ' E ' + fim + '</div>' : '') + '</div>';
+  // hora a hora
+  const hrs = new Map();
+  aps.forEach(a => { let x = ms(a.INICIO), y = ms(a.FIM); if (x == null || y == null || y <= x) return; const k = catAp(a);
+    while (x < y) { const d = new Date(x), hk = new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours()).getTime(), nx = Math.min(y, hk + 3600000);
+      const o = hrs.get(hk) || { t: 0, p: 0, i: 0 }; o[k] += (nx - x) / 60000; hrs.set(hk, o); x = nx; } });
+  if (hrs.size) {
+    const ks = [...hrs.keys()].sort((a, b) => a - b), cols = [];
+    for (let x = ks[0]; x <= ks[ks.length - 1]; x += 3600000) cols.push([x, hrs.get(x) || { t: 0, p: 0, i: 0 }]);
+    const HH = 92;
+    h += '<div class="bloco"><h3>HORA A HORA</h3><div class="dm-hh">' + cols.map(([x, o]) => {
+      const vazio = 60 - o.t - o.p - o.i;
+      return '<div class="c"><div class="pl" style="height:' + HH + 'px">' + ['i', 'p', 't'].map(k => o[k] > 0 ? '<i style="height:' + (o[k] / 60 * HH).toFixed(1) + 'px;background:' + CAT[k][1] + '"></i>' : '').join('') +
+        (vazio > 1 ? '' : '') + '</div><span>' + pad(new Date(x).getHours()) + '</span></div>'; }).join('') +
+      '</div><div class="gleg"><em><span class="t"></span>TRABALHADA (O.S.)</em><em><span class="p"></span>PARADA PRODUTIVA</em><em><span class="i"></span>PARADA IMPRODUTIVA</em><em><span style="background:var(--linha)"></span>SEM APONTAMENTO</em></div></div>';
+  }
   // linha do tempo
   h += '<div class="bloco"><h3>LINHA DO TEMPO · ' + aps.length + ' APONTAMENTO' + (aps.length > 1 ? 'S' : '') + '</h3><div class="dm-tl">';
   aps.forEach((a, n) => {
@@ -1052,7 +1089,7 @@ function detMec(nome, dia, trocar) {
   // resumo por atividade (lista)
   const m = new Map(); aps.forEach(a => { const kk = a.MOTIVO || '–', o = m.get(kk) || { min: 0, n: 0, k: catAp(a) }; o.min += a.MIN || 0; o.n++; m.set(kk, o); });
   h += '<div class="bloco"><h3>RESUMO POR ATIVIDADE</h3>' + [...m.entries()].sort((a, b) => b[1].min - a[1].min).map(([kk, o]) =>
-    '<div class="dm-ra"><i style="background:' + CAT[o.k][1] + '"></i><div class="n">' + esc(kk) + '<small>' + o.n + 'X · ' + CAT[o.k][0] + '</small></div><div class="h">' + hhmm(o.min) + ' H</div><div class="pc">' + (t ? Math.round(o.min / t * 100) : 0) + '%</div></div>').join('') + '</div>';
+    '<div class="dm-ra"><i style="background:' + CAT[o.k][1] + '"></i><div class="n">' + esc(kk) + '<small>' + o.n + (o.n > 1 ? ' VEZES' : ' VEZ') + ' · ' + CAT[o.k][0] + '</small></div><div class="h">' + hhmm(o.min) + ' H</div><div class="pc">' + (t ? Math.round(o.min / t * 100) : 0) + '%</div></div>').join('') + '</div>';
   abrirDet('JORNADA · ' + nome, h, trocar);
 }
 
