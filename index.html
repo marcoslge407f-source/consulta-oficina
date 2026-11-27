@@ -715,7 +715,7 @@ const dataHoraBR = s => s ? dataBR(s) + (s.length > 10 ? ' ' + s.slice(11,16) : 
 const hora = s => s && s.length > 10 ? s.slice(11,16) : '–';
 const hojeISO = () => { const d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
 const paraData = s => new Date(s.slice(0,10)+'T'+(s.length>10?s.slice(11,16):'00:00')+':00');
-function faixa(p){ return p < 35 ? ['RUIM','ruim'] : p < 70 ? ['BOM','bom'] : ['ÓTIMO','otimo']; }
+function faixa(p){ return p < 67 ? ['RUIM','ruim'] : p < 83 ? ['BOM','bom'] : ['ÓTIMO','otimo']; }
 
 /* ================= SUPABASE (REST) ================= */
 async function sb(caminho, op = {}) {
