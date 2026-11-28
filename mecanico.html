@@ -395,7 +395,7 @@ function telaJornada(J){
   ${dia.length?dia.map(i=>`<div class="it${i.fim?'':' run'}"${ehRefeicao(i)?' style="border:2px solid #F2A900;background:rgba(242,169,0,.1);border-radius:10px;padding:9px 8px;margin:4px 0"':''}><span class="dot" style="background:${ehRefeicao(i)?'#F2A900':corCat(i.categoria)}"></span>
     <div class="t">${i.inicio}–${i.fim||'…'}<small>${i.fim?fmt(dur(i.inicio,i.fim)):'AGORA'}</small></div>
     <div class="a"><b>${esc(i.atividade)}</b>${i.frota||i.observacao||i.pendente?`<span>${i.frota?'FROTA '+esc(i.frota):''}${i.frota&&i.observacao?' · ':''}${esc(i.observacao||'')}${i.pendente?' <em class="pend">NÃO ENVIADO</em>':''}</span>`:''}</div>
-    ${ed?`<button class="ic" onclick="abrirForm('${i.id}')">✎</button><button class="ic verm" onclick="excluirItem('${i.id}')">✕</button>`:''}</div>`).join(''):'<div class="vazio">NENHUM APONTAMENTO AINDA.<br>TOQUE EM + NOVA ATIVIDADE.</div>'}
+    ${ed?`<button class="ic" onclick="abrirForm('${i.id}')">✎</button>${i===dia[dia.length-1]?`<button class="ic verm" onclick="excluirItem('${i.id}')">✕</button>`:'<span class="ic" style="visibility:hidden"></span>'}`:''}</div>`).join(''):'<div class="vazio">NENHUM APONTAMENTO AINDA.<br>TOQUE EM + NOVA ATIVIDADE.</div>'}
   ${ed&&run?`<button class="btn sec" style="margin-top:10px" onclick="encerrarAtiv()">⏹ ENCERRAR "${esc(run.atividade.replace(/^\d+ - /,''))}" AGORA</button>`:''}
   ${ed?'<button class="btn" style="margin-top:10px" onclick="abrirForm()">+ NOVA ATIVIDADE</button>':''}</div>`;
   pill();
@@ -462,7 +462,7 @@ function abrirForm(id){
   <label>OBSERVAÇÕES</label><textarea class="campo" id="fObs" rows="3">${esc(FORM.observacao)}</textarea>
   <div class="msg erro" id="fMsg"></div>
   <button class="btn" style="margin-top:8px" onclick="salvarForm()">SALVAR</button>
-  <div class="lin" style="margin-top:8px">${ex?`<button class="btn verm" onclick="excluirItem('${ex.id}')">EXCLUIR</button>`:''}<button class="btn cinza" onclick="fechar()">CANCELAR</button></div></div></div>`;
+  <div class="lin" style="margin-top:8px">${ex&&(()=>{const l=diaItens(ex.data);return l.length&&l[l.length-1].id===ex.id})()?`<button class="btn verm" onclick="excluirItem('${ex.id}')">EXCLUIR</button>`:''}<button class="btn cinza" onclick="fechar()">CANCELAR</button></div></div></div>`;
   $('#fAtiv').value=FORM.atividade||'';
   mascaraHora($('#fIni'));mascaraHora($('#fFim'));
   if(diaItens(FORM.data,FORM.id).some(ehRefeicao))$('#fAtiv').querySelectorAll('option').forEach(o=>{if(ehRefeicao({atividade:o.value})){o.disabled=true;o.textContent=o.value+' (JÁ APONTADA)'}});
@@ -567,6 +567,7 @@ function excluirItem(id){
   const J=jAberta();const it=ITENS.find(i=>i.id===id);if(!it)return;
   if(!J||it.data!==J.data)return toast('JORNADA ENCERRADA — SOMENTE O ANALISTA PODE EXCLUIR');
   REF=refDe(J);const l=diaItens(it.data),k=l.findIndex(i=>i.id===id),pv=l[k-1],nx=l[k+1],meio=pv&&nx&&it.fim;
+  if(nx){fechar();return toast('SÓ PODE EXCLUIR A ÚLTIMA ATIVIDADE. EXCLUA DE BAIXO PARA CIMA')}
   const pvL=meio&&ehRefeicao(pv)&&dur(pv.inicio,nx.inicio)>REFEICAO_MAX,nxL=meio&&ehRefeicao(nx)&&nx.fim&&dur(it.inicio,nx.fim)>REFEICAO_MAX;
   if(pvL&&nxL)return toast('NÃO DÁ PARA EXCLUIR: A REFEIÇÃO PASSARIA DE 1 HORA. EDITE OS HORÁRIOS.');
   const txt=meio?(pvL?`EXCLUIR "${it.atividade}" (${it.inicio}–${it.fim})? "${nx.atividade}" PASSA A COMEÇAR ${it.inicio}.`:`EXCLUIR "${it.atividade}" (${it.inicio}–${it.fim})? "${pv.atividade}" PASSA A IR ATÉ ${nx.inicio}.`):`EXCLUIR "${it.atividade}" (${it.inicio}–${it.fim||'…'})?`;
