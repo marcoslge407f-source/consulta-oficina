@@ -1070,7 +1070,7 @@ function graficoSim(aps) {
 }
 const SEMANA = ['DOMINGO','SEGUNDA-FEIRA','TERÇA-FEIRA','QUARTA-FEIRA','QUINTA-FEIRA','SEXTA-FEIRA','SÁBADO'];
 function somaDia(dia, n) { const x = new Date(dia + 'T12:00:00'); x.setDate(x.getDate() + n); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate()); }
-function catAp(a) { return /TRABALH/.test(a.TIPO || '') || (!a.TIPO && a.OS) ? 't' : a.STATUS === 'PRODUTIVO' ? 'p' : 'i'; }
+function catAp(a) { if (/REFEI/.test(a.MOTIVO || '')) return 'p'; return /TRABALH/.test(a.TIPO || '') || (!a.TIPO && a.OS) ? 't' : a.STATUS === 'PRODUTIVO' ? 'p' : 'i'; }
 const CAT = { t: ['TRABALHADA (O.S.)', '#1B6B33'], p: ['PARADA PRODUTIVA', '#7CCB8A'], i: ['PARADA IMPRODUTIVA', '#D32F2F'] };
 function anelDm(v) {
   const tot = v.t + v.p + v.i || 1, R = 46, C = 2 * Math.PI * R; let ac = 0;

@@ -375,9 +375,9 @@ function iniciarJornada(){
 function voltarCal(){JSEL=null;render();scrollTo(0,0)}
 
 /* ---------- jornada ---------- */
-function totais(l,run){const t={P:0,I:0,R:0,T:0};l.forEach(i=>{const m=i.fim?dur(i.inicio,i.fim):(run&&run.id===i.id?decorrido(i.inicio):0);if(i.categoria==='IMPRODUTIVO')t.I+=m;else t.P+=m;if(ehRefeicao(i))t.R+=m;t.T+=m});t.pc=t.T?Math.round(t.P/t.T*100):0;return t}
+function totais(l,run){const t={P:0,I:0,R:0,T:0};l.forEach(i=>{const m=i.fim?dur(i.inicio,i.fim):(run&&run.id===i.id?decorrido(i.inicio):0);if(i.categoria==='IMPRODUTIVO'&&!ehRefeicao(i))t.I+=m;else t.P+=m;if(ehRefeicao(i))t.R+=m;t.T+=m});t.pc=t.T?Math.round(t.P/t.T*100):0;return t}
 function tiles(t){const pc=v=>t.T?Math.round(v/t.T*100)+'%':'—',[fx,fc]=faixa(t.pc);
-  return[['PRODUTIVO',fmt(t.P),pc(t.P),'#2E9D4A'],['IMPRODUTIVO',fmt(t.I),pc(t.I),'#D32F2F'],['REFEIÇÃO',fmt(t.R),'','#F2A900'],['TOTAL',fmt(t.T),'','#1565C0'],['ÍNDICE',t.T?t.pc+'%':'—',t.T?fx:'',fc]]
+  return[['PRODUTIVO',fmt(t.P),pc(t.P),'#2E9D4A'],['IMPRODUTIVO',fmt(t.I),pc(t.I),'#D32F2F'],['REFEIÇÃO',fmt(t.R),t.R?'NO PRODUTIVO':'','#F2A900'],['TOTAL',fmt(t.T),'','#1565C0'],['ÍNDICE',t.T?t.pc+'%':'—',t.T?fx:'',fc]]
   .map(([l,v,p,c])=>`<div class="tile" style="border-top-color:${c}"><div class="l">${l}</div><div class="v" ${l==='ÍNDICE'?`style="color:${c}"`:''}>${v}</div><div class="p">${p}</div></div>`).join('')}
 function lacunas(l){let n=0;for(let k=1;k<l.length;k++){const f=fimOrd(l[k-1]);if(f!==null&&ordem(l[k])>f)n++}return n}
 function sobrep(l){const iv=l.filter(i=>i.fim).map(i=>{const a=ordem(i);return[a,a+dur(i.inicio,i.fim)]}).sort((a,b)=>a[0]-b[0]);let n=0;for(let k=1;k<iv.length;k++)if(iv[k][0]<iv[k-1][1])n++;return n}
@@ -392,7 +392,7 @@ function telaJornada(J){
     <button class="btn sec" style="margin-top:10px;padding:10px;font-size:12px" onclick="voltarCal()">↩ VOLTAR AO CALENDÁRIO</button></div>
   <div class="bloco"><h3>RESUMO DA JORNADA</h3><div class="tiles">${tiles(t)}</div>${alertas(dia).map(([c,x])=>`<div class="alerta ${c}">${x}</div>`).join('')}</div>
   <div class="bloco"><h3>APONTAMENTOS DA JORNADA</h3>
-  ${dia.length?dia.map(i=>`<div class="it${i.fim?'':' run'}"><span class="dot" style="background:${corCat(i.categoria)}"></span>
+  ${dia.length?dia.map(i=>`<div class="it${i.fim?'':' run'}"${ehRefeicao(i)?' style="border:2px solid #F2A900;background:rgba(242,169,0,.1);border-radius:10px;padding:9px 8px;margin:4px 0"':''}><span class="dot" style="background:${ehRefeicao(i)?'#F2A900':corCat(i.categoria)}"></span>
     <div class="t">${i.inicio}–${i.fim||'…'}<small>${i.fim?fmt(dur(i.inicio,i.fim)):'AGORA'}</small></div>
     <div class="a"><b>${esc(i.atividade)}</b>${i.frota||i.observacao||i.pendente?`<span>${i.frota?'FROTA '+esc(i.frota):''}${i.frota&&i.observacao?' · ':''}${esc(i.observacao||'')}${i.pendente?' <em class="pend">NÃO ENVIADO</em>':''}</span>`:''}</div>
     ${ed?`<button class="ic" onclick="abrirForm('${i.id}')">✎</button><button class="ic verm" onclick="excluirItem('${i.id}')">✕</button>`:''}</div>`).join(''):'<div class="vazio">NENHUM APONTAMENTO AINDA.<br>TOQUE EM + NOVA ATIVIDADE.</div>'}
