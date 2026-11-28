@@ -719,9 +719,13 @@ function faixa(p){ return p < 67 ? ['RUIM','ruim'] : p < 83 ? ['BOM','bom'] : ['
 
 /* ================= SUPABASE (REST) ================= */
 async function sb(caminho, op = {}) {
-  const r = await fetch(SB_URL + '/rest/v1/' + caminho, {
-    ...op, headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', ...(op.headers||{}) }
-  });
+  const ac = new AbortController(), to = setTimeout(() => ac.abort(), caminho.startsWith('consulta_dados') ? 90000 : 25000);
+  let r;
+  try {
+    r = await fetch(SB_URL + '/rest/v1/' + caminho, {
+      ...op, signal: ac.signal, cache: 'no-store', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', ...(op.headers||{}) }
+    });
+  } finally { clearTimeout(to); }
   if (!r.ok) { let m = r.status + ''; try { const j = await r.json(); m = j.message || m; } catch(e){} throw new Error(m); }
   const t = await r.text();
   contaTrafego(caminho.startsWith('consulta_dados') ? 'PLANILHAS' : /^rpc\/(an_|consulta_)/.test(caminho) ? 'ANALISTA' : 'CONSULTA', tamBytes(t));
@@ -1878,6 +1882,10 @@ rota();
 carregarCache().then(() => sincronizar());
 setInterval(() => { if (document.visibilityState === 'visible') sincronizar(); }, 5 * 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sincronizar(); });
+/* reconexão automática: quando a internet volta, ou a cada 30 s enquanto estiver sem internet */
+window.addEventListener('online', () => setTimeout(sincronizar, 1500));
+window.addEventListener('focus', () => { if ($('#sync').classList.contains('off')) sincronizar(); });
+setInterval(() => { if (document.visibilityState === 'visible' && $('#sync').classList.contains('off')) sincronizar(); }, 30000);
 </script>
 <!-- ===== MENUS DE ESCOLHA (substitui a lista padrão do celular) ===== -->
 <style>
