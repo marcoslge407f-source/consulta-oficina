@@ -471,8 +471,11 @@ function abrirForm(id){
   $('#fFrota').addEventListener('input',buscarFrota);frotaSel();
   $('#fFim').addEventListener('input',()=>{$('#fFim').dataset.auto=''});
   $('#fIni').addEventListener('change',()=>{const l=limiteDe(FORM.atividade);if(l&&$('#fFim').dataset.auto==='1')$('#fFim').value=somaHM($('#fIni').value,l.max)});
+  if(ex&&!ehUltimo(ex)){['#fIni','#fFim'].forEach(q=>{const e=$(q);e.readOnly=true;e.style.opacity=.6;e.style.background='var(--fundo)'});document.querySelectorAll('#modal .info').forEach(e=>{if(/DIGITE A HORA|DEIXE A HORA/.test(e.textContent))e.style.display='none'});
+    $('#fTrava').innerHTML='<div class="alerta am" style="margin:8px 0 0">O HORÁRIO SÓ PODE SER ALTERADO NA ÚLTIMA ATIVIDADE. AQUI DÁ PARA MUDAR A ATIVIDADE E AS OBSERVAÇÕES.</div>'}
   selAtiv(FORM.categoria,FORM.atividade);
 }
+function ehUltimo(it){const l=diaItens(it.data);return l.length&&l[l.length-1].id===it.id}
 function mascaraHora(el){el.addEventListener('input',()=>{const d=el.value.replace(/\D/g,'').slice(0,4);el.value=d.length>2?d.slice(0,2)+':'+d.slice(2):d})}
 const horaOk=v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 function depoisDeAgora(data,hm){const dias=Math.round((new Date(hoje()+'T12:00:00')-new Date(data+'T12:00:00'))/864e5);return ordHM(hm)>dias*1440+toMin(agoraHM())}
@@ -486,9 +489,9 @@ function selAtiv(cat,at){
   $('#fSt').innerHTML=at?`<div style="margin-top:6px"><span class="tag" style="background:${corCat(cat)}">${esc(cat)}</span></div>`:'';
   const a=ATIV.find(x=>nomeAtiv(x)===at);$('#fOS').classList.toggle('oculto',!(a&&a.pede_os)&&!FORM.frota);
   const lim=limiteDe(at),fF=$('#fFim'),fI=$('#fIni');const old=$('#fRef');if(old)old.remove();
-  if(lim){if(!fF.value||fF.dataset.auto==='1'){fF.value=somaHM(fI.value||agoraHM(),lim.max);fF.dataset.auto='1'}
+  if(lim&&!fF.readOnly){if(!fF.value||fF.dataset.auto==='1'){fF.value=somaHM(fI.value||agoraHM(),lim.max);fF.dataset.auto='1'}
     fF.insertAdjacentHTML('afterend','<div id="fRef" style="font-size:10px;font-weight:800;color:#8A6100;margin-top:4px">'+lim.nome+': '+lim.txt+' (PODE SER MENOS, NUNCA MAIS)</div>')}
-  else if(fF.dataset.auto==='1'){fF.value='';fF.dataset.auto=''}
+  else if(fF.dataset.auto==='1'&&!fF.readOnly){fF.value='';fF.dataset.auto=''}
 }
 function buscarFrota(){
   const q=up($('#fFrota').value),box=$('#fFrLista');frotaSel();$('#fMsg').textContent='';if(!q){box.innerHTML='';return}
@@ -527,6 +530,7 @@ function filtrarLupa(){
 function escolherFrota(fr){const i=$('#fFrota');if(i){i.value=fr;$('#fFrLista').innerHTML='';frotaSel();$('#fMsg').textContent=''}fecharLupa();toast('FROTA '+fr+' SELECIONADA')}
 function salvarForm(){
   const ini=$('#fIni').value,fim=$('#fFim').value,data=FORM.data,erro=t=>{$('#fMsg').textContent=t};
+  {const o=ITENS.find(i=>i.id===FORM.id);if(o&&!ehUltimo(o)&&(ini!==o.inicio||(fim||'')!==(o.fim||'')))return erro('O HORÁRIO SÓ PODE SER ALTERADO NA ÚLTIMA ATIVIDADE')}
   const a=ATIV.find(x=>nomeAtiv(x)===FORM.atividade),frota=up($('#fFrota').value);
   if(!FORM.atividade)return erro('ESCOLHA A ATIVIDADE');
   if(!ini)return erro('INFORME A HORA DE INÍCIO');
