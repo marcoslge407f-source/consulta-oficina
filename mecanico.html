@@ -447,7 +447,7 @@ function abrirForm(id){
   const J=jAberta();if(!J)return toast('INICIE A JORNADA PRIMEIRO');REF=refDe(J);
   const ex=id?ITENS.find(i=>i.id===id):null;
   FORM=ex?{...ex}:{id:uuid(),data:J.data,inicio:agoraHM(),fim:'',categoria:'',atividade:'',os:'',frota:'',observacao:''};
-  const op=['PRODUTIVO','IMPRODUTIVO'].map(c=>`<optgroup label="${c}">${ATIV.filter(a=>a.status===c).map(a=>`<option value="${esc(nomeAtiv(a))}" data-cat="${c}">${esc(nomeAtiv(a))}</option>`).join('')}</optgroup>`).join('');
+  const op=[...ATIV].sort((x,y)=>(+x.codigo||0)-(+y.codigo||0)).map(a=>`<option value="${esc(nomeAtiv(a))}" data-cat="${a.status}">${esc(nomeAtiv(a))}</option>`).join('');
   const extra=FORM.atividade&&!ATIV.some(a=>nomeAtiv(a)===FORM.atividade)?`<option value="${esc(FORM.atividade)}" data-cat="${esc(FORM.categoria)}">${esc(FORM.atividade)}</option>`:'';
   $('#modal').innerHTML=`<div class="fundo" onclick="if(event.target===this)fechar()"><div class="modal">
   <h2>${ex?'EDITAR APONTAMENTO':'NOVA ATIVIDADE'}</h2><div class="alerta az" style="margin:0">JORNADA DE ${dataBR(FORM.data)}</div>
@@ -603,6 +603,9 @@ if(U&&U.token)abrir();else telaLogin();
 .selpn .selop i{font-style:normal;width:20px;height:20px;border-radius:50%;border:2px solid var(--linha,#E3E8EE);flex:0 0 20px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
 .selpn .selop.on{background:rgba(21,101,192,.09);color:var(--azul,#1565C0)}
 .selpn .selop.on i{background:var(--azul,#1565C0);border-color:var(--azul,#1565C0)}
+.selpn .selct{font-style:normal;flex:0 0 auto;font-size:9.5px;font-weight:900;letter-spacing:.3px;padding:4px 8px;border-radius:20px}
+.selpn .selct.p{background:#E3F4E7;color:#1B6B33}
+.selpn .selct.i{background:#FDE7E7;color:#C62828}
 .selpn .selop.vz{color:var(--cinza,#6B7785)}
 .selpn .selop:disabled{opacity:.4;cursor:default}
 .selpn .selnd{padding:18px;text-align:center;font-size:12px;font-weight:800;color:var(--cinza,#6B7785)}
@@ -622,7 +625,7 @@ if(U&&U.token)abrir();else telaLogin();
     const fd = document.createElement('div'); fd.className = 'selfd';
     const itens = []; let html = '';
     [...s.children].forEach(el => {
-      const add = o => { itens.push(o); html += `<button type="button" class="selop${o.selected ? ' on' : ''}${o.value === '' ? ' vz' : ''}" data-k="${itens.length - 1}"${o.disabled ? ' disabled' : ''}><i>${o.selected ? '✓' : ''}</i><span>${escH(o.textContent)}</span></button>`; };
+      const add = o => { itens.push(o); html += `<button type="button" class="selop${o.selected ? ' on' : ''}${o.value === '' ? ' vz' : ''}" data-k="${itens.length - 1}"${o.disabled ? ' disabled' : ''}><i>${o.selected ? '✓' : ''}</i><span>${escH(o.textContent)}</span>${o.dataset && o.dataset.cat === 'PRODUTIVO' ? '<em class="selct p">PRODUTIVO</em>' : o.dataset && o.dataset.cat === 'IMPRODUTIVO' ? '<em class="selct i">IMPRODUTIVO</em>' : ''}</button>`; };
       if (el.tagName === 'OPTGROUP') { html += `<div class="selgr" data-g>${escH(el.label)}</div>`; [...el.children].forEach(add); } else if (el.tagName === 'OPTION') add(el);
     });
     const busca = itens.length > 9;
