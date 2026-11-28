@@ -1551,8 +1551,7 @@ function salvarAp(id, btn) {
   if (fim && !min) return m.textContent = 'A HORA FIM DEVE SER DIFERENTE DO INÍCIO';
   if (min > 16 * 60) return m.textContent = 'DURAÇÃO MAIOR QUE 16 HORAS — CONFIRA OS HORÁRIOS';
   if (/REFEI/.test(at) && min > 60) return m.textContent = 'A REFEIÇÃO PODE TER NO MÁXIMO 01:00';
-  if (/TROCA DE TURNO/.test(at) && min > 30) return m.textContent = 'A TROCA DE TURNO PODE TER NO MÁXIMO 00:30';
-  if (/TROCA DE TURNO|REFEI/.test(at) && !fim) return m.textContent = 'INFORME A HORA FIM';
+  if (/REFEI/.test(at) && !fim) return m.textContent = 'INFORME A HORA FIM';
   acaoAn(btn, () => rpc('an_salvar_apont', { p_senha: senhaAn, p_item: { id, inicio: ini, fim, minutos: min, categoria: cat, atividade: at, frota: $('#ed-fr').value, os: $('#ed-os').value, observacao: $('#ed-ob').value } }));
 }
 function excluirAp(id) {

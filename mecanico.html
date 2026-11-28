@@ -161,7 +161,7 @@ async function hash(s){const b=await crypto.subtle.digest('SHA-256',new TextEnco
 function faixa(p){return p<67?['RUIM','#D32F2F']:p<83?['BOM','#F2A900']:['ÓTIMO','#2E9D4A']}
 const nomeAtiv=a=>pad(a.codigo)+' - '+a.descricao;
 const ehRefeicao=i=>/REFEI/.test(i.atividade||'');
-const LIMITES=[{re:/REFEI/,max:60,nome:'REFEIÇÃO',txt:'1 HORA'},{re:/TROCA DE TURNO/,max:30,nome:'TROCA DE TURNO',txt:'30 MINUTOS'}];
+const LIMITES=[{re:/REFEI/,max:60,nome:'REFEIÇÃO',txt:'1 HORA'}];
 const limiteDe=at=>LIMITES.find(l=>l.re.test(at||''));
 function aplicarTema(){document.documentElement.classList.toggle('escuro',LS.get('tema','claro')==='escuro'||localStorage.getItem('tema')==='escuro')}
 aplicarTema();window.addEventListener('storage',aplicarTema);window.addEventListener('message',e=>{if(e.data==='tema')aplicarTema()});
