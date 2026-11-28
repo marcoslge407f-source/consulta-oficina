@@ -404,6 +404,18 @@ function gravar(it){it.pendente=true;const k=ITENS.findIndex(i=>i.id===it.id);if
 function gravarVarios(arr){arr.forEach(gravar);render();sincronizar(false)}
 function encerrarAtiv(){const r=emAndamento();if(!r)return;const f=agoraHM();gravarVarios([{...r,fim:f,minutos:dur(r.inicio,f)}]);toast('ATIVIDADE ENCERRADA ÀS '+f)}
 function encerrarTurno(){
+  const J=jAberta();if(!J)return;const dia=diaItens(J.data),run=emAndamento(),t=totais(dia,run),av=[];
+  if(dia.length&&t.T<600)av.push('O TOTAL APONTADO É '+fmt(t.T)+' H (MENOS DE 10 HORAS).');
+  if(t.T>720)av.push('O TOTAL APONTADO É '+fmt(t.T)+' H (MAIS DE 12 HORAS).');
+  if(dia.length&&!dia.some(ehRefeicao))av.push('NÃO HÁ APONTAMENTO DE REFEIÇÃO.');
+  if(!av.length)return encerrarTurnoConf();
+  $('#modal').innerHTML=`<div class="fundo"><div class="modal"><h2>⚠ ATENÇÃO ANTES DE ENCERRAR</h2>
+  ${av.map(x=>`<div class="alerta am" style="font-size:13px">${x}</div>`).join('')}
+  <div class="info" style="text-align:left;margin:6px 0 0">CONFIRA SE ESTÁ TUDO CERTO. VOCÊ PODE VOLTAR E EDITAR OS APONTAMENTOS OU CONTINUAR O ENCERRAMENTO ASSIM MESMO.</div>
+  <button class="btn" style="margin-top:12px" onclick="fechar()">✎ EDITAR APONTAMENTOS</button>
+  <button class="btn verm" style="margin-top:8px" onclick="encerrarTurnoConf()">CONTINUAR ENCERRAMENTO</button></div></div>`;
+}
+function encerrarTurnoConf(){
   const J=jAberta();if(!J)return;const dia=diaItens(J.data),run=emAndamento(),t=totais(dia,run);
   $('#modal').innerHTML=`<div class="fundo"><div class="modal"><h2>ENCERRAMENTO DE TURNO — ${dataBR(J.data)}</h2><div class="tiles">${tiles(t)}</div>
   ${alertas(dia).map(([c,x])=>`<div class="alerta ${c}">${x}</div>`).join('')}
