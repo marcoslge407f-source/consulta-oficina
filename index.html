@@ -252,6 +252,7 @@ select.busca{padding:11px 10px;font-size:12.5px;font-weight:700;appearance:none;
 .ini-saud{position:relative;font-size:12px;font-weight:800;margin-top:16px;opacity:.92}
 .ini-hero h2{position:relative;font-size:27px;font-weight:900;letter-spacing:.3px;margin-top:2px;line-height:1.05}
 .ini-hero p{position:relative;font-size:10.5px;font-weight:800;opacity:.88;margin-top:4px;letter-spacing:.6px}
+.ini-ver{position:relative;margin-top:6px;font-size:9px;font-weight:800;opacity:.72;letter-spacing:.4px}
 .ini-data{position:relative;display:inline-block;margin-top:14px;font-size:10.5px;font-weight:900;background:rgba(0,0,0,.16);border-radius:10px;padding:6px 10px;letter-spacing:.4px}
 .ini-sec{font-size:10.5px;font-weight:900;color:var(--cinza);letter-spacing:1.4px;margin:20px 4px 9px}
 .ini-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -497,6 +498,7 @@ html.escuro .ap .obs{background:#0F1720}
       <h2>PCM AUTOMOTIVO</h2>
       <p>PLANEJAMENTO E CONTROLE DA MANUTENÇÃO</p>
       <div class="ini-data" id="ini-data"></div>
+      <div class="ini-ver" id="ini-ver"></div>
     </div>
 
     <div class="ini-sec">PAINEL DA OFICINA</div>
@@ -818,6 +820,16 @@ async function sincronizar(manual) {
   sincronizando = false; renderInicio();
 }
 
+/* horário da última versão publicada do aplicativo (lido do próprio site) */
+function mostraVer(iso) { const e = $('#ini-ver'); if (!e || !iso) return; const d = new Date(iso); if (isNaN(d)) return;
+  e.textContent = 'VERSÃO DO APLICATIVO · ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+let verLida = false;
+function versaoApp() {
+  try { mostraVer(localStorage.getItem('appVersao')); } catch (e) {}
+  if (verLida || !location.protocol.startsWith('http')) return; verLida = true;
+  fetch('index.html', { method: 'HEAD', cache: 'no-store' }).then(r => { const lm = r.headers.get('last-modified'); if (!lm) return;
+    const iso = new Date(lm).toISOString(); try { localStorage.setItem('appVersao', iso); } catch (e) {} mostraVer(iso); }).catch(() => { verLida = false; });
+}
 /* ================= NAVEGAÇÃO ================= */
 let pagAtual = 'inicio';
 function ir(p) {
@@ -868,6 +880,7 @@ function renderInicio() {
   const agora = new Date(), h = agora.getHours(), ontem = somaDia(hojeISO(), -1);
   const MES = ['JANEIRO','FEVEREIRO','MARÇO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
   $('#ini-saud').textContent = h < 12 ? 'BOM DIA' : h < 18 ? 'BOA TARDE' : 'BOA NOITE';
+  versaoApp();
   $('#ini-data').textContent = SEMANA[agora.getDay()] + ', ' + agora.getDate() + ' DE ' + MES[agora.getMonth()] + ' DE ' + agora.getFullYear();
   const ab = D.os.filter(o => o.SITUACAO === 'ABERTA'), lim7 = somaDia(hojeISO(), -7);
   $('#k-abertas').textContent = nfmt(ab.length);
