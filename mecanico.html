@@ -161,6 +161,8 @@ async function hash(s){const b=await crypto.subtle.digest('SHA-256',new TextEnco
 function faixa(p){return p<67?['RUIM','#D32F2F']:p<83?['BOM','#F2A900']:['ÓTIMO','#2E9D4A']}
 const nomeAtiv=a=>pad(a.codigo)+' - '+a.descricao;
 const ehRefeicao=i=>/REFEI/.test(i.atividade||'');
+const LIMITES=[{re:/REFEI/,max:60,nome:'REFEIÇÃO',txt:'1 HORA'},{re:/TROCA DE TURNO/,max:30,nome:'TROCA DE TURNO',txt:'30 MINUTOS'}];
+const limiteDe=at=>LIMITES.find(l=>l.re.test(at||''));
 function aplicarTema(){document.documentElement.classList.toggle('escuro',LS.get('tema','claro')==='escuro'||localStorage.getItem('tema')==='escuro')}
 aplicarTema();window.addEventListener('storage',aplicarTema);window.addEventListener('message',e=>{if(e.data==='tema')aplicarTema()});
 
@@ -468,7 +470,7 @@ function abrirForm(id){
   $('#fAtiv').onchange=()=>{const o=$('#fAtiv').selectedOptions[0];selAtiv(o?o.dataset.cat||'':'',$('#fAtiv').value);$('#fMsg').textContent=''};
   $('#fFrota').addEventListener('input',buscarFrota);frotaSel();
   $('#fFim').addEventListener('input',()=>{$('#fFim').dataset.auto=''});
-  $('#fIni').addEventListener('change',()=>{if($('#fFim').dataset.auto==='1')$('#fFim').value=somaHM($('#fIni').value,REFEICAO_MAX)});
+  $('#fIni').addEventListener('change',()=>{const l=limiteDe(FORM.atividade);if(l&&$('#fFim').dataset.auto==='1')$('#fFim').value=somaHM($('#fIni').value,l.max)});
   selAtiv(FORM.categoria,FORM.atividade);
 }
 function mascaraHora(el){el.addEventListener('input',()=>{const d=el.value.replace(/\D/g,'').slice(0,4);el.value=d.length>2?d.slice(0,2)+':'+d.slice(2):d})}
@@ -483,9 +485,9 @@ function selAtiv(cat,at){
   FORM.categoria=cat;FORM.atividade=at;const s=$('#fAtiv');s.style.borderColor=at?corCat(cat):'';s.style.color=at?corCat(cat):'';
   $('#fSt').innerHTML=at?`<div style="margin-top:6px"><span class="tag" style="background:${corCat(cat)}">${esc(cat)}</span></div>`:'';
   const a=ATIV.find(x=>nomeAtiv(x)===at);$('#fOS').classList.toggle('oculto',!(a&&a.pede_os)&&!FORM.frota);
-  const ref=ehRefeicao({atividade:at}),fF=$('#fFim'),fI=$('#fIni');const old=$('#fRef');if(old)old.remove();
-  if(ref){if(!fF.value||fF.dataset.auto==='1'){fF.value=somaHM(fI.value||agoraHM(),REFEICAO_MAX);fF.dataset.auto='1'}
-    fF.insertAdjacentHTML('afterend','<div id="fRef" style="font-size:10px;font-weight:800;color:#8A6100;margin-top:4px">REFEIÇÃO: 1 HORA (PODE SER MENOS, NUNCA MAIS)</div>')}
+  const lim=limiteDe(at),fF=$('#fFim'),fI=$('#fIni');const old=$('#fRef');if(old)old.remove();
+  if(lim){if(!fF.value||fF.dataset.auto==='1'){fF.value=somaHM(fI.value||agoraHM(),lim.max);fF.dataset.auto='1'}
+    fF.insertAdjacentHTML('afterend','<div id="fRef" style="font-size:10px;font-weight:800;color:#8A6100;margin-top:4px">'+lim.nome+': '+lim.txt+' (PODE SER MENOS, NUNCA MAIS)</div>')}
   else if(fF.dataset.auto==='1'){fF.value='';fF.dataset.auto=''}
 }
 function buscarFrota(){
@@ -542,6 +544,9 @@ function salvarForm(){
     if(o)return erro('SÓ PODE 1 REFEIÇÃO POR JORNADA. JÁ EXISTE: '+o.inicio+'–'+(o.fim||'…'));
     if(!fim)return erro('INFORME A HORA FIM DA REFEIÇÃO (MÁXIMO 1 HORA)');
     if(dur(ini,fim)>REFEICAO_MAX)return erro('A REFEIÇÃO NÃO PODE PASSAR DE 1 HORA ('+ini+' ATÉ NO MÁXIMO '+somaHM(ini,REFEICAO_MAX)+')')}
+  {const l=limiteDe(it.atividade);if(l&&!ehRefeicao(it)){
+    if(!fim)return erro('INFORME A HORA FIM DA '+l.nome+' (MÁXIMO '+l.txt+')');
+    if(dur(ini,fim)>l.max)return erro('A '+l.nome+' NÃO PODE PASSAR DE '+l.txt+' ('+ini+' ATÉ NO MÁXIMO '+somaHM(ini,l.max)+')')}}
   const oI=ordHM(ini),oF=fim?oI+dur(ini,fim):null,mudar=[];
   if(novo){const l=diaItens(data),u=l[l.length-1];
     if(u&&u.fim&&oI!==fimOrd(u))return erro('A HORA DE INÍCIO TEM QUE SER '+u.fim+' (FIM DA ATIVIDADE ANTERIOR)');
